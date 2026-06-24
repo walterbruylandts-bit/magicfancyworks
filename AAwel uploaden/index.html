@@ -1,0 +1,3434 @@
+<!-- Safe Plus cleaned version
+Changes:
+- whitespace cleanup
+- normalized line endings
+- removed obvious exact duplicate CSS lines
+- minor nested style safety normalization
+No JS logic changed.
+-->
+
+
+<!doctype html><html lang="nl">
+ <head>
+  <meta charset="UTF-8">
+  <meta name="color-scheme" content="light">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="MagicFancyworks - Handgemaakte patches en creaties. Bestel unieke, handgemaakte items online.">
+  <title>Magic Fancy Works - Handgemaakte Patches &amp; Creaties</title>
+
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;1,400;1,600&display=swap" rel="stylesheet">
+
+  <script>
+  (function() {
+    var lang = localStorage.getItem('preferredLang') || 'nl';
+    var locales = { nl: 'nl_NL', fr: 'fr_FR', en: 'en_US' };
+    var locale = locales[lang] || 'nl_NL';
+    var script = document.createElement('script');
+    script.src = 'https://www.sandbox.paypal.com/sdk/js?client-id=AdZcQjQbvKnYUVb4m524XZVH4BxnKUbcCDnwRPsuAN67hdTAhIyvpdOwaOTimnxzdWwUjNcH-0jQ-wMD&currency=EUR&intent=capture&locale=' + locale;
+    script.defer = true;
+    document.head.appendChild(script);
+  })();
+  </script>
+
+<style>
+    /* HIERONDER OOK ALS EXTRAVEILIGHEID DE CSS-IMPORT GEPLAATST */
+    @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;1,400;1,600&display=swap');
+
+    :root {
+        --primary-color: #059669;       /* Smaragdgroen voor accenten */
+        --primary-hover: #333333;       /* Diep paars bij hover */
+        --bg-light: #fdfbf7;            /* Warme, lichte vintage achtergrondkleur */
+        --card-bg: #ffffff;
+        --white: #ffffff;
+        --text-dark: #333333;           /* Tekstkleur passend bij het paars van het logo */
+        --error-color: #ef4444;
+        --success-color: #6a994e;
+        --warning-color: #d4820a;
+        --stitch-color: #059669;
+        --accent-red: #ef4444;
+        --accent-orange: #a0522d;
+        --accent-blue: #059669;
+    }
+
+    /* FORCEER WITTE ACHTERGROND IN WINKELMANDJE */
+    #cart-items { background: #ffffff !important; }
+    #cart-items > div { background: #ffffff !important; color: #1a2a3a !important; }
+    #cart-paypal-container { background: #ffffff !important; }
+    #cart-footer { border-top-color: #e4e4e7 !important; }
+
+    * {
+        box-sizing: border-box;
+    }
+
+    html, body {
+        min-height: 100vh;
+        background-image: url('https://pub-ad74d32a13e446fbba18cdb7e699f91b.r2.dev/background2.png');
+        background-size: cover;
+        background-position: center;
+        background-attachment: fixed; /* Zorgt dat de achtergrond rustig blijft staan tijdens het scrollen */
+        background-repeat: no-repeat;
+    }
+
+    body {
+        background-color: var(--bg-light); /* Veranderd van donkerblauw naar warm wit/crème */
+        margin: 0;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        color: var(--text-dark);
+        display: flex;
+        flex-direction: column;
+        min-height: 100vh;
+    }
+
+    header {
+        background: #E0C8D6; /* De zachtroze/paarse kleur uit je voorbeeld */
+        color: #333333;
+        padding: 14px 1.5rem;
+        min-height: 122px;
+        height: auto;
+        overflow: visible;
+        flex-shrink: 0;
+        border-bottom: 3px dashed #059669; /* Mooie handgemaakte 'stiksteek' onder de header */
+        box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+    }
+
+/* De definitieve correctie voor de header-indeling */
+
+.header-wrapper {
+    display: flex !important;
+    justify-content: space-between !important;
+    width: 100% !important;
+    max-width: none !important; /* Forceert de breedte */
+    margin: 0 !important;       /* Haalt de centrering weg */
+    padding: 0 16px !important;
+}
+
+/* Zorg dat de titel expliciet links uitgelijnd is */
+.header-wrapper h1,
+.header-wrapper .logo-container {
+    margin-left: 0 !important;
+    margin-right: auto !important;
+    text-align: left !important;
+}
+
+/* Zorg dat de knoppen/navigatie aan de rechterkant staan */
+.header-wrapper .nav-menu,
+.header-wrapper .cart-container {
+    margin-left: auto !important;
+    margin-right: 0 !important;
+    display: flex !important;
+    gap: 12px !important; /* Ruimte tussen winkelmandje en taalkeuze */
+}
+
+/* Zorg dat de linkerkant (titel) altijd links staat */
+
+
+.header-left {
+    display: flex !important;
+    flex-direction: row !important;
+    align-items: center !important;
+    gap: 14px !important;
+    padding-top: 6px !important;
+}
+
+.header-left img {
+    width: 138px !important;
+    height: 138px !important;
+    max-width: 138px !important;
+    max-height: 138px !important;
+    margin-top: 0;
+}
+
+/* Zorg dat de rechterkant (mandje/taal) altijd rechts staat */
+.header-right {
+    display: flex !important;
+    align-items: center !important;
+    gap: 15px !important;
+    margin-left: auto !important; /* Dit duwt de rechterkant weg van de titel */
+}
+/* Zorg dat de tekstblokken zelf geen eigen marges hebben die de uitlijning verstoren */
+.header-left .text-container {
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: center !important;
+}
+    header h1 {
+        color: #065f46;
+        margin: 0 0 4px 0;
+        font-size: 3rem;
+        font-family: 'Playfair Display', serif;
+        font-weight: 600;
+        letter-spacing: -0.025em;
+        text-align: left;
+    }
+
+    header p {
+        color: #065f46;
+        margin: 0;
+        font-family: 'Playfair Display', serif;
+        font-style: italic;
+    }
+
+    .shop-container {
+        max-width: 90vw;
+        margin: 1rem auto 1.5rem;
+        padding: 0 20px;
+        min-height: 50vh;
+        width: 100%;
+        flex: 1;
+    }
+
+    .shop-intro {
+        width: 95%;
+        margin: 0 auto 14px;
+        padding: 14px 16px;
+        border: 1px solid #dbe7e2;
+        border-radius: 14px;
+        background: rgba(255,255,255,0.82);
+        box-shadow: 0 6px 18px rgba(0,0,0,0.06);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+        backdrop-filter: blur(4px);
+        min-height: 92px;
+    }
+
+    .shop-intro-main {
+        min-width: 0;
+        flex: 1;
+    }
+
+    .shop-intro-title {
+        display: -webkit-box;
+        font-size: 1rem;
+        font-weight: 700;
+        color: #0f766e;
+        margin-bottom: 4px;
+        line-height: 1.2;
+        min-height: 2.4em;
+        max-height: 2.4em;
+        overflow: hidden;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+    }
+
+    .shop-intro-text {
+        margin: 0;
+        color: #334155;
+        line-height: 1.5;
+        font-size: 0.92rem;
+        min-height: 2.9em;
+        max-height: 2.9em;
+        overflow: hidden;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+    }
+
+    .shop-intro-chips {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: flex-end;
+        gap: 8px;
+        flex-shrink: 0;
+        align-self: stretch;
+        align-items: center;
+    }
+
+    .shop-chip {
+        display: inline-flex;
+        align-items: center;
+        padding: 7px 10px;
+        border-radius: 999px;
+        font-size: 0.78rem;
+        font-weight: 700;
+        line-height: 1;
+        background: #eaf7f1;
+        color: #0f766e;
+        white-space: nowrap;
+    }
+
+    .shop-chip-button {
+        border: 1px solid transparent;
+        cursor: pointer;
+        transition: transform 0.15s ease, box-shadow 0.15s ease, background-color 0.15s ease;
+    }
+
+    .shop-chip-button:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+    }
+
+    .shop-chip-button.active {
+        border-color: #059669;
+        box-shadow: 0 0 0 2px rgba(5,150,105,0.15);
+    }
+
+    .shop-chip.accent {
+        background: #e0f2fe;
+        color: #0369a1;
+    }
+
+    .shop-chip.neutral {
+        background: #f1f5f9;
+        color: #334155;
+    }
+
+/* --- DE NIEUWE BASIS --- */
+.shop-grid {
+    display: grid !important;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)) !important;
+    gap: 20px !important;
+    width: 95% !important;
+    margin: 0 auto !important; /* Centreert de grid mooi */
+    padding: 20px 0 !important;
+}
+/* --- Mobiele aanpassing (onder 500px) --- */
+@media (max-width: 500px) {
+    .shop-grid {
+        grid-template-columns: 1fr !important; /* Op mobiel altijd 1 kolom */
+    }
+}
+    .loading-message,
+    .error-message {
+        text-align: center;
+        padding: 3rem 1rem;
+        font-size: 1.1rem;
+    }
+
+    .error-message {
+        color: var(--error-color);
+    }
+
+    .retry-button {
+        background: var(--primary-color);
+        color: white;
+        border: none;
+        padding: 12px 24px;
+        border-radius: 10px;
+        cursor: pointer;
+        font-weight: bold;
+        margin-top: 1rem;
+        transition: background-color 0.3s ease;
+    }
+
+    .retry-button:hover {
+        background: var(--primary-hover);
+    }
+
+      .card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 15px 40px rgba(0,0,0,0.4);
+        border-color: var(--accent-orange);
+        outline-color: var(--accent-orange);
+    }
+
+    .card img {
+        width: 100%;
+        height: 180px;
+        object-fit: cover;
+        object-position: center center;
+        display: block;
+        border-radius: 8px;
+        margin-bottom: 10px;
+        background: #ffffff;
+    }
+
+    .card h3 {
+        color: var(--text-dark);
+        font-size: 1rem;
+        margin: 0.5rem 0 0.5rem 0;
+        line-height: 1.3;
+        height: 2.6rem;
+        overflow: hidden;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+    }
+
+    .card .price {
+        color: #059669;
+        margin: 0 0 6px 0;
+        font-size: 1rem;
+        font-weight: bold;
+    }
+
+    .card button {
+        background: var(--primary-color);
+        color: white;
+        border: 1px solid var(--accent-blue);
+        padding: 8px 16px;
+        border-radius: 4px;
+        cursor: pointer;
+        font-weight: bold;
+        font-size: 0.85rem;
+        transition: background-color 0.3s ease;
+        width: auto;
+        margin-top: auto;
+        min-height: auto;
+    }
+
+    .card button:hover:not(:disabled) {
+        background: var(--primary-hover);
+        transform: scale(1.02);
+    }
+
+    .card button:focus {
+        outline: 2px solid var(--white);
+        outline-offset: 2px;
+    }
+
+    .card button:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+    }
+
+    .modal {
+        display: none;
+        position: fixed;
+        z-index: 9999;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0,0,0,0.85);
+        justify-content: center;
+        align-items: center;
+        padding: 20px;
+        overflow-y: auto;
+    }
+
+    .modal.active {
+        display: flex;
+        align-items: flex-start;
+        padding-top: 20px;
+    }
+
+    .modal-content {
+        background: #fff;
+        width: 100%;
+        max-width: 1100px;
+        max-height: 86vh;
+        border-radius: 18px;
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        overflow: hidden;
+    }
+
+    .modal-body {
+        padding: 24px 26px 22px;
+        overflow: hidden;
+    }
+
+    .modal-image-container {
+        float: left;
+        width: 200px;
+        margin-right: 22px;
+        text-align: center;
+    }
+
+    .modal-image-container img {
+        width: 100%;
+        height: auto;
+        max-height: 250px;
+        object-fit: cover;
+        border-radius: 12px;
+        background: #ffffff;
+        border: 2px dashed #059669;
+    }
+
+    .modal-image-container img.error {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: linear-gradient(135deg, #e0e0e0, #f5f5f5);
+        color: #999;
+    }
+
+    #paypal-button-container {
+        width: 100%;
+        max-width: 200px;
+        min-height: auto;
+        padding: 0;
+        flex-shrink: 0;
+        opacity: 0.9;
+    }
+
+    #paypal-button-container iframe {
+        max-width: 100% !important;
+    }
+
+    .modal-details {
+        overflow: hidden;
+    }
+
+    .modal-details h2 {
+        margin: 0;
+        color: var(--text-dark);
+        flex-shrink: 0;
+        font-size: 1.12rem;
+    }
+
+    .modal-details .price {
+        font-size: 1rem;
+        font-weight: bold;
+        color: var(--primary-color);
+        margin: 0;
+        flex-shrink: 0;
+    }
+
+    .modal-summary {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        margin-top: 6px;
+    }
+
+    .modal-summary-top {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+        padding: 12px 14px;
+        border: 1px solid #dbe7e2;
+        border-radius: 12px;
+        background: #f8fbf9;
+    }
+
+    .modal-pill {
+        display: inline-flex;
+        align-self: flex-start;
+        padding: 4px 10px;
+        border-radius: 999px;
+        font-size: 0.72rem;
+        font-weight: 700;
+        line-height: 1;
+        letter-spacing: 0;
+        background: #eaf7f1;
+        color: #0f766e;
+    }
+
+    .modal-pill.physical {
+        background: #e0f2fe;
+        color: #0369a1;
+    }
+
+    .modal-brief {
+        margin: 0;
+        font-size: 0.92rem;
+        line-height: 1.5;
+        color: #334155;
+    }
+
+    .modal-facts {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 8px;
+    }
+
+    .modal-fact {
+        border: 1px solid #e2e8f0;
+        border-radius: 10px;
+        padding: 9px 10px;
+        background: #ffffff;
+    }
+
+    .modal-fact span {
+        display: block;
+        font-size: 0.72rem;
+        color: #64748b;
+        margin-bottom: 4px;
+        text-transform: uppercase;
+        letter-spacing: 0.02em;
+    }
+
+    .modal-fact strong {
+        display: block;
+        font-size: 0.92rem;
+        color: #0f172a;
+        line-height: 1.35;
+        word-break: break-word;
+    }
+
+    .modal-more {
+        border: 1px solid #dbe7e2;
+        border-radius: 10px;
+        background: #ffffff;
+        overflow: hidden;
+    }
+
+    .modal-more summary {
+        cursor: pointer;
+        list-style: none;
+        padding: 10px 12px;
+        font-weight: 700;
+        color: #0f766e;
+        background: #f8fbf9;
+    }
+
+    .modal-more summary::-webkit-details-marker {
+        display: none;
+    }
+
+    .modal-more-body {
+        padding: 10px 12px 12px;
+        color: #334155;
+        line-height: 1.6;
+        white-space: pre-wrap;
+    }
+
+    .scroll-area {
+        overflow-y: auto;
+        color: var(--text-dark);
+        line-height: 1.6;
+        flex: 1;
+        min-height: 0;
+        padding-right: 10px;
+        min-height: 100px;
+        width: 100%;
+        box-sizing: border-box;
+        word-wrap: break-word;
+        overflow-wrap: anywhere;
+        word-break: break-word;
+    }
+
+    .scroll-area::-webkit-scrollbar {
+        width: 8px;
+    }
+
+    .scroll-area::-webkit-scrollbar-track {
+        background: #f1f1f1;
+        border-radius: 4px;
+    }
+
+    .scroll-area::-webkit-scrollbar-thumb {
+        background: #888;
+        border-radius: 4px;
+    }
+
+    .scroll-area::-webkit-scrollbar-thumb:hover {
+        background: #555;
+    }
+
+    .close-button {
+        position: absolute;
+        right: 15px;
+        top: 15px;
+        font-size: 35px;
+        cursor: pointer;
+        background: #ffffff;
+        border: none;
+        color: var(--text-dark);
+        width: 44px;
+        height: 44px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 50%;
+        transition: background-color 0.3s ease;
+        z-index: 10;
+        min-width: 44px;
+        min-height: 44px;
+    }
+
+    .close-button:hover {
+        background-color: rgba(0,0,0,0.1);
+    }
+
+    .close-button:focus {
+        outline: 2px solid var(--primary-color);
+        outline-offset: 2px;
+    }
+
+    .payment-error {
+        color: var(--error-color);
+        text-align: center;
+        padding: 1rem;
+        background: #ffe6e6;
+        border-radius: 8px;
+        margin-top: 1rem;
+        border-left: 4px solid var(--error-color);
+    }
+
+    .payment-success {
+        color: var(--success-color);
+        text-align: center;
+        padding: 1rem;
+        background: #e8f8f5;
+        border-radius: 8px;
+        margin-top: 1rem;
+        border-left: 4px solid var(--success-color);
+    }
+
+    .payment-loading {
+        text-align: center;
+        padding: 1rem;
+        background: #e8f4f8;
+        border-radius: 8px;
+        margin-top: 1rem;
+        border-left: 4px solid #3498db;
+        color: #2980b9;
+    }
+
+    .spinner {
+        display: inline-block;
+        width: 20px;
+        height: 20px;
+        border: 3px solid rgba(108, 92, 231, 0.2);
+        border-top-color: var(--primary-color);
+        border-radius: 50%;
+        animation: spin 0.8s linear infinite;
+        margin-right: 10px;
+        vertical-align: middle;
+    }
+
+    @keyframes spin {
+        to { transform: rotate(360deg); }
+    }
+
+    @media (max-width: 1400px) {
+        header h1 {
+            font-size: 2.2rem;
+        }
+        header p {
+            font-size: 1.6rem !important;
+        }
+        header img {
+            height: 130px !important;
+            margin-top: 0 !important;
+        }
+        header {
+            height: auto !important;
+        }
+    }
+
+    @media (max-width: 850px) {
+        header {
+            height: auto;
+            padding: 8px;
+        }
+        header h1 {
+            font-size: 1.8rem;
+        }
+        header p {
+            font-size: 1rem !important;
+        }
+        header img {
+            height: 96px !important;
+            margin-top: 0 !important;
+        }
+        .modal-body {
+            overflow: hidden;
+        }
+        .modal-image-container,
+        .modal-details {
+            width: 100%;
+        }
+        .modal-image-container {
+            float: none;
+            width: 100%;
+        }
+        .modal-details {
+            width: 100%;
+        }
+        .modal-image-container img {
+            max-height: 150px;
+        }
+        .modal-content {
+            max-height: 92vh;
+            border-radius: 16px;
+        }
+        .modal-body {
+            padding: 18px 16px 16px;
+        }
+        .modal-image-container {
+            margin-right: 0;
+            margin-bottom: 14px;
+        }
+        .modal-details h2 {
+            font-size: 1.05rem;
+        }
+        .modal-details .price {
+            font-size: 0.95rem;
+        }
+        .modal-summary-top {
+            padding: 10px 12px;
+        }
+        .scroll-area {
+            max-height: 40vh;
+            min-height: 100px;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+        #paypal-button-container {
+            max-width: 100%;
+        }
+
+        .modal-facts {
+            grid-template-columns: 1fr;
+        }
+
+        .modal-more summary,
+        .modal-more-body {
+            font-size: 0.92rem;
+        }
+
+        .shop-intro {
+            width: 95%;
+            padding: 11px 13px;
+            flex-direction: column;
+            align-items: flex-start;
+        }
+
+        .shop-intro-chips {
+            justify-content: flex-start;
+        }
+    }
+
+    @media (max-width: 500px) {
+        /* DIT IS HET STUKJE DAT JE MOET AANPASSEN/TOEVOEGEN: */
+        .shop-grid {
+            grid-template-columns: 1fr !important; /* Eén kolom op mobiel */
+            justify-content: start !important;     /* Dwingt items naar links */
+            margin-left: 2.5% !important;          /* Zorgt voor de linkermarge */
+            width: 95% !important;                 /* Zorgt dat hij niet buiten het scherm valt */
+        }
+        .shop-intro {
+            width: 95%;
+            margin-left: 2.5%;
+            margin-right: 0;
+        }
+        header {
+            height: auto;
+            padding: 1rem;
+        }
+        header > div {
+            flex-direction: column;
+            align-items: center;
+        }
+        header > div > div:first-child {
+            flex-direction: column;
+            align-items: center;
+            gap: 5px;
+        }
+        header img {
+            height: 90px !important;
+            margin-top: 0 !important;
+        }
+        header h1 {
+            color: #333333;
+            font-size: 1.8rem;
+        }
+        header p {
+            font-size: 1rem;
+        }
+        .modal {
+            padding: 10px;
+        }
+        .modal-content {
+            max-height: 95vh;
+        }
+        .modal-body {
+            padding: 20px;
+            gap: 20px;
+        }
+        .card button {
+            padding: 15px 20px;
+        }
+        .close-button {
+            width: 50px;
+            height: 50px;
+            min-width: 50px;
+            min-height: 50px;
+        }
+    }
+
+    .image-overlay {
+        display: none;
+        position: fixed;
+        z-index: 99999;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0,0,0,0.9);
+        justify-content: center;
+        align-items: center;
+        cursor: pointer;
+    }
+    .image-overlay.active {
+        display: flex;
+    }
+    .image-overlay img {
+        max-width: 90vw;
+        max-height: 90vh;
+        object-fit: contain;
+        border-radius: 8px;
+    }
+    .view-image-btn {
+        background: var(--primary-color);
+        color: white;
+        border: 2px dashed var(--accent-blue);
+        padding: 6px 12px;
+        border-radius: 6px;
+        cursor: pointer;
+        font-size: 12px;
+        font-weight: 600;
+        width: 100%;
+    }
+    .view-image-btn:hover {
+        background: var(--primary-hover);
+    }
+    .thumb-row {
+        display: flex;
+        gap: 6px;
+        flex-wrap: wrap;
+        justify-content: center;
+        margin-top: 6px;
+    }
+    .thumb-row img {
+        width: 45px;
+        height: 45px;
+        object-fit: cover;
+        border-radius: 4px;
+        border: 2px solid #ddd;
+        cursor: pointer;
+        transition: border-color 0.2s;
+    }
+    .thumb-row img:hover,
+    .thumb-row img.active {
+        border-color: #059669;
+    }
+    .kleur-keuze-container {
+        margin-top: 8px;
+        text-align: center;
+    }
+    .kleur-keuze-label {
+        display: inline-block;
+        background: #059669;
+        color: #ffffff;
+        font-size: 12px;
+        font-weight: 700;
+        padding: 4px 12px;
+        border-radius: 6px;
+        margin-bottom: 6px;
+        font-style: normal;
+        text-transform: uppercase;
+        letter-spacing: 0.3px;
+    }
+    .kleur-keuze-buttons {
+        display: flex;
+        gap: 4px;
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+    .kleur-btn {
+        padding: 3px 10px;
+        border: 2px solid #ddd;
+        border-radius: 12px;
+        cursor: pointer;
+        font-size: 11px;
+        font-weight: 600;
+        background: #fff;
+        color: #1a2a3a;
+        transition: all 0.2s;
+    }
+    .kleur-btn:hover {
+        border-color: #059669;
+    }
+    .kleur-btn.active {
+        border-color: #059669;
+        color: #ffffff !important;
+        background: #059669 !important;
+
+    }
+    .kleur-verplicht {
+        font-size: 10px;
+        color: #ef4444;
+        margin-top: 2px;
+    }
+    .keuze-select {
+        width: 100%;
+        padding: 8px 10px;
+        border: 2px solid #ddd;
+        border-radius: 8px;
+        font-size: 13px;
+        color: #1a2a3a;
+        background: #fff;
+        margin-top: 4px;
+        margin-bottom: 8px;
+        cursor: pointer;
+        font-family: inherit;
+    }
+    .keuze-select:focus {
+        outline: 2px solid #059669;
+        border-color: #059669;
+    }
+    #cart-paypal-container iframe {
+    background: #ffffff !important;
+    background-color: #ffffff !important;
+}
+</style>
+ <link rel="stylesheet" href="v4-theme.css">
+ <style>
+   .payment-success { background: #e8f8f5 !important; color: #6a994e !important; }
+   .payment-success h3, .payment-success p { color: #6a994e !important; }
+   <style>
+/* ==========================================================================
+   MAGICFANCY WORKS - WINKELWAGEN & POPUP STYLING CORRECTIES
+   ========================================================================== */
+
+/* 1. Forceer de achtergrond en tekstkleur van de winkelwagen sidebar */
+#cart-sidebar {
+    background-color: #ffffff !important;
+    color: #1a2a3a !important;
+}
+
+/* 2. Zorg dat dynamisch gegenereerde items ALTIJD een witte achtergrond en donkere tekst hebben */
+#cart-items,
+#cart-items > div,
+#cart-footer,
+#cart-paypal-container {
+    background-color: #ffffff !important;
+    color: #1a2a3a !important;
+}
+
+/* Correctie voor de specifieke inline stijlen van de product-rijen in de winkelwagen */
+#cart-items div small {
+    color: #4b5563 !important;
+}
+
+/* 3. Styling voor de PayPal/Checkout status meldingen */
+.payment-loading,
+.payment-error,
+.payment-success {
+    border-radius: 8px;
+    margin: 10px 0;
+    padding: 12px !important;
+    font-size: 14px;
+    text-align: center;
+}
+
+/* Loading status */
+.payment-loading {
+    background-color: #f4f4f5 !important;
+    color: #1a2a3a !important;
+}
+
+/* Succesmelding (Groene achtergrond, witte tekst) */
+.payment-success {
+    background-color: #065f46 !important;
+    color: #ffffff !important;
+    border: 1px solid #047857;
+}
+
+.payment-success h3,
+.payment-success p {
+    color: #ffffff !important;
+    margin: 4px 0 !important;
+}
+
+/* Foutmelding (Rode achtergrond) */
+.payment-error {
+    background-color: #fef2f2 !important;
+    color: #991b1b !important;
+    border: 1px solid #fca5a5;
+}
+
+/* 4. Selectmenu voor het verzendland */
+#cart-country {
+    background-color: #ffffff !important;
+    color: #1a2a3a !important;
+    border: 2px solid #e4e4e7 !important;
+}
+
+#cart-country option {
+    background-color: #ffffff !important;
+    color: #1a2a3a !important;
+}
+</style>
+ </style>
+ <style>
+/* ==========================================================================
+   MAGICFANCY WORKS - HARDNEKKIGE GROENE BALKEN CORRECTIE
+   ========================================================================== */
+
+/* 1. Dit dwingt de rij van het product (zoals Baby Boy) om ALTIJD wit te zijn met donkere tekst */
+#cart-items div,
+#cart-items > div[style] {
+    background-color: #ffffff !important;
+    background: #ffffff !important;
+    color: #1a2a3a !important;
+}
+
+/* Zorg dat de productnaam en de prijs (die nu groen op groen staan) goed leesbaar donker worden */
+#cart-items div strong,
+#cart-items div small {
+    color: #1a2a3a !important;
+}
+
+/* 2. Dit pakt de achtergrond van de PayPal-container aan zodat die niet groen uitslaat */
+#cart-paypal-container,
+#cart-paypal-container div {
+    background-color: #ffffff !important;
+    background: #ffffff !important;
+}
+
+/* 3. Algemene opfris voor de hele sidebar */
+#cart-sidebar {
+    background-color: #ffffff !important;
+    color: #1a2a3a !important;
+}
+
+#cart-footer {
+    background-color: #ffffff !important;
+    color: #1a2a3a !important;
+}
+
+/* 4. Styling voor succes- en foutmeldingen na betaling */
+.payment-success {
+    background-color: #065f46 !important;
+    color: #ffffff !important;
+    padding: 12px !important;
+    border-radius: 8px;
+}
+.payment-error {
+    background-color: #fef2f2 !important;
+    color: #991b1b !important;
+    padding: 12px !important;
+    border-radius: 8px;
+    border: 1px solid #fca5a5;
+}
+/* Verberg het dubbele, hardnekkige groene blok aan de linkerkant */
+#cart-items div button + div,
+#cart-items > div > div:first-child:not([style*="color"]) {
+    display: none !important;
+}
+
+/* Zorg dat onze nieuwe, schone tekst de volledige breedte krijgt en niet wordt weggedrukt */
+#cart-items div {
+    background: #ffffff !important;
+    background-color: #ffffff !important;
+}
+
+/* Trek de PayPal-knopruimte onderin ook meteen helemaal strak naar wit */
+#cart-paypal-container {
+    background: #ffffff !important;
+    background-color: #ffffff !important;
+}
+#cart-paypal-container * {
+    background-color: transparent !important;
+}
+
+/* Maak de logo-container vierkant en forceer uitlijning */
+/*.header-left .logo-container {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+}
+
+/* Zorg dat de tekst ernaast in het midden blijft staan */
+.header-left {
+    display: flex !important;
+    align-items: center !important;
+}
+
+.header-left h1 {
+    color: #065f46 !important;
+    margin: 0 !important;
+    line-height: 1 !important;
+}
+
+.header-left img {
+    width: 160px !important;
+    height: 160px !important;
+    max-width: 160px !important;
+    max-height: 160px !important;
+}
+
+/* 1. Titels donkergrijs */
+#productModal h2,
+#productModal .product-title {
+    color: #333333 !important;
+}
+
+/* 2. Prijs groen */
+#productModal .price {
+    color: #059669 !important;
+}
+
+/* 3. Knoppen expliciet wit houden */
+#productModal button,
+#productModal .btn,
+#productModal .color-choice-label {
+    color: #ffffff !important;
+}
+
+/* 1. Forceer alle tekst in de popup naar zwart */
+#productModal,
+#productModal .product-description,
+#productModal .description-text,
+#productModal p,
+#productModal div {
+    color: #333333 !important;
+}
+
+/* 2. Houd de prijs specifiek groen */
+#productModal .price {
+    color: #059669 !important;
+}
+
+/* 3. Houd de knoppen wit (tekst) */
+#productModal button,
+#productModal .btn,
+#productModal .color-choice-label {
+    color: #ffffff !important;
+}
+
+/* 4. Forceer het sluit-kruisje naar zwart */
+#productModal .modal-close,
+#productModal .close {
+    color: #333333 !important;
+    background-color: transparent !important;
+}
+/* Forceer de kleur van alles binnen het modal-venster naar zwart */
+#productModal,
+#productModal * {
+    color: #333333 !important;
+}
+
+/* Herstel de prijs naar groen */
+#productModal .price {
+    color: #059669 !important;
+}
+
+/* Herstel de tekst in de knoppen naar wit */
+#productModal .btn,
+#productModal button,
+#productModal .color-choice-label {
+    color: #ffffff !important;
+}
+/* Stap 1: Reset alles in de popup naar zwart en forceer dit */
+#productModal,
+#productModal * {
+    color: #333333 !important;
+    background-color: transparent !important;
+    text-shadow: none !important;
+}
+
+/* Stap 2: Herstel specifiek de prijs naar groen */
+#productModal .price {
+    color: #059669 !important;
+}
+
+/* Stap 3: Herstel specifiek de knoppen naar wit */
+#productModal .btn,
+#productModal button,
+#productModal .color-choice-label,
+#productModal .add-to-cart {
+    color: #ffffff !important;
+    background-color: #059669 !important; /* Forceer de groene achtergrond van de knop */
+}
+
+/* Stap 4: Maak het kruisje expliciet zwart en goed zichtbaar */
+#productModal .modal-close,
+#productModal .close {
+    color: #333333 !important;
+    opacity: 1 !important;
+}
+/* 1. Zorg dat de header en de shop-inhoud dezelfde maximale breedte hebben en links uitgelijnd zijn */
+.header-wrapper,
+.shop-container {
+    max-width: 90vw !important; /* Pas dit getal aan als je site breder moet zijn */
+    margin-left: auto !important;
+    margin-right: auto !important; /* Hiermee centreer je de 'blokken' in het midden, OF... */
+    padding: 0 20px !important;
+}
+
+/* 2. WIL JE ALLES ECHT LINKS? Gebruik dan dit in plaats van margin: auto */
+.header-wrapper,
+.shop-container {
+    margin-left: 0 !important;
+    margin-right: auto !important;
+}
+
+/* 3. Zorg dat de header-wrapper zijn elementen netjes verdeelt */
+.header-wrapper {
+    display: flex !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+    width: 100% !important;
+}
+
+/* 1. Zorg dat de wrapper de volle breedte pakt */
+.header-wrapper {
+    display: flex !important;
+    justify-content: space-between !important; /* Logo links, rechterkant rechts */
+    align-items: center !important;
+    width: 100% !important; /* Dwingt hem over de hele breedte */
+    max-width: 100% !important;
+    padding: 0 40px !important; /* Voegt een beetje lucht aan de zijkanten toe */
+    box-sizing: border-box !important; /* Zorgt dat de padding niet zorgt voor scrollbalken */
+}
+
+/* 2. Zorg dat de rechterkant niet "gecentreerd" blijft staan */
+.header-right {
+    display: flex !important;
+    justify-content: flex-end !important; /* Dwingt alles naar uiterst rechts */
+    align-items: center !important;
+    flex-grow: 0 !important;
+}
+
+/* 1. Forceer de kaarten naar een vaste breedte en gelijke grootte */
+/* --- DEFINITIEVE .card STIJL --- */
+
+.card:hover {
+    box-shadow: 0 10px 20px rgba(0,0,0,0.15) !important;
+}
+
+/* 2. Dwing de afbeeldingen naar een gelijke hoogte */
+.card img {
+    width: 100% !important;
+    aspect-ratio: 1 / 1 !important;
+    height: auto !important;
+    min-height: 190px !important;
+    object-fit: contain !important;
+    object-position: center center !important;
+    display: block !important;
+    border-radius: 14px !important;
+    background: linear-gradient(180deg, rgba(5,150,105,0.04), rgba(5,150,105,0.01)) !important;
+    padding: 12px !important;
+    box-sizing: border-box !important;
+    box-shadow: 0 10px 20px rgba(15, 23, 42, 0.08) !important;
+    border: 1px solid rgba(228,228,231,0.65) !important;
+}
+
+/* Dwingt de achtergrond van het mandje naar wit en verbiedt groen */
+#cart-items,
+#cart-items * {
+    background-color: #ffffff !important;
+    background: #ffffff !important;
+}
+/*.logo-container img {
+    width: 120px !important;
+    height: 120px !important;
+    border-radius: 50% !important; /* Dit maakt het rond */
+ /*   object-fit: cover !important;  /* Dit voorkomt dat het logo vervormt */
+}
+
+/* --- DEFINITIEVE .card STIJL (Alles in één) --- */
+.card {
+    display: flex !important;
+    flex-direction: column !important;
+    width: 100% !important;
+    min-height: 380px !important;
+    overflow: visible !important;
+    position: relative !important;
+
+    /* Vormgeving */
+    background: #ffffff !important;
+    border: 1px solid #cce9df !important;
+    border-radius: 12px !important;
+    padding: 10px !important;
+    box-sizing: border-box !important;
+
+    /* Schaduw voor het zweef-effect */
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1) !important;
+
+    /* Animatie instellingen */
+    transition: all 0.3s ease !important;
+    gap: 0 !important;
+}
+
+.card:hover {
+    /* "Zweven" bij muis erover */
+    transform: translateY(-5px) !important;
+    box-shadow: 0 12px 24px rgba(0,0,0,0.2) !important;
+    border-color: #059669 !important; /* Optioneel: rand wordt groen bij hover */
+}
+
+.card-type {
+    display: inline-flex;
+    align-self: flex-start;
+    margin: 2px 0 8px 0;
+    padding: 4px 10px;
+    border-radius: 999px;
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0;
+    line-height: 1;
+    background: #eaf7f1;
+    color: #0f766e;
+}
+
+.card-type.physical {
+    background: #e0f2fe;
+    color: #0369a1;
+}
+
+</style>
+
+</head>
+<body>
+  <header>
+   <div class="header-wrapper">
+
+    <div class="header-left">
+    <img
+  src="/logo.png"
+  alt="Magic Fancy Works"
+  style="
+    width:180px;
+    height:180px;
+    object-fit:contain;
+    flex-shrink:0;
+  "
+>
+    
+     <div>
+      <h1>Magic Fancy Works</h1>
+      <p style="font-family: 'Playfair Display', serif; font-style: italic; color: #065f46; font-size: 1.25rem; text-align: left;">Cute Handmade Patches &amp; Creations</p>
+     </div>
+    </div>
+
+    <div class="header-right">
+     <button id="cart-btn" onclick="openCart()" style="position:relative;background:#ffffff;color:#333333;border:2px solid #ffffff;padding:10px 18px;border-radius:12px;cursor:pointer;font-size:20px;font-weight:700;box-shadow:0 4px 12px rgba(0,0,0,0.1);display:flex;align-items:center;transition:all 0.2s;">
+       🛒 <span id="cart-count" style="position:absolute;top:-8px;right:-8px;background:#ef4444;color:white;border-radius:50%;width:22px;height:22px;font-size:12px;display:none;align-items:center;justify-content:center;font-weight:800">0</span>
+     </button>
+
+     <div id="lang-switcher" style="display:flex;gap:6px">
+       <button onclick="setLang('nl')" class="lang-btn active" data-lang="nl" style="padding:6px 12px;border:2px solid #ffffff;border-radius:8px;cursor:pointer;font-size:13px;background:#ffffff;color:#059669;font-weight:700;box-shadow:0 4px 12px rgba(0,0,0,0.05)">NL</button>
+       <button onclick="setLang('fr')" class="lang-btn" data-lang="fr" style="padding:6px 12px;border:2px solid #ffffff;border-radius:8px;cursor:pointer;font-size:13px;background:transparent;color:#ffffff;font-weight:700">FR</button>
+       <button onclick="setLang('en')" class="lang-btn" data-lang="en" style="padding:6px 12px;border:2px solid #ffffff;border-radius:8px;cursor:pointer;font-size:13px;background:transparent;color:#ffffff;font-weight:700">EN</button>
+     </div>
+   </div>
+
+   </div>
+  </header>
+  <main class="shop-container">
+   <section class="shop-intro" aria-label="Shop uitleg">
+    <div class="shop-intro-main">
+     <span id="shopIntroTitle" class="shop-intro-title"></span>
+     <p id="shopIntroText" class="shop-intro-text"></p>
+    </div>
+    <div class="shop-intro-chips">
+     <button id="shopIntroChip1" class="shop-chip shop-chip-button" type="button" data-filter="digital"></button>
+     <button id="shopIntroChip2" class="shop-chip shop-chip-button accent" type="button" data-filter="physical"></button>
+     <button id="shopIntroChip3" class="shop-chip shop-chip-button neutral" type="button" data-filter="all"></button>
+    </div>
+   </section>
+   <div id="shop-grid" class="shop-grid"></div>
+  </main>
+  <div id="cart-sidebar" style="display:none;position:fixed;top:0;right:0;width:350px;height:100%;background:#fff;color:#1a2a3a;z-index:99998;box-shadow:-5px 0 20px rgba(0,0,0,0.5);flex-direction:column">
+  <div style="padding:15px;background:#059669;color:#ffffff;display:flex;justify-content:space-between;align-items:center"><h3 style="margin:0">🛒 Winkelmandje</h3><button onclick="closeCart()" style="background:none;border:none;color:#ffffff;font-size:24px;cursor:pointer">✕</button></div>
+  <div id="cart-items" style="flex:1;overflow-y:auto;padding:15px;background:#ffffff;"></div>
+  <div id="cart-footer" style="padding:15px;border-top:2px solid #e4e4e7;text-align:center"></div><div id="cart-paypal-container" style="padding:0 15px 15px;background:#ffffff;"></div>
+  </div>
+  <div id="productModal" class="modal" role="dialog" aria-labelledby="modalTitle" aria-modal="true">
+   <div class="modal-content">
+    <button class="close-button" id="closeModalBtn" aria-label="Sluit popup">×</button>
+<div class="modal-body">
+  <div class="modal-image-container" style="display:inline-block;width:200px;vertical-align:top;text-align:center;margin-right:30px">
+    <img id="modalImage" alt="" loading="lazy">
+
+    <button class="view-image-btn" onclick="openImageOverlay()">
+      <span id="viewLargerText">🔍 Bekijk groter beeld</span>
+    </button>
+
+    <div id="thumbRow" class="thumb-row"></div>
+
+    <div id="kleur-keuze-container" class="kleur-keuze-container" style="display:none;">
+      <div id="kleur-keuze-label" class="kleur-keuze-label"></div>
+      <div id="kleur-keuze-buttons" class="kleur-keuze-buttons"></div>
+      <div id="kleur-verplicht" class="kleur-verplicht" style="display:none;">
+        Kies een kleur
+      </div>
+    </div>
+
+    <div id="popup-add-to-cart" style="margin-top:8px;text-align:center;">
+      <button id="popup-add-btn"
+              onclick="addToCartFromPopup()"
+              style="background:#059669;color:white;border:none;padding:8px 16px;border-radius:8px;cursor:pointer;font-weight:700;font-size:13px;width:100%;">
+      </button>
+      <div id="popup-add-confirmation" style="display:none;margin-top:6px;font-size:12px;font-weight:700;color:#0f766e;"></div>
+    </div>
+
+    <div id="popup-video-container" style="display:none;margin-top:8px;">
+      <video id="popup-video"
+             controls
+             playsinline
+             style="width:100%;max-width:200px;border-radius:8px;border:1px solid #e4e4e7;">
+        <source id="popup-video-source" type="video/mp4">
+      </video>
+    </div>
+
+    <div id="paypal-button-container" style="display:none"></div>
+
+    <p id="deliveryNotice"
+       style="font-size:12px;color:#059669;margin-top:8px;text-align:center;font-weight:600">
+      ⏳ Digitale bestanden worden binnen 24 uur per email bezorgd na goedkeuring.
+    </p>
+  </div>
+<div class="modal-details"
+       style="display:inline-block;vertical-align:top;width:calc(100% - 240px);overflow-y:auto;max-height:70vh">
+
+    <h2 id="modalTitle"></h2>
+
+    <p class="price" id="modalPrice"></p>
+
+    <div id="modalDescription" class="scroll-area"></div>
+
+</div>
+</div>
+</div>
+</div>
+</div>
+
+<script defer>
+// Translation system
+let currentLang = 'nl';
+const translations = {
+    nl: {
+      subtitle: 'Cute Handmade Patches & Creations',
+      shopIntroTitle: 'Producten kiezen',
+      shopIntroText: 'Klik op Info voor details. Digitale en fysieke producten staan apart vermeld, zodat je sneller kunt kiezen.',
+      shopChip1: 'Digitale downloads',
+      shopChip2: 'Fysieke verzending',
+      shopChip3: 'Alles tonen',
+      physicalNotice: '⏳ Fysieke producten worden binnen 10 werkdagen verzonden na goedkeuring.',
+    deliveryNotice: '⏳ Digitale bestanden worden binnen 72 uur per email bezorgd na goedkeuring.',
+    viewLarger: '🔍 Bekijk groter beeld',
+    back: 'Terug',
+    loadingDesc: 'Beschrijving laden... (vertaling kan even duren)',
+    loadingPaypal: 'PayPal laden...',
+    processing: 'Betaling verwerken...',
+    thankYou: 'Bedankt',
+    paymentSuccess: 'Je betaling is succesvol verwerkt.',
+    paymentFailed: 'Betaling kon niet worden afgerond.',
+    paymentError: 'Betaling kon niet worden verwerkt.',
+    paymentCancelled: 'Betaling geannuleerd. Je bent niet afgerekend.',
+    paymentMislukt: 'Betaling mislukt. Controleer je gegevens en probeer opnieuw.',
+    mixedOrderNotAllowed: 'Digitale en fysieke producten kun je niet in dezelfde bestelling plaatsen. Splits deze in twee aparte bestellingen.',
+    closePopup: 'Sluit popup',
+    footerContact: 'Contact',
+    footerVoorwaarden: 'Algemene Voorwaarden',
+    footerPrivacy: 'Privacybeleid',
+    footerCookies: 'Cookiebeleid',
+    footerBTW: 'BTW-nummer: BE0500363711 | Bijzondere vrijstellingsregeling kleine ondernemingen - art. 56bis WBTW | Digitale producten per email. Fysieke producten binnen 10 werkdagen verzonden.',
+    cartTitle: 'Winkelmandje',
+    cartEmpty: 'Mandje is leeg',
+    cartTotal: 'Totaal',
+    cartPay: 'Betaal',
+    cartRemove: 'Verwijder',
+    kleurKeuze: 'Kleurkeuze (niet bij elk item van toepassing)',
+    kleurVerplicht: 'Kies een kleur',
+    toevoegen: '🛒 Toevoegen aan mandje',
+    checkoutPaypal: 'Door naar PayPal...',
+    shippingCountry: 'Verzendland (schatting)',
+    shippingNote: 'Exacte verzendkosten worden bevestigd bij afrekenen',
+    productsLabel: 'Producten',
+    shippingCostLabel: 'Verzendkosten',
+    totalLabel: 'Totaal',
+    addedToCart: 'Toegevoegd aan winkelmandje',
+  },
+    fr: {
+      subtitle: 'Cute Handmade Patches & Créations',
+      shopIntroTitle: 'Choisir les produits',
+      shopIntroText: 'Cliquez sur Info pour les détails. Les produits numériques et physiques sont indiqués séparément pour choisir plus vite.',
+      shopChip1: 'Téléchargements numériques',
+      shopChip2: 'Expédition physique',
+      shopChip3: 'Tout afficher',
+      physicalNotice: '⏳ Les produits physiques seront expédiés sous 10 jours ouvrables après approbation.',
+    deliveryNotice: '⏳ Les fichiers numériques seront livrés par email dans les 72 heures après approbation.',
+    viewLarger: '🔍 Voir en grand',
+    back: 'Retour',
+    loadingDesc: 'Chargement... (la traduction peut prendre un moment)',
+    loadingPaypal: 'Chargement PayPal...',
+    processing: 'Traitement du paiement...',
+    thankYou: 'Merci',
+    paymentSuccess: 'Votre paiement a été traité avec succès.',
+    paymentFailed: 'Le paiement n\'a pas pu être finalisé.',
+    paymentError: 'Le paiement n\'a pas pu être traité.',
+    paymentCancelled: 'Paiement annulé. Vous n\'avez pas été débité.',
+    paymentMislukt: 'Paiement échoué. Vérifiez vos données et réessayez.',
+    mixedOrderNotAllowed: 'Vous ne pouvez pas mélanger produits numériques et physiques dans la même commande. Séparez-les en deux commandes distinctes.',
+    closePopup: 'Fermer la popup',
+    footerContact: 'Contact',
+    footerVoorwaarden: 'Conditions Generales',
+    footerPrivacy: 'Confidentialite',
+    footerCookies: 'Cookies',
+    footerBTW: 'TVA : BE0500363711 | Régime de franchise taxale petites entreprises - art. 56bis CTV | Produits numériques par email. Produits physiques expédiés sous 10 jours ouvrables.',
+    cartTitle: 'Panier',
+    cartEmpty: 'Le panier est vide',
+    cartTotal: 'Total',
+    cartPay: 'Payer',
+    cartRemove: 'Supprimer',
+    kleurKeuze: 'Choix de couleur (ne s\'applique pas à chaque article)',
+    kleurVerplicht: 'Choisissez une couleur',
+    toevoegen: '🛒 Ajouter au panier',
+    checkoutPaypal: 'Vers PayPal...',
+    shippingCountry: 'Pays de livraison (estimation)',
+    shippingNote: 'Les frais d\'expédition exacts seront confirmés lors du paiement',
+    productsLabel: 'Produits',
+    shippingCostLabel: 'Frais de port',
+    totalLabel: 'Total',
+    addedToCart: 'Ajouté au panier',
+  },
+    en: {
+      subtitle: 'Cute Handmade Patches & Creations',
+      shopIntroTitle: 'Choose products',
+      shopIntroText: 'Click Info for details. Digital and physical products are shown separately so you can choose faster.',
+      shopChip1: 'Digital downloads',
+      shopChip2: 'Physical shipping',
+      shopChip3: 'Show all',
+      physicalNotice: '⏳ Physical products will be shipped within 10 business days after approval.',
+    deliveryNotice: '⏳ Digital files will be delivered by email within 72 hours after approval.',
+    viewLarger: '🔍 View larger image',
+    back: 'Back',
+    loadingDesc: 'Loading... (translation may take a moment)',
+    loadingPaypal: 'Loading PayPal...',
+    processing: 'Processing payment...',
+    thankYou: 'Thank you',
+    paymentSuccess: 'Your payment has been processed successfully.',
+    paymentFailed: 'Payment could not be completed.',
+    paymentError: 'Payment could not be processed.',
+    paymentCancelled: 'Payment cancelled. You have not been charged.',
+    paymentMislukt: 'Payment failed. Please check your details and try again.',
+    mixedOrderNotAllowed: 'Digital and physical products cannot be placed in the same order. Please split them into two separate orders.',
+    closePopup: 'Close popup',
+    footerContact: 'Contact',
+    footerVoorwaarden: 'Terms & Conditions',
+    footerPrivacy: 'Privacy Policy',
+    footerCookies: 'Cookies',
+    footerBTW: 'VAT: BE0500363711 | Small business VAT exemption scheme - art. 56bis VAT Code | Digital products by email. Physical products shipped within 10 business days.',
+    cartTitle: 'Shopping Cart',
+    cartEmpty: 'Cart is empty',
+    cartTotal: 'Total',
+    cartPay: 'Pay',
+    cartRemove: 'Remove',
+    kleurKeuze: 'Color choice (does not apply to every item)',
+    kleurVerplicht: 'Choose a color',
+    toevoegen: '🛒 Add to cart',
+    checkoutPaypal: 'Proceeding to PayPal...',
+    shippingCountry: 'Shipping country (estimate)',
+    shippingNote: 'Exact shipping costs will be confirmed at checkout',
+    productsLabel: 'Products',
+    shippingCostLabel: 'Shipping costs',
+    totalLabel: 'Total',
+    addedToCart: 'Added to cart',
+  }
+};
+
+function t(key) {
+  return translations[currentLang][key] || translations['nl'][key] || key;
+}
+
+function getProductTypeLabel(type) {
+  if (type === 'physical') {
+    return currentLang === 'fr' ? 'Physique' : currentLang === 'en' ? 'Physical' : 'Fysiek';
+  }
+  return currentLang === 'fr' ? 'Numérique' : currentLang === 'en' ? 'Digital' : 'Digitaal';
+}
+
+function getDeliverySummary(type) {
+  if (type === 'physical') {
+    return currentLang === 'fr' ? '10 jours ouvrables' : currentLang === 'en' ? '10 business days' : '10 werkdagen';
+  }
+  return currentLang === 'fr' ? '72 heures' : currentLang === 'en' ? '72 hours' : '72 uur';
+}
+
+function getShortDescription(text) {
+  const cleaned = (text || '').replace(/\s+/g, ' ').trim();
+  if (!cleaned) return '';
+  if (cleaned.length <= 220) return cleaned;
+  const sentenceMatch = cleaned.slice(0, 260).match(/^(.{1,220}[.!?])(\s|$)/);
+  if (sentenceMatch && sentenceMatch[1]) return sentenceMatch[1];
+  return cleaned.slice(0, 220).trim() + '…';
+}
+
+function getModalMoreLabel() {
+  return currentLang === 'fr' ? 'Plus de détails' : currentLang === 'en' ? 'More details' : 'Meer details';
+}
+
+function getModalMoreLabelOpen() {
+  return currentLang === 'fr' ? 'Moins de détails' : currentLang === 'en' ? 'Less details' : 'Minder details';
+}
+
+function getPopupDescriptionCacheKey(productCode, lang) {
+  return productCode + "::" + lang;
+}
+
+function getCachedPopupDescription(productCode, lang) {
+  const key = getPopupDescriptionCacheKey(productCode, lang);
+  if (popupDescriptionCache[key]) return popupDescriptionCache[key];
+  try {
+    const stored = sessionStorage.getItem("popup-desc:" + key);
+    if (stored) {
+      popupDescriptionCache[key] = stored;
+      return stored;
+    }
+  } catch (e) {}
+  return "";
+}
+
+function setCachedPopupDescription(productCode, lang, value) {
+  const key = getPopupDescriptionCacheKey(productCode, lang);
+  popupDescriptionCache[key] = value;
+  try {
+    sessionStorage.setItem("popup-desc:" + key, value);
+  } catch (e) {}
+}
+
+function getModalLabels() {
+  return {
+    format: currentLang === 'fr' ? 'Format' : currentLang === 'en' ? 'Format' : 'Formaat',
+    files: currentLang === 'fr' ? 'Fichiers' : currentLang === 'en' ? 'Files' : 'Bestanden',
+    delivery: currentLang === 'fr' ? 'Livraison' : currentLang === 'en' ? 'Delivery' : 'Levering',
+    choices: currentLang === 'fr' ? 'Options' : currentLang === 'en' ? 'Options' : 'Keuzes',
+    noDescription: currentLang === 'fr' ? 'Aucune description disponible.' : currentLang === 'en' ? 'No description available.' : 'Geen beschrijving beschikbaar.',
+    translatedNote: currentLang === 'fr'
+      ? 'Traduction automatique utilisée'
+      : currentLang === 'en'
+        ? 'Automatic translation used'
+        : 'Automatische vertaling gebruikt',
+    fallbackNote: currentLang === 'fr'
+      ? 'Texte source néerlandais utilisé'
+      : currentLang === 'en'
+        ? 'Dutch source text used'
+        : 'Nederlandse brontekst gebruikt'
+  };
+}
+
+function attachShopIntroFilters() {
+  const intro = document.querySelector('.shop-intro-chips');
+  if (!intro || intro.dataset.bound === '1') return;
+  intro.dataset.bound = '1';
+  intro.addEventListener('click', (e) => {
+    const button = e.target.closest('button[data-filter]');
+    if (!button) return;
+    setProductFilter(button.dataset.filter || 'all');
+  });
+}
+
+function updateShopIntro() {
+  const title = document.getElementById('shopIntroTitle');
+  const text = document.getElementById('shopIntroText');
+  const chip1 = document.getElementById('shopIntroChip1');
+  const chip2 = document.getElementById('shopIntroChip2');
+  const chip3 = document.getElementById('shopIntroChip3');
+  if (title) title.textContent = t('shopIntroTitle');
+  if (text) text.textContent = t('shopIntroText');
+  if (chip1) chip1.textContent = t('shopChip1');
+  if (chip2) chip2.textContent = t('shopChip2');
+  if (chip3) chip3.textContent = t('shopChip3');
+  [chip1, chip2, chip3].forEach((chip) => {
+    if (!chip) return;
+    const filter = chip.dataset.filter || 'all';
+    const isActive = activeProductFilter === filter;
+    chip.classList.toggle('active', isActive);
+    chip.setAttribute('aria-pressed', isActive ? 'true' : 'false');
+  });
+}
+
+function setProductFilter(filter) {
+  activeProductFilter = activeProductFilter === filter ? 'all' : filter;
+  renderProducten();
+  updateShopIntro();
+}
+
+function renderPopupDescription(product, tekst) {
+  const modalDescription = document.getElementById('modalDescription');
+  if (!modalDescription || !product) return;
+
+  const labels = getModalLabels();
+  const shortDescription = getShortDescription(tekst || product.beschrijving || '');
+  const typeClass = product.type === 'physical' ? 'physical' : 'digital';
+  const choiceNames = Array.isArray(product.keuzes) && product.keuzes.length > 0
+    ? product.keuzes.map(keuze => tk(keuze.naam)).join(', ')
+    : '';
+  const choiceCount = Array.isArray(product.keuzes) ? product.keuzes.length : 0;
+  const descriptionText = tekst || product.beschrijving || labels.noDescription;
+  const translationStatus = product._popupDescriptionStatus || 'direct';
+  const statusNote = translationStatus === 'auto-translated'
+    ? labels.translatedNote
+    : translationStatus === 'fallback-nl'
+      ? labels.fallbackNote
+      : '';
+
+  modalDescription.innerHTML = `
+    <div class="modal-summary">
+      <div class="modal-summary-top">
+        <span class="modal-pill ${typeClass}">${escapeHtml(getProductTypeLabel(product.type))}</span>
+        ${shortDescription
+          ? `<p class="modal-brief">${escapeHtml(shortDescription)}</p>`
+          : `<p class="modal-brief">${escapeHtml(descriptionText)}</p>`}
+        ${statusNote ? `<p class="modal-brief" style="margin-top:2px;font-size:0.78rem;color:#64748b">${escapeHtml(statusNote)}</p>` : ''}
+      </div>
+      <div class="modal-facts">
+        <div class="modal-fact"><span>${escapeHtml(labels.format)}</span><strong>${escapeHtml(product.formaat || '-')}</strong></div>
+        <div class="modal-fact"><span>${escapeHtml(labels.files)}</span><strong>${escapeHtml(product.bestanden || '-')}</strong></div>
+        <div class="modal-fact"><span>${escapeHtml(labels.delivery)}</span><strong>${escapeHtml(getDeliverySummary(product.type))}</strong></div>
+        ${choiceCount > 0 ? `<div class="modal-fact"><span>${escapeHtml(labels.choices)}</span><strong>${escapeHtml(choiceNames || '-')}</strong></div>` : ''}
+      </div>
+      <details class="modal-more">
+        <summary>${escapeHtml(getModalMoreLabel())}</summary>
+        <div class="modal-more-body">${escapeHtml(descriptionText)}</div>
+      </details>
+    </div>
+  `;
+
+  const moreDetails = modalDescription.querySelector('.modal-more');
+  const moreSummary = modalDescription.querySelector('.modal-more summary');
+  if (moreDetails && moreSummary) {
+    const syncLabel = () => {
+      moreSummary.textContent = moreDetails.open ? getModalMoreLabelOpen() : getModalMoreLabel();
+    };
+    moreDetails.addEventListener('toggle', syncLabel);
+    syncLabel();
+  }
+}
+
+function setLang(lang) {
+  currentLang = lang;
+  document.querySelectorAll('.lang-btn').forEach(btn => {
+    if (btn.dataset.lang === lang) {
+      btn.classList.add('active');
+      btn.style.background = '#059669';
+      btn.style.color = '#ffffff';
+      btn.style.borderColor = '#059669';
+    } else {
+      btn.classList.remove('active');
+      btn.style.background = 'transparent';
+      btn.style.color = '#52525b';
+      btn.style.borderColor = '#d4d4d8';
+    }
+  });
+
+  // BEGIN wijziging
+     const headerP = document.querySelector('header p');
+     if (headerP) {
+         headerP.textContent = t('subtitle');
+         // We gebruiken !important om te zorgen dat GEEN ENKELE andere code dit kan overrulen
+         headerP.style.setProperty('font-family', "'Playfair Display', serif", 'important');
+         headerP.style.setProperty('font-style', 'italic', 'important');
+         headerP.style.setProperty('color', '#065f46', 'important');
+         headerP.style.setProperty('font-size', '1.25rem', 'important');
+         headerP.style.setProperty('text-align', 'left', 'important');
+  }
+      const modal = document.getElementById('productModal');
+  if (modal && modal.classList.contains('active') && currentProduct && currentProduct.type === 'physical') {
+    document.getElementById('deliveryNotice').textContent = t('physicalNotice');
+  } else {
+    document.getElementById('deliveryNotice').textContent = t('deliveryNotice');
+  }
+  updateShopIntro();
+
+  document.getElementById('closeModalBtn').setAttribute('aria-label', t('closePopup'));
+  const viewLargerBtn = document.getElementById('viewLargerText');
+  if (viewLargerBtn) viewLargerBtn.textContent = t('viewLarger');
+  const footerContact = document.getElementById('footerContact'); if (footerContact) footerContact.textContent = t('footerContact');
+  const footerVoorwaarden = document.getElementById('footerVoorwaarden'); if (footerVoorwaarden) footerVoorwaarden.textContent = t('footerVoorwaarden');
+  const footerPrivacy = document.getElementById('footerPrivacy'); if (footerPrivacy) footerPrivacy.textContent = t('footerPrivacy');
+  const footerCookies = document.getElementById('footerCookies'); if (footerCookies) footerCookies.textContent = t('footerCookies');
+  const footerBTW = document.getElementById('footerBTW'); if (footerBTW) footerBTW.textContent = t('footerBTW');
+
+  // Update footer link hrefs based on language
+  const langSuffix = lang === 'nl' ? '' : '-' + lang;
+  if (footerContact) footerContact.href = '/contact' + langSuffix + '.html';
+  if (footerVoorwaarden) footerVoorwaarden.href = '/voorwaarden' + langSuffix + '.html';
+  if (footerPrivacy) footerPrivacy.href = '/privacy' + langSuffix + '.html';
+  if (footerCookies) footerCookies.href = '/cookies' + langSuffix + '.html';
+
+  // Save language preference
+  localStorage.setItem('preferredLang', lang);
+  if (typeof renderProducten === 'function' && alleProducten.length > 0) {
+
+  // Update product titles without re-rendering entire grid
+  document.querySelectorAll('.card h3').forEach((h3, i) => {
+    if (alleProducten[i]) {
+      h3.textContent = alleProducten[i]['titel_' + currentLang] || alleProducten[i].titel;
+    }
+  });
+
+  document.querySelectorAll('.card .card-type').forEach((badge, i) => {
+    const product = alleProducten[i];
+    if (product) {
+      badge.textContent = getProductTypeLabel(product.type);
+      badge.classList.toggle('physical', product.type === 'physical');
+    }
+  });
+}
+// Update modal title if open
+if (modal && modal.classList.contains('active')) {
+  const activeProduct = alleProducten.find(p => p.code === modal.dataset.productCode);
+  if (activeProduct) {
+    document.getElementById('modalTitle').textContent = activeProduct['titel_' + currentLang] || activeProduct.titel;
+    renderPopupDescription(activeProduct, activeProduct._popupDescription || activeProduct.beschrijving || '');
+  }
+}
+}
+
+const R2_URL = "https://pub-ad74d32a13e446fbba18cdb7e699f91b.r2.dev";
+let alleProducten = [];
+let cart = [];
+let shippingRates = {};
+let selectedShippingCountry = 'BE';
+let activeProductFilter = 'all';
+
+async function laadVerzendkosten() {
+  try {
+    const res = await fetch('https://paypal-handler-v3.camar.workers.dev/shipping-rates');
+    if (res.ok) shippingRates = await res.json();
+  } catch (e) { console.error('Verzendkosten niet geladen:', e); }
+}
+
+function getEstimatedShipping(code) {
+  if (!shippingRates.rates) return 0;
+  return shippingRates.rates[code] ||
+    (shippingRates.euCountries?.includes(code) ? shippingRates.rates['DEFAULT_EU'] : shippingRates.rates['NON_EU']);
+}
+
+const landenNamen = {
+  BE:'België',NL:'Nederland',DE:'Duitsland',FR:'Frankrijk',LU:'Luxemburg',
+  AT:'Oostenrijk',DK:'Denemarken',ES:'Spanje',IT:'Italië',PT:'Portugal',
+  SE:'Zweden',FI:'Finland',IE:'Ierland',PL:'Polen',CZ:'Tsjechië',
+  HU:'Hongarije',GR:'Griekenland',HR:'Kroatië',SI:'Slovenië',SK:'Slowakije',
+  NON_EU:'Overige landen (buiten EU)'
+};
+
+let currentKeuzes = {}; // Slaat geselecteerde keuzes op voor huidig product
+let addToCartNoticeTimer = null;
+
+function ct(key){return translations[currentLang][key]||translations['nl'][key]||key;}
+
+function showAddToCartNotice(message) {
+  const notice = document.getElementById('popup-add-confirmation');
+  if (!notice) return;
+
+  notice.textContent = message;
+  notice.style.display = 'block';
+
+  if (addToCartNoticeTimer) {
+    clearTimeout(addToCartNoticeTimer);
+  }
+
+  addToCartNoticeTimer = setTimeout(() => {
+    notice.style.display = 'none';
+    notice.textContent = '';
+  }, 2200);
+}
+
+function clearAddToCartNotice() {
+  const notice = document.getElementById('popup-add-confirmation');
+  if (!notice) return;
+  if (addToCartNoticeTimer) {
+    clearTimeout(addToCartNoticeTimer);
+    addToCartNoticeTimer = null;
+  }
+  notice.style.display = 'none';
+  notice.textContent = '';
+}
+
+function addToCart(code, keuzes){
+  const p=alleProducten.find(x=>x.code===code);
+  if(!p)return;
+
+  // Controleer of alle verplichte keuzes gemaakt zijn
+  if(p.keuzes && p.keuzes.length>0){
+    const missing = p.keuzes.filter(k => !keuzes || !keuzes[k.naam]);
+    if(missing.length>0){
+      const container = document.getElementById('keuzes-container');
+      if(container){
+        missing.forEach(m => {
+          const err = document.getElementById('keuze-verplicht-' + m.naam);
+          if(err) err.style.display='block';
+        });
+      }
+      return;
+    }
+  }
+
+  const keuzesKey = p.keuzes ? p.keuzes.map(k => keuzes[k.naam] || '').join('|') : '';
+  const existing=cart.find(x=>x.code===code && x.keuzesKey===keuzesKey);
+  if(existing){
+    existing.qty++;
+  }else{
+    cart.push({
+      code:p.code,
+      titel:p['titel_'+currentLang]||p.titel,
+      prijs:Number(String(p.prijs).replace(",",".")),
+      qty:1,
+      keuzes: keuzes || {},
+      keuzesKey: keuzesKey
+    });
+  }
+  showAddToCartNotice(`${p['titel_' + currentLang] || p.titel} ${t('addedToCart')}`);
+  updateCartUI();
+}
+
+function removeFromCart(code, keuzesKey){
+  cart=cart.filter(x=>!(x.code===code && x.keuzesKey===keuzesKey));
+  updateCartUI();
+}
+
+// Begin nieuwe checkoutCart
+
+function checkoutCart(){
+  if(cart.length===0)return;
+  const productPrijs=cart.reduce((s,i)=>s+Number(i.prijs)*i.qty,0);
+  const productNamen=cart.map(i=>i.titel).join(", ");
+  const ppc=document.getElementById('cart-paypal-container');
+  const footer=document.getElementById('cart-footer');
+
+  const hasPhysical=hasPhysicalItems();
+  const hasDigital=cart.some(function(item){
+    var p = alleProducten.find(function(x){ return x.code === item.code; });
+    return p && p.type==='digital';
+  });
+  var orderType='digital';
+  if(hasPhysical && hasDigital) orderType='mixed';
+  else if(hasPhysical) orderType='physical';
+
+  if (orderType === 'mixed') {
+    footer.innerHTML =
+      '<p style="font-size:0.95rem;color:#b91c1c;font-weight:600;margin:6px 0;">' +
+      t('mixedOrderNotAllowed') +
+      '</p>';
+    ppc.innerHTML = '';
+    return;
+  }
+
+  footer.innerHTML='<p style="font-size:1.2rem;font-weight:bold;color:#1a2a3a">'+t('checkoutPaypal')+'</p>';
+  ppc.innerHTML='<div class="payment-loading" style="color:#1a2a3a;padding:10px"><span class="spinner"></span>'+t('loadingPaypal')+'</div>';
+
+  const checkPayPal=setInterval(()=>{
+    if(typeof paypal!=='undefined'){
+      clearInterval(checkPayPal);
+
+
+const invoiceCheckoutText = {
+  nl: {
+    invoiceWanted: "Ik wens een factuur",
+    privateInvoice: "Privé",
+    businessInvoice: "Zakelijk",
+    companyName: "Bedrijfsnaam",
+    vatNumber: "BTW-nummer (bv. BE0123456789)",
+    invoiceEmail: "Facturatie e-mail",
+    invoiceCountry: "Landcode (bv. BE)",
+    buyerEndpointID: "Peppol Endpoint ID",
+    invoiceCity: "Stad",
+    invoicePostalCode: "Postcode"
+  },
+  fr: {
+    invoiceWanted: "Je souhaite une facture",
+    privateInvoice: "Particulier",
+    businessInvoice: "Professionnel",
+    companyName: "Nom de l'entreprise",
+    vatNumber: "Numéro de TVA (ex. BE0123456789)",
+    invoiceEmail: "E-mail de facturation",
+    invoiceCountry: "Code pays (ex. BE)",
+    buyerEndpointID: "ID Endpoint Peppol",
+    invoiceCity: "Ville",
+    invoicePostalCode: "Code postal"
+  },
+  en: {
+    invoiceWanted: "I would like an invoice",
+    privateInvoice: "Private",
+    businessInvoice: "Business",
+    companyName: "Company name",
+    vatNumber: "VAT number (e.g. BE0123456789)",
+    invoiceEmail: "Billing email",
+    invoiceCountry: "Country code (e.g. BE)",
+    buyerEndpointID: "Peppol Endpoint ID",
+    invoiceCity: "City",
+    invoicePostalCode: "Postal code"
+  }
+};
+
+const checkoutLang = localStorage.getItem("preferredLang") || currentLang || "nl";
+const ict = invoiceCheckoutText[checkoutLang] || invoiceCheckoutText.nl;
+
+ppc.innerHTML = `
+  <div id="invoice-section"
+       style="margin-bottom:12px;
+              padding:12px;
+              background:#f8fafc;
+              border:1px solid #e2e8f0;
+              border-radius:8px;
+              color:#1a2a3a">
+
+    <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-weight:600">
+      <input type="checkbox" id="invoiceRequested">
+       ${ict.invoiceWanted}
+    </label>
+
+    <div id="invoiceTypeWrapper"
+         style="display:none;margin-top:12px">
+
+      <label style="margin-right:16px;cursor:pointer">
+        <input type="radio"
+               name="invoiceType"
+               value="private"
+               checked>
+        ${ict.privateInvoice}
+      </label>
+
+      <label style="cursor:pointer">
+        <input type="radio"
+               name="invoiceType"
+               value="business">
+        ${ict.businessInvoice}
+      </label>
+
+      <div id="businessFields"
+           style="display:none;margin-top:14px">
+
+        <input
+          type="text"
+          id="companyName"
+          placeholder="${ict.companyName}"
+          style="width:100%;padding:10px;margin-bottom:8px;border:1px solid #ccc;border-radius:6px;"
+        >
+
+        <input
+          type="text"
+          id="vatNumber"
+          placeholder="${ict.vatNumber}"
+          style="width:100%;padding:10px;margin-bottom:8px;border:1px solid #ccc;border-radius:6px;"
+        >
+
+        <input
+          type="email"
+          id="invoiceEmail"
+          placeholder="${ict.invoiceEmail}"
+          style="width:100%;padding:10px;border:1px solid #ccc;border-radius:6px;"
+        >
+
+        <input
+          type="text"
+          id="invoiceCountry"
+          placeholder="${ict.invoiceCountry}"
+          maxlength="2"
+          style="width:100%;padding:10px;margin-top:8px;border:1px solid #ccc;border-radius:6px;"
+        >
+
+        <input
+          type="text"
+          id="buyerEndpointID"
+          placeholder="${ict.buyerEndpointID}"
+          style="width:100%;padding:10px;margin-top:8px;border:1px solid #ccc;border-radius:6px;"
+        >
+
+        <input
+          type="text"
+          id="invoiceCity"
+          placeholder="${ict.invoiceCity}"
+          style="width:100%;padding:10px;margin-top:8px;border:1px solid #ccc;border-radius:6px;"
+        >
+
+        <input
+          type="text"
+          id="invoicePostalCode"
+          placeholder="${ict.invoicePostalCode}"
+          style="width:100%;padding:10px;margin-top:8px;border:1px solid #ccc;border-radius:6px;"
+        >
+
+      </div>
+
+    </div>
+<div id="invoice-error"
+     style="
+       display:none;
+       margin-bottom:12px;
+       padding:12px;
+       background:#fee2e2;
+       border:1px solid #ef4444;
+       border-radius:8px;
+       color:#991b1b;
+       font-weight:600;
+     ">
+</div>
+    <div id="paypal-buttons-cart"></div>
+
+  </div>
+`;
+
+
+const invoiceCheckbox =
+  document.getElementById('invoiceRequested');
+
+const invoiceWrapper =
+  document.getElementById('invoiceTypeWrapper');
+
+function validateInvoiceFields() {
+
+  const paypalContainer =
+    document.getElementById('paypal-buttons-cart');
+
+  const errorBox =
+    document.getElementById('invoice-error');
+
+  const invoiceRequested =
+    document.getElementById('invoiceRequested')?.checked;
+
+  const invoiceType =
+    document.querySelector(
+      'input[name="invoiceType"]:checked'
+    )?.value;
+
+  const companyName =
+    document.getElementById('companyName')
+      ?.value?.trim();
+
+const invoiceEmail =
+    document.getElementById('invoiceEmail')
+      ?.value?.trim();
+
+  const invoiceCountry =
+    document.getElementById('invoiceCountry')
+      ?.value?.trim().toUpperCase();
+
+  if (errorBox) {
+    errorBox.style.display = 'none';
+    errorBox.innerText = '';
+  }
+
+  if (
+    invoiceRequested &&
+    invoiceType === 'business'
+  ) {
+    if (!companyName || !invoiceEmail) {
+      if (errorBox) {
+        errorBox.innerText = '⚠ Gelieve bedrijfsnaam en facturatie e-mailadres in te vullen.';
+        errorBox.style.display = 'block';
+      }
+      if (paypalContainer) paypalContainer.style.opacity = '0.5';
+      return;
+    }
+
+    if (!invoiceCountry || invoiceCountry.length !== 2) {
+      if (errorBox) {
+        errorBox.innerText = '⚠ Gelieve de landcode in te vullen.';
+        errorBox.style.display = 'block';
+      }
+      if (paypalContainer) paypalContainer.style.opacity = '0.5';
+      return;
+    }
+  }
+
+  if (paypalContainer)
+    paypalContainer.style.opacity = '1';
+}
+
+if (invoiceCheckbox && invoiceWrapper) {
+
+  invoiceCheckbox.addEventListener('change', () => {
+
+    invoiceWrapper.style.display =
+      invoiceCheckbox.checked
+        ? 'block'
+        : 'none';
+
+    validateInvoiceFields();
+  });
+
+  document.addEventListener('input', () => {
+    validateInvoiceFields();
+  });
+
+  document.addEventListener('change', (e) => {
+
+    if (e.target.name === 'invoiceType') {
+
+      const businessFields =
+        document.getElementById('businessFields');
+
+      if (!businessFields) return;
+
+      businessFields.style.display =
+        e.target.value === 'business'
+          ? 'block'
+          : 'none';
+
+      validateInvoiceFields();
+    }
+  });
+}
+
+      ppc.setAttribute('style', 'background: #ffffff !important; background-color: #ffffff !important;');
+
+      paypal.Buttons({
+        style:{layout:'vertical',color:'gold',shape:'rect',label:'paypal'},
+        onClick: function(data, actions) {
+
+  const invoiceRequested =
+    document.getElementById('invoiceRequested')
+      ?.checked || false;
+
+  const invoiceType =
+    document.querySelector(
+      'input[name="invoiceType"]:checked'
+    )?.value || 'private';
+
+  const companyName =
+    document.getElementById('companyName')
+      ?.value?.trim() || '';
+
+  const invoiceEmail =
+    document.getElementById('invoiceEmail')
+      ?.value?.trim() || '';
+
+  const invoiceCountry =
+    document.getElementById('invoiceCountry')
+      ?.value?.trim().toUpperCase() || '';
+
+  const errorBox =
+    document.getElementById('invoice-error');
+
+  if (errorBox) {
+    errorBox.style.display = 'none';
+    errorBox.innerText = '';
+  }
+
+  if (invoiceRequested) {
+    if (invoiceType === 'business' && !companyName) {
+      if (errorBox) {
+        errorBox.innerText =
+          '⚠ Gelieve de bedrijfsnaam in te vullen.';
+        errorBox.style.display =
+          'block';
+      }
+
+      return actions.reject();
+    }
+
+    if (invoiceType === 'business' && !invoiceEmail) {
+
+      if (errorBox) {
+        errorBox.innerText =
+          '⚠ Gelieve het facturatie e-mailadres in te vullen.';
+        errorBox.style.display =
+          'block';
+      }
+
+      return actions.reject();
+    }
+
+    if (invoiceType === 'business' && (!invoiceCountry || invoiceCountry.length !== 2)) {
+      if (errorBox) {
+        errorBox.innerText =
+          '⚠ Gelieve de landcode in te vullen.';
+        errorBox.style.display =
+          'block';
+      }
+
+      return actions.reject();
+    }
+  }
+
+  return actions.resolve();
+},
+
+createOrder:(data,actions)=>{
+  console.log('STEP 1 CREATE ORDER ENTERED');
+
+  const invoiceRequested =
+    document.getElementById('invoiceRequested')?.checked || false;
+
+  const invoiceType =
+    document.querySelector(
+      'input[name="invoiceType"]:checked'
+    )?.value || 'private';
+
+  const companyName =
+    document.getElementById('companyName')
+      ?.value?.trim() || '';
+
+  const vatNumber =
+    document.getElementById('vatNumber')
+      ?.value?.trim() || '';
+
+  const invoiceEmail =
+    document.getElementById('invoiceEmail')
+      ?.value?.trim() || '';
+
+  const invoiceCountry =
+    document.getElementById('invoiceCountry')
+      ?.value?.trim().toUpperCase() || '';
+
+  const buyerEndpointID =
+    document.getElementById('buyerEndpointID')
+      ?.value?.trim() || '';
+
+  const invoiceCity =
+    document.getElementById('invoiceCity')
+      ?.value?.trim() || '';
+
+  const invoicePostalCode =
+    document.getElementById('invoicePostalCode')
+      ?.value?.trim() || '';
+      window.invoiceData = JSON.parse(JSON.stringify({
+        invoiceRequested,
+        invoiceType,
+        companyName,
+        vatNumber,
+        invoiceEmail,
+        invoiceCountry,
+        buyerEndpointID,
+        invoiceCity,
+        invoicePostalCode
+      }));
+
+  console.log('SAVED INVOICE DATA', window.invoiceData);
+
+  const errorBox =
+    document.getElementById('invoice-error');
+
+  if (errorBox) {
+    errorBox.style.display = 'none';
+    errorBox.innerText = '';
+  }
+
+  if (invoiceRequested && invoiceType === 'business' && (!invoiceCountry || invoiceCountry.length !== 2)) {
+    if (errorBox) {
+      errorBox.innerText = '⚠ Gelieve de landcode in te vullen.';
+      errorBox.style.display = 'block';
+    }
+    return actions.reject();
+  }
+
+  console.log('STEP 2 DATA', {
+    invoiceRequested,
+    invoiceType,
+    companyName,
+    invoiceEmail,
+    invoiceCountry,
+    buyerEndpointID,
+    invoiceCity,
+    invoicePostalCode
+  });
+
+  console.log('STEP 6 FETCH START');
+
+  return fetch(
+    'https://paypal-handler-v3.camar.workers.dev/create-order',
+    {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+
+      body:JSON.stringify({
+        title: productNamen,
+        price: productPrijs.toFixed(2),
+        currency:'EUR',
+        codes: cart.map(i=>i.code),
+        items: cart.map(i => ({ code: i.code, qty: i.qty || 1 })),
+        keuzes: cart.map(i=>i.keuzes),
+        type: orderType,
+
+        invoiceRequested,
+        invoiceType,
+        companyName,
+        vatNumber,
+        invoiceEmail,
+        invoiceCountry,
+        buyerEndpointID,
+        invoiceCity,
+        invoicePostalCode
+      })
+    }
+  )
+  .then(r => r.json())
+  .then(d => d.id);
+},
+
+        onShippingChange: async (data, actions) => {
+          if(!hasPhysical) return actions.resolve();
+          const countryCode = data.shipping_address?.country_code || 'BE';
+          try {
+            const res = await fetch('https://paypal-handler-v3.camar.workers.dev/update-shipping',{
+              method:'POST',
+              headers:{'Content-Type':'application/json'},
+              body:JSON.stringify({orderID:data.orderID,countryCode})
+            });
+            const result = await res.json();
+            return result.success ? actions.resolve() : actions.reject();
+          }catch(e){
+            return actions.reject();
+          }
+        },
+
+onApprove:async(data,actions)=>{
+
+  ppc.innerHTML =
+    '<div class="payment-loading" style="color:#1a2a3a;padding:10px"><span class="spinner"></span>' +
+    t('processing') +
+    '</div>';
+
+  try {
+
+    const invoiceData = window.invoiceData || {
+      invoiceRequested: false,
+      invoiceType: 'private',
+      companyName: '',
+      vatNumber: '',
+      invoiceEmail: '',
+      invoiceCountry: '',
+      buyerEndpointID: '',
+      invoiceCity: '',
+      invoicePostalCode: ''
+    };
+
+    console.log('CAPTURE SEND DATA', {
+      orderID: data.orderID,
+      lang: currentLang,
+      invoiceRequested: invoiceData.invoiceRequested,
+      invoiceType: invoiceData.invoiceType,
+      companyName: invoiceData.companyName,
+      vatNumber: invoiceData.vatNumber,
+      invoiceEmail: invoiceData.invoiceEmail,
+      invoiceCountry: invoiceData.invoiceCountry,
+      buyerEndpointID: invoiceData.buyerEndpointID,
+      invoiceCity: invoiceData.invoiceCity,
+      invoicePostalCode: invoiceData.invoicePostalCode
+    });
+
+    const res = await fetch(
+      'https://paypal-handler-v3.camar.workers.dev/capture',
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          orderID: data.orderID,
+          lang: currentLang,
+          codes: cart.map(i => i.code),
+          items: cart.map(i => ({ code: i.code, qty: i.qty || 1 })),
+          keuzes: cart.map(i => i.keuzes),
+          type: orderType,
+
+          invoiceRequested: invoiceData.invoiceRequested,
+          invoiceType: invoiceData.invoiceType,
+          companyName: invoiceData.companyName,
+          vatNumber: invoiceData.vatNumber,
+          invoiceEmail: invoiceData.invoiceEmail,
+          invoiceCountry: invoiceData.invoiceCountry,
+          buyerEndpointID: invoiceData.buyerEndpointID,
+          invoiceCity: invoiceData.invoiceCity,
+          invoicePostalCode: invoiceData.invoicePostalCode
+        })
+      }
+    );
+
+    const details = await res.json();
+
+    if (details.ok || details.status === 'COMPLETED') {
+      const name =
+        details.payer?.name?.given_name || 'klant';
+
+      ppc.innerHTML =
+        '<div class="payment-success" style="padding:10px"><h3>✓ ' +
+        t('thankYou') +
+        ' ' +
+        name +
+        '!</h3><p>' +
+        t('paymentSuccess') +
+        '</p></div>';
+
+      cart = [];
+      updateCartUI();
+
+    } else {
+
+      ppc.innerHTML =
+        '<div class="payment-error" style="padding:10px">' +
+        t('paymentFailed') +
+        '</div>';
+    }
+
+  } catch (e) {
+
+    ppc.innerHTML =
+      '<div class="payment-error" style="padding:10px">' +
+      t('paymentError') +
+      '</div>';
+  }
+},
+        onCancel:()=>{
+          ppc.innerHTML='<div class="payment-error" style="padding:10px">'+t('paymentCancelled')+'</div>';
+        },
+        onError:(err)=>{
+          ppc.innerHTML='<div class="payment-error" style="padding:10px">'+t('paymentMislukt')+'</div>';
+        }
+        }).render('#paypal-buttons-cart');
+    }
+  },100);
+  setTimeout(()=>{
+    clearInterval(checkPayPal);
+    if(ppc.innerHTML.includes('laden')){
+      ppc.innerHTML='<div class="payment-error" style="padding:10px">'+t('loadingPaypal')+'</div>';
+    }
+  },10000);
+}
+
+//Einde nieuwe checkoutCart
+
+function updateCartUI(){
+  const cnt = document.getElementById('cart-count');
+  const totalItems = cart.reduce(function(s,i){ return s + i.qty; }, 0);
+  cnt.textContent = totalItems;
+  cnt.style.display = totalItems > 0 ? 'flex' : 'none';
+
+  const itemsDiv = document.getElementById('cart-items');
+  const footerDiv = document.getElementById('cart-footer');
+
+  if(cart.length === 0){
+    itemsDiv.innerHTML = '<p style="text-align:center;color:#999">' + ct('cartEmpty') + '</p>';
+    footerDiv.innerHTML = '';
+    return;
+  }
+
+itemsDiv.innerHTML = cart.map(function(i){
+    const p = alleProducten.find(function(x){ return x.code === i.code; });
+    const titel = p ? (p['titel_'+currentLang] || p.titel) : i.titel;
+    let keuzesText = '';
+    if(i.keuzes && Object.keys(i.keuzes).length > 0){
+      const labels = Object.entries(i.keuzes).map(function(e){ return e[1]; }).filter(function(v){ return v; });
+      if(labels.length > 0) keuzesText = ' (' + labels.join(', ') + ')';
+    }
+
+    // Hier staat nu slechts één div met de inhoud
+return `<div style="display: flex !important; justify-content: space-between !important; align-items: center !important; padding: 10px !important; border-bottom: 1px solid #e4e4e7 !important; background-color: #ffffff !important; color: #1a2a3a !important; min-height: 50px !important; width: 100% !important; box-sizing: border-box !important;">
+      <div style="display: block !important; color: #1a2a3a !important; font-size: 14px !important; background-color: #ffffff !important;">
+        <strong style="color: #1a2a3a !important; display: block !important; background-color: #ffffff !important;">${titel}</strong>
+        <span style="display: block !important; color: #666 !important; background-color: #ffffff !important;">${keuzesText}</span>
+        <small style="color: #4b5563 !important; display: block !important; background-color: #ffffff !important;">€ ${i.prijs} x ${i.qty}</small>
+      </div>
+      <button onclick="removeFromCart('${i.code}', '${i.keuzesKey}')" style="background: #ef4444 !important; color: white !important; border: none !important; border-radius: 4px !important; padding: 4px 8px !important; cursor: pointer !important; font-size: 12px !important; display: block !important;">✕</button>
+    </div>`;
+}).join('');
+
+  const productTotal = cart.reduce(function(s,i){ return s + Number(i.prijs) * i.qty; }, 0);
+  const hasPhysical = hasPhysicalItems();
+  const hasDigital = cart.some(function(item){
+    var p = alleProducten.find(function(x){ return x.code === item.code; });
+    return p && p.type==='digital';
+  });
+  const estimatedShip = hasPhysical ? getEstimatedShipping(selectedShippingCountry) : 0;
+  const mixedOrder = hasPhysical && hasDigital;
+
+  var html = '';
+
+  if(hasPhysical && shippingRates.rates){
+    html += '<div style="margin-bottom:12px;">';
+    html += '<label style="display:block;font-size:13px;color:#1a2a3a;font-weight:600;margin-bottom:6px;">'+t('shippingCountry')+'</label>';
+    html += '<select id="cart-country" onchange="updateCartCountry(this.value)" style="width:100%;padding:8px;border:2px solid #ddd;border-radius:6px;font-size:13px;">';
+
+    var euOpts = '';
+    var nonEu = '<option value="NON_EU"' + (selectedShippingCountry==='NON_EU'?' selected':'') + '>' + (landenNamen['NON_EU']||'Overige landen') + ' (+ € ' + shippingRates.rates['NON_EU'].toFixed(2) + ')</option>';
+
+    if(shippingRates.euCountries){
+      shippingRates.euCountries.forEach(function(c){
+        var name = landenNamen[c] || c;
+        var cost = shippingRates.rates[c] || shippingRates.rates['DEFAULT_EU'];
+        var sel = c === selectedShippingCountry ? ' selected' : '';
+        euOpts += '<option value="' + c + '"' + sel + '>' + name + ' (+ € ' + cost.toFixed(2) + ')</option>';
+      });
+    }
+    html += euOpts + nonEu;
+    html += '</select>';
+    html += '<p style="font-size:12px;color:#666;margin-top:4px;">'+t('shippingNote')+'</p>';
+    html += '</div>';
+  }
+
+    html += '<p style="font-size:1.0rem;color:#666;margin:2px 0;">'+t('productsLabel')+': € ' + productTotal.toFixed(2) + '</p>';
+  if(hasPhysical){
+    html += estimatedShip > 0
+      ? '<p style="font-size:1.0rem;color:#666;margin:2px 0;">'+t('shippingCostLabel')+': € ' + estimatedShip.toFixed(2) + '</p>'
+      : '<p style="font-size:1.0rem;color:#666;margin:2px 0;">'+t('shippingNote')+'</p>';
+  }
+  html += '<p style="font-size:1.2rem;font-weight:bold;color:#1a2a3a;margin:6px 0;border-top:1px solid #eee;padding-top:6px;">'+t('totalLabel')+': € ' + (productTotal + estimatedShip).toFixed(2) + '</p>';
+  if(mixedOrder){
+    html += '<p style="font-size:0.95rem;color:#b91c1c;font-weight:600;margin:8px 0 0;">'+t('mixedOrderNotAllowed')+'</p>';
+  } else {
+    html += '<button onclick="checkoutCart()" style="background:#059669;color:white;border:none;padding:12px 24px;border-radius:8px;cursor:pointer;font-weight:bold;font-size:1rem;width:100%">' + ct('cartPay') + '</button>';
+  }
+  footerDiv.innerHTML = html;
+}
+
+function updateCartCountry(code){
+  selectedShippingCountry = code;
+  updateCartUI();
+}
+
+function openCart(){
+  document.getElementById('cart-sidebar').style.display='flex';
+  document.querySelector('#cart-sidebar h3').textContent='🛒 '+ct('cartTitle');
+  document.getElementById('cart-items').style.setProperty('background', '#ffffff', 'important');
+  document.getElementById('cart-paypal-container').style.setProperty('background', '#ffffff', 'important');
+  updateCartUI();
+}
+
+function closeCart(){
+  document.getElementById('cart-sidebar').style.display='none';
+}
+function hasPhysicalItems() {
+  return cart.some(item => {
+    const p = alleProducten.find(x => x.code === item.code);
+    return p && p.type === 'physical';
+  });
+}
+
+function getShippingCost() {
+  return hasPhysicalItems() ? SHIPPING_COSTS[shippingZone] : 0;
+}
+
+function setShipping(zone) {
+  shippingZone = zone;
+  updateCartUI();
+}
+
+function getShipLabel(key) {
+  const labels = {
+    nl: { eu: 'Binnen EU (+ € 5,00)', nonEu: 'Buiten EU (+ € 10,00)', ship: 'Verzending:', prod: 'Producten:', cost: 'Verzendkosten:', tot: 'Totaal:' },
+    fr: { eu: 'UE (+ € 5,00)', nonEu: 'Hors UE (+ € 10,00)', ship: 'Livraison :', prod: 'Produits :', cost: 'Frais de port :', tot: 'Total :' },
+    en: { eu: 'EU (+ € 5,00)', nonEu: 'Outside EU (+ € 10,00)', ship: 'Shipping:', prod: 'Products:', cost: 'Shipping costs:', tot: 'Total:' }
+  };
+  return labels[currentLang]?.[key] || labels['nl'][key];
+}
+
+let currentProduct = null;
+let paypalButtonsRendered = false;
+let kleurVertalingen = {};
+
+let keuzeVertalingen = {};
+let popupDescriptionCache = {};
+
+// Fallback: altijd beschikbaar als R2 faalt
+const fallbackVertalingen = {
+  "Samenvoeging": { "fr": "Fusion", "en": "Merge" },
+  "Uitvoering": { "fr": "Exécution", "en": "Execution" },
+  "Kleur": { "fr": "Couleur", "en": "Color" },
+  "Optie A": { "fr": "Option A", "en": "Option A" },
+  "Optie B": { "fr": "Option B", "en": "Option B" },
+  "Standaard": { "fr": "Standard", "en": "Standard" },
+  "Deluxe": { "fr": "Deluxe", "en": "Deluxe" },
+  "rood": { "fr": "rouge", "en": "red" },
+  "blauw": { "fr": "bleu", "en": "blue" },
+  "groen": { "fr": "vert", "en": "green" },
+  "geel": { "fr": "jaune", "en": "yellow" }
+};
+
+async function laadKeuzeVertalingen() {
+  try {
+    const res = await fetch(`${R2_URL}/mfw-assets/mfw-json/vertalingen.json`);
+    if (res.ok) {
+      const data = await res.json();
+      // R2 overschrijft fallback, maar fallback blijft als backup
+      keuzeVertalingen = { ...fallbackVertalingen, ...data };
+      console.log('✅ Vertalingen geladen van R2');
+    } else {
+      console.warn('⚠️ R2 vertalingen niet gevonden, fallback gebruikt');
+      keuzeVertalingen = fallbackVertalingen;
+    }
+  } catch(e) {
+    console.error('❌ R2 vertalingen mislukt:', e);
+    keuzeVertalingen = fallbackVertalingen;
+  }
+}
+
+function tk(text) {
+  if (currentLang === 'nl') return text;
+  const vertaling = keuzeVertalingen[text]?.[currentLang];
+  return vertaling || text;
+}
+
+async function laadKleurVertalingen() {
+  try {
+    const res = await fetch(`${R2_URL}/mfw-json/kleuren-vertalingen.json`);
+    if (res.ok) kleurVertalingen = await res.json();
+  } catch(e) {
+    console.error('Kleurvertalingen niet geladen:', e);
+  }
+}
+
+// Utility: Fetch met retry logica
+async function fetchWithRetry(url, options = {}, retries = 3) {
+    const { timeout = 8000 } = options;
+
+    for (let attempt = 0; attempt < retries; attempt++) {
+        try {
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), timeout);
+
+            const response = await fetch(url, {
+                signal: controller.signal,
+                cache: 'no-store',
+                ...options
+            });
+
+            clearTimeout(timeoutId);
+
+            if (response.ok) {
+                return response;
+            }
+
+            if (response.status === 404) {
+                throw new Error(`Resource niet gevonden: ${response.status}`);
+            }
+
+            if (attempt < retries - 1) {
+                await new Promise(r => setTimeout(r, 1000 * (attempt + 1)));
+                continue;
+            }
+
+            throw new Error(`HTTP ${response.status}`);
+        } catch (error) {
+            if (attempt === retries - 1) {
+                throw error;
+            }
+            await new Promise(r => setTimeout(r, 1000 * (attempt + 1)));
+        }
+    }
+}
+
+// Utility: HTML veilig maken
+function escapeHtml(text) {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+}
+
+// Laad alle producten
+async function laadProducten() {
+    const grid = document.getElementById('shop-grid');
+    grid.innerHTML = '<div class="loading-message">Producten laden...</div>';
+
+    await laadKleurVertalingen();
+    await laadKeuzeVertalingen();
+
+    try {
+
+const res = await fetchWithRetry(`producten.json?v=${Date.now()}`, {}, 3);
+
+alleProducten = await res.json();
+
+// Converteer samenvoegingen/uitvoeringen naar keuzes formaat
+alleProducten.forEach(p => {
+    p.keuzes = [];
+    if (p.samenvoegingen && p.samenvoegingen.length > 0) {
+        p.keuzes.push({ naam: 'Samenvoeging', opties: p.samenvoegingen });
+    }
+    if (p.uitvoeringen && p.uitvoeringen.length > 0) {
+        p.keuzes.push({ naam: 'Uitvoering', opties: p.uitvoeringen });
+    }
+    if (p.kleuren && p.kleuren.length > 0) {
+        p.keuzes.push({ naam: 'Kleur', opties: p.kleuren });
+    }
+});
+
+        if (!alleProducten || alleProducten.length === 0) {
+            grid.innerHTML = '<div class="error-message">Geen producten beschikbaar.</div>';
+            return;
+        }
+
+        renderProducten();
+
+    } catch (error) {
+        console.error('Fout bij laden van producten:', error);
+        grid.innerHTML = `
+            <div class="error-message">
+                <p>Kon producten niet laden. ${error.message}</p>
+                <button class="retry-button" onclick="laadProducten()">Opnieuw proberen</button>
+            </div>
+        `;
+    }
+}
+
+// Render producten in grid
+function renderProducten() {
+    const grid = document.getElementById('shop-grid');
+    const filteredProducten = activeProductFilter === 'all'
+      ? alleProducten
+      : alleProducten.filter(p => p.type === activeProductFilter);
+
+    grid.innerHTML = filteredProducten.map(p => {
+        const escapedCode = escapeHtml(p.code);
+        const escapedTitel = escapeHtml(p['titel_' + currentLang] || p.titel);
+        const escapedPrijs = escapeHtml(String(p.prijs));
+        const typeLabel = p.type === 'physical'
+            ? (currentLang === 'fr' ? 'Physique' : currentLang === 'en' ? 'Physical' : 'Fysiek')
+            : (currentLang === 'fr' ? 'Numérique' : currentLang === 'en' ? 'Digital' : 'Digitaal');
+        const typeClass = p.type === 'physical' ? 'physical' : 'digital';
+
+        return `
+            <article class="card">
+                <span class="card-type ${typeClass}">${typeLabel}</span>
+                <img
+                    src="${R2_URL}/mfw-beelden/${escapedCode}.jpg"
+                    alt="${escapedTitel}"
+                    loading="lazy"
+                    onerror="this.style.background='linear-gradient(135deg, #e0e0e0, #f5f5f5)'; this.classList.add('error');"
+                >
+                <h3>${escapedTitel}</h3>
+                <p class="price">€ ${escapedPrijs}</p>
+                <button data-product-code="${escapedCode}" aria-label="Bekijk ${escapedTitel}">Info</button>
+
+            </article>
+        `;
+    }).join('');
+
+    if (filteredProducten.length === 0) {
+      grid.innerHTML = '<div class="error-message">Geen producten voor deze filter.</div>';
+    }
+
+    updateShopIntro();
+    attachCardEventListeners();
+}
+
+// Event listeners voor product cards
+function attachCardEventListeners() {
+    const grid = document.getElementById('shop-grid');
+    if (!grid || grid.dataset.cardBound === '1') return;
+    grid.dataset.cardBound = '1';
+
+    grid.addEventListener('click', (e) => {
+        const button = e.target.closest('button[data-product-code]');
+        if (button) {
+            const code = button.dataset.productCode;
+            button.disabled = true;
+            button.textContent = 'Laden...';
+            openPopup(code).finally(() => {
+                button.disabled = false;
+                button.textContent = 'Info';
+            });
+        }
+    });
+}
+
+  // EINDE wijziging
+
+// Open product modal
+async function openPopup(code) {
+    const product = alleProducten.find(p => p.code === code);
+    if (!product) {
+        console.error('Product niet gevonden:', code);
+        return;
+    }
+
+    currentProduct = product;
+    clearAddToCartNotice();
+    const modal = document.getElementById('productModal');
+    const modalTitle = document.getElementById('modalTitle');
+    const modalPrice = document.getElementById('modalPrice');
+    const modalImage = document.getElementById('modalImage');
+    const modalDescription = document.getElementById('modalDescription');
+    const paypalContainer = document.getElementById('paypal-button-container');
+
+    modal.classList.add('active');
+    modal.dataset.productCode = product.code;
+    modalTitle.textContent = product['titel_' + currentLang] || product.titel;
+    modalPrice.textContent = `€ ${escapeHtml(String(product.prijs))}`;
+    modalImage.src = `${R2_URL}/mfw-beelden/${product.code}.jpg`;
+    modalImage.alt = product['titel_' + currentLang] || product.titel;
+
+    // Thumbnails laden
+    const thumbRow = document.getElementById('thumbRow');
+    thumbRow.innerHTML = '';
+    const mainImg = `${product.code}.jpg`;
+    const images = [mainImg, `${product.code}_2.jpg`, `${product.code}_3.jpg`, `${product.code}_4.jpg`];
+    images.forEach((img, i) => {
+      const thumb = document.createElement('img');
+      thumb.src = `${R2_URL}/mfw-beelden/${img}`;
+      thumb.alt = product['titel_' + currentLang] || product.titel;
+      thumb.style.display = 'none';
+      if (i === 0) { thumb.style.display = ''; thumb.classList.add('active'); }
+      thumb.onload = function() { if(i > 0) this.style.display = ''; };
+      thumb.onerror = function() { this.remove(); };
+      thumb.onclick = function() {
+        modalImage.src = `${R2_URL}/mfw-beelden/${img}`;
+        document.querySelectorAll('.thumb-row img').forEach(t => t.classList.remove('active'));
+        this.classList.add('active');
+      };
+      thumbRow.appendChild(thumb);
+    });
+
+    modalDescription.innerHTML = '<div class="payment-loading"><span class="spinner"></span>' + t('loadingDesc') + '</div>';
+
+    // Video laden
+    const videoContainer = document.getElementById('popup-video-container');
+    const videoSource = document.getElementById('popup-video-source');
+    const video = document.getElementById('popup-video');
+    if (product.video && product.video.trim() !== '') {
+      videoSource.src = R2_URL + '/mfw-beelden/' + product.video;
+      video.load();
+      videoContainer.style.display = 'block';
+    } else {
+      videoSource.removeAttribute('src');
+      video.pause();
+      videoContainer.style.display = 'none';
+    }
+
+    document.getElementById('kleur-keuze-label').textContent = t('kleurKeuze');
+    document.getElementById('popup-add-btn').textContent = t('toevoegen');
+    document.getElementById('popup-add-to-cart').style.display = 'block';
+    const deliveryNotice = document.getElementById('deliveryNotice');
+    if (product.type === 'physical') {
+      deliveryNotice.textContent = t('physicalNotice');
+    } else {
+      deliveryNotice.textContent = t('deliveryNotice');
+    }
+
+    // Keuzes laden
+    const keuzesContainer = document.getElementById('kleur-keuze-container');
+    const keuzesButtons = document.getElementById('kleur-keuze-buttons');
+    const keuzesVerplicht = document.getElementById('kleur-verplicht');
+
+    keuzesButtons.innerHTML = '';
+
+    if (product.keuzes && product.keuzes.length > 0) {
+        product.keuzes.forEach(keuze => {
+            const wrapper = document.createElement('div');
+            wrapper.style.marginBottom = '10px';
+
+            const label = document.createElement('div');
+            label.className = 'kleur-keuze-label';
+            label.textContent = tk(keuze.naam);
+            wrapper.appendChild(label);
+
+            const select = document.createElement('select');
+            select.className = 'keuze-select';
+            select.dataset.keuzeNaam = keuze.naam;
+
+            const defaultOption = document.createElement('option');
+            defaultOption.value = '';
+            defaultOption.textContent = '-- ' + tk(keuze.naam) + ' --';
+            select.appendChild(defaultOption);
+
+            keuze.opties.forEach(optie => {
+                const option = document.createElement('option');
+                option.value = optie;
+                option.textContent = tk(optie);
+                select.appendChild(option);
+            });
+
+            select.onchange = function() {
+                if (this.value !== '') {
+                    keuzesVerplicht.style.display = 'none';
+                }
+            };
+
+            wrapper.appendChild(select);
+            keuzesButtons.appendChild(wrapper);
+        });
+        document.getElementById('kleur-keuze-label').textContent = t('kleurKeuze');
+        keuzesContainer.style.display = 'block';
+    } else {
+        keuzesContainer.style.display = 'none';
+    }
+
+    // Focus op close button voor accessibility
+    document.getElementById('closeModalBtn').focus();
+
+    // Laad product beschrijving
+    try {
+        let tekst = getCachedPopupDescription(product.code, currentLang);
+        if (!tekst) {
+            const fallbackText = product.beschrijving || '';
+
+            if (currentLang === 'nl') {
+                const defaultRes = await fetch(`${R2_URL}/mfw-teksten/${product.code}.txt`);
+                if (defaultRes.ok) {
+                    tekst = await defaultRes.text();
+                    product._popupDescriptionStatus = 'direct';
+                } else {
+                    tekst = fallbackText;
+                    product._popupDescriptionStatus = 'fallback-nl';
+                }
+            } else {
+                try {
+                    const langRes = await fetch(`${R2_URL}/mfw-teksten/${product.code}_${currentLang}.txt`);
+                    if (langRes.ok) {
+                        tekst = await langRes.text();
+                        product._popupDescriptionStatus = 'direct';
+                    }
+                } catch(e) {}
+
+                if (!tekst) {
+                    let sourceText = fallbackText;
+                    try {
+                        const defaultRes = await fetch(`${R2_URL}/mfw-teksten/${product.code}.txt`);
+                        if (defaultRes.ok) {
+                            const nlTekst = await defaultRes.text();
+                            if (nlTekst) sourceText = nlTekst;
+                        }
+                    } catch(e) {}
+
+                    if (sourceText) {
+                        try {
+                            const transRes = await fetch('https://paypal-handler-v3.camar.workers.dev/translate', {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({ text: sourceText, targetLang: currentLang })
+                            });
+                            const transData = await transRes.json();
+                            tekst = transData.translated_text || sourceText;
+                            product._popupDescriptionStatus = 'auto-translated';
+                        } catch(e) {
+                            tekst = sourceText;
+                            product._popupDescriptionStatus = 'fallback-nl';
+                        }
+                    } else {
+                        tekst = '';
+                        product._popupDescriptionStatus = 'fallback-nl';
+                    }
+                }
+            }
+
+            setCachedPopupDescription(product.code, currentLang, tekst || fallbackText);
+        }
+        if (!product._popupDescriptionStatus) {
+            product._popupDescriptionStatus = currentLang === 'nl' ? 'direct' : 'direct';
+        }
+        product._popupDescription = tekst || product.beschrijving || '';
+        renderPopupDescription(product, product._popupDescription);
+    } catch (error) {
+        console.error('Fout bij laden beschrijving:', error);
+        product._popupDescription = product.beschrijving || '';
+        renderPopupDescription(product, product._popupDescription);
+    }
+
+// Render PayPal buttons
+renderPayPalButtons(product, paypalContainer);
+
+    // Trap focus in modal
+    trapFocusInModal(modal);
+}
+
+// Focus trap voor modal (accessibility)
+function trapFocusInModal(modal) {
+    const focusables = modal.querySelectorAll('button, [href], input, [tabindex]:not([tabindex="-1"])');
+    const firstFocusable = focusables[0];
+    const lastFocusable = focusables[focusables.length - 1];
+
+    const handleKeyDown = (e) => {
+        if (e.key === 'Tab') {
+            if (e.shiftKey) {
+                if (document.activeElement === firstFocusable) {
+                    e.preventDefault();
+                    lastFocusable.focus();
+                }
+            } else {
+                if (document.activeElement === lastFocusable) {
+                    e.preventDefault();
+                    firstFocusable.focus();
+                }
+            }
+        }
+    };
+
+    modal.removeEventListener('keydown', handleKeyDown);
+    modal.addEventListener('keydown', handleKeyDown);
+}
+
+// Hulpfunctie om huidige popup keuzes op te halen
+function getPopupKeuzes() {
+    const keuzes = {};
+    document.querySelectorAll('.keuze-select').forEach(select => {
+        if (select.dataset.keuzeNaam && select.value && select.value !== '') {
+            keuzes[select.dataset.keuzeNaam] = select.value;
+        }
+    });
+    return keuzes;
+}
+
+// Render PayPal buttons
+
+function renderPayPalButtons(product, container) {
+    container.innerHTML = '<div class="payment-loading"><span class="spinner"></span>' + t('loadingPaypal') + '</div>';
+
+    const checkPayPal = setInterval(() => {
+        if (typeof paypal !== 'undefined') {
+            clearInterval(checkPayPal);
+            container.innerHTML = `
+              <div id="invoice-section"
+                   style="margin-bottom:16px;padding:12px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;">
+       
+                <strong>FACTUUR TEST</strong>
+
+              </div>
+            `;
+
+            const isPhysical = product.type === 'physical';
+            const basePrice = Number(String(product.prijs).replace(',','.'));
+            
+
+            
+            paypal.Buttons({
+                style: {
+                    layout: 'vertical',
+                    color: 'gold',
+                    shape: 'rect',
+                    label: 'paypal'
+                },
+                application_context: {
+                    shipping_preference: isPhysical ? 'SET_PROVIDED_ADDRESS' : 'NO_SHIPPING'
+                },
+
+                onClick: function(data, actions) {
+                    const invoiceRequested =
+                        document.getElementById('invoiceRequested')?.checked || false;
+                    const invoiceType =
+                        document.querySelector('input[name="invoiceType"]:checked')?.value || 'private';
+                    const companyName =
+                        document.getElementById('companyName')?.value?.trim() || '';
+                    const invoiceEmail =
+                        document.getElementById('invoiceEmail')?.value?.trim() || '';
+                    const invoiceCountry =
+                        document.getElementById('invoiceCountry')?.value?.trim().toUpperCase() || '';
+                    const errorBox =
+                        document.getElementById('invoice-error');
+
+                    if (errorBox) {
+                        errorBox.style.display = 'none';
+                        errorBox.innerText = '';
+                    }
+
+                    if (invoiceRequested && invoiceType === 'business') {
+                        if (!companyName || !invoiceEmail) {
+                            if (errorBox) {
+                                errorBox.innerText = '⚠ Gelieve bedrijfsnaam en facturatie e-mailadres in te vullen.';
+                                errorBox.style.display = 'block';
+                            }
+                            return actions.reject();
+                        }
+
+                        if (!invoiceCountry || invoiceCountry.length !== 2) {
+                            if (errorBox) {
+                                errorBox.innerText = '⚠ Gelieve de landcode in te vullen.';
+                                errorBox.style.display = 'block';
+                            }
+                            return actions.reject();
+                        }
+                    }
+
+                    return actions.resolve();
+                },
+
+
+
+                onShippingChange: async (data, actions) => {
+                    if(!isPhysical) return actions.resolve();
+                    const countryCode = data.shipping_address?.country_code || 'BE';
+                    try {
+                        const res = await fetch('https://paypal-handler-v3.camar.workers.dev/update-shipping',{
+                            method:'POST',
+                            headers:{'Content-Type':'application/json'},
+                            body:JSON.stringify({orderID:data.orderID,countryCode})
+                        });
+                        const result = await res.json();
+                        return result.success ? actions.resolve() : actions.reject();
+                    }catch(e){
+                        return actions.reject();
+                    }
+                },
+
+                onApprove: async (data, actions) => {
+                    container.innerHTML = '<div class="payment-loading"><span class="spinner"></span>' + t('processing') + '</div>';
+
+                    try {
+                        const keuzes = getPopupKeuzes();
+                        const response = await fetch('https://paypal-handler-v3.camar.workers.dev/capture', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            orderID: data.orderID,
+                            lang: currentLang,
+                            codes: [product.code],
+                            items: [{ code: product.code, qty: 1 }],
+                            keuzes: [keuzes],
+                            type: product.type || 'digital',
+                            invoiceRequested: document.getElementById('invoiceRequested')?.checked || false,
+                                invoiceType: document.querySelector('input[name="invoiceType"]:checked')?.value || 'private',
+                                companyName: document.getElementById('companyName')?.value?.trim() || '',
+                                vatNumber: document.getElementById('vatNumber')?.value?.trim() || '',
+                                invoiceEmail: document.getElementById('invoiceEmail')?.value?.trim() || '',
+                                invoiceCountry: document.getElementById('invoiceCountry')?.value?.trim().toUpperCase() || '',
+                                buyerEndpointID: document.getElementById('buyerEndpointID')?.value?.trim() || '',
+                                invoiceCity: document.getElementById('invoiceCity')?.value?.trim() || '',
+                                invoicePostalCode: document.getElementById('invoicePostalCode')?.value?.trim() || ''
+                             })
+                        });
+                        const details = await response.json();
+
+    if (details.ok || details.status === 'COMPLETED') {
+                            const givenName = details.payer?.name?.given_name || 'klant';
+                            container.innerHTML = `
+                                <div class="payment-success">
+                                    <h3>✓ ${t('thankYou')} ${escapeHtml(givenName)}!</h3>
+                                    <p>${t('paymentSuccess')}</p>
+                                    <p><small>Order ID: ${escapeHtml(details.id)}</small></p>
+                                </div>
+                            `;
+                        } else {
+                            container.innerHTML = `
+                                <div class="payment-error">
+                                    ${t('paymentFailed')}
+                                    <br><small>Status: ${escapeHtml(details.status || 'onbekend')}</small>
+                                </div>
+                            `;
+                        }
+                    } catch (error) {
+                        container.innerHTML = `
+                            <div class="payment-error">
+                                ${t('paymentError')}
+                                <br><small>Fout: ${escapeHtml(error.message)}</small>
+                            </div>
+                        `;
+                    }
+                },
+
+                onCancel: (data) => {
+                    container.innerHTML = '<div class="payment-error">' + t('paymentCancelled') + '</div>';
+                },
+
+                onError: (err) => {
+                    container.innerHTML = '<div class="payment-error">' + t('paymentMislukt') + '</div>';
+                }
+
+            }).render("#paypal-button-container")
+                .catch((err) => {
+                    container.innerHTML = '<div class="payment-error">❌ Kon PayPal niet laden. Herlaad de pagina.</div>';
+                });
+
+        }
+    }, 100);
+
+    setTimeout(() => {
+        clearInterval(checkPayPal);
+        if (container.innerHTML.includes('laden')) {
+            container.innerHTML = '<div class="payment-error">❌ PayPal laadt te lang. Herlaad de pagina.</div>';
+        }
+    }, 10000);
+}
+
+// Sluit modal
+function closePopup() {
+    const modal = document.getElementById('productModal');
+    const paypalContainer = document.getElementById('paypal-button-container');
+
+    modal.classList.remove('active');
+    delete modal.dataset.productCode;
+    paypalContainer.innerHTML = "";
+    clearAddToCartNotice();
+    document.getElementById('modalImage').style.display='';
+    document.getElementById('deliveryNotice').style.display='';
+
+    // Stop video bij sluiten
+    const video = document.getElementById('popup-video');
+    const videoSource = document.getElementById('popup-video-source');
+    if (video) { video.pause(); }
+    if (videoSource) { videoSource.removeAttribute('src'); }
+
+    const videoContainer = document.getElementById('popup-video-container');
+    if (videoContainer) { videoContainer.style.display = 'none'; }
+
+    currentProduct = null;
+}
+
+// Event listeners
+document.getElementById('closeModalBtn').addEventListener('click', closePopup);
+
+// Sluit modal door op achtergrond te klikken
+document.getElementById('productModal').addEventListener('click', (e) => {
+    if (e.target.id === "productModal") {
+        closePopup();
+    }
+});
+
+// Sluit modal met Escape toets
+document.addEventListener('keydown', (e) => {
+    const modal = document.getElementById('productModal');
+    if (e.key === 'Escape' && modal.classList.contains('active')) {
+        closePopup();
+    }
+});
+
+function addToCartFromPopup(){
+  if(!currentProduct) return;
+  const keuzes = getPopupKeuzes();
+  addToCart(currentProduct.code, keuzes);
+}
+
+// Restore saved language preference
+const savedLang = localStorage.getItem('preferredLang');
+if (savedLang && translations[savedLang]) {
+  setLang(savedLang);
+}
+
+// Laad producten bij start
+attachShopIntroFilters();
+laadVerzendkosten();
+laadProducten();
+
+function openImageOverlay() {
+    const modalImg = document.getElementById('modalImage');
+    const overlay = document.getElementById('imageOverlay');
+    const overlayImg = document.getElementById('overlayImage');
+    overlayImg.src = modalImg.src;
+    overlayImg.alt = modalImg.alt;
+    document.getElementById('overlayBackText').textContent = t('back');
+    overlay.classList.add('active');
+}
+function closeImageOverlay() {
+    document.getElementById('imageOverlay').classList.remove('active');
+}
+
+</script>
+   <footer style="background:#059669;color:#ffffff;text-align:center;padding:12px 20px;margin-top:28px;font-size:12px;border-top:1px dashed #e2e8f0">
+   <p style="margin-bottom:8px">© 2026 Magic Fancy Works</p>
+   <p style="margin-bottom:6px;line-height:1.5">
+    <a href="/contact.html" id="footerContact" style="color:#ffffff;text-decoration:none;margin:0 10px;font-weight:600">Contact</a>
+    <a href="/voorwaarden.html" id="footerVoorwaarden" style="color:#ffffff;text-decoration:none;margin:0 10px;font-weight:600">Algemene Voorwaarden</a>
+    <a href="/privacy.html" id="footerPrivacy" style="color:#ffffff;text-decoration:none;margin:0 10px;font-weight:600">Privacybeleid</a>
+    <a href="/cookies.html" id="footerCookies" style="color:#ffffff;text-decoration:none;margin:0 10px;font-weight:600">Cookiebeleid</a>
+   </p>
+   <p style="font-size:10.5px;margin-top:8px;color:#a0b4c8;line-height:1.45"><span id="footerBTW">BTW-nummer: BE0500363711 | Bijzondere vrijstellingsregeling kleine ondernemingen - art. 56bis WBTW | Digitale producten — geen herroepingsrecht</span></p>
+  </footer>
+   <div id="imageOverlay" class="image-overlay" onclick="closeImageOverlay()">
+   <img id="overlayImage" alt="" onclick="event.stopPropagation()">
+   <button onclick="closeImageOverlay()" style="position:fixed;top:20px;right:20px;background:var(--primary-color);color:white;border:2px dashed var(--stitch-color);padding:10px 20px;border-radius:8px;cursor:pointer;font-size:14px;font-weight:600;z-index:999999">✕ <span id="overlayBackText">Terug</span></button>
+  </div>
+
+<!-- Taalkeuze overlay -->
+<div id="lang-overlay" style="position:fixed;top:0;left:0;right:0;bottom:0;z-index:10000;background:rgba(0,20,50,0.9);display:flex;align-items:center;justify-content:center;font-family:inherit">
+  <div style="background:#059669;color:#fff;padding:40px;border-radius:16px;text-align:center;max-width:400px;width:90%;border:2px dashed #a0b4c8">
+    <h2 style="margin:0 0 8px;font-size:1.5rem;color:#ffffff">Magic Fancy Works</h2>
+    <p style="margin:0 0 24px;color:#a0b4c8;font-size:1rem">Kies uw taal / Choisissez votre langue / Choose your language</p>
+    <div style="display:flex;gap:12px;justify-content:center">
+      <button onclick="selectLang('nl')" style="background:#ffffff;color:#059669;border:2px solid #a0b4c8;padding:14px 28px;border-radius:8px;cursor:pointer;font-size:1.1rem;font-weight:700">NL</button>
+      <button onclick="selectLang('fr')" style="background:#ffffff;color:#059669;border:2px solid #a0b4c8;padding:14px 28px;border-radius:8px;cursor:pointer;font-size:1.1rem;font-weight:700">FR</button>
+      <button onclick="selectLang('en')" style="background:#ffffff;color:#059669;border:2px solid #a0b4c8;padding:14px 28px;border-radius:8px;cursor:pointer;font-size:1.1rem;font-weight:700">EN</button>
+    </div>
+  </div>
+</div>
+
+<script>
+function selectLang(lang){
+  localStorage.setItem("preferredLang",lang);
+  if(typeof setLang==="function") setLang(lang);
+  var ov=document.getElementById("lang-overlay");
+  if(ov) ov.remove();
+}
+
+(function(){
+  var pref=localStorage.getItem("preferredLang");
+  if(pref){
+    var ov=document.getElementById("lang-overlay");
+    if(ov) ov.remove();
+    if(typeof setLang==="function") setLang(pref);
+  }
+})();
+</script>
+<script src="cookie-banner.js"></script>
+<script src="footer-lang.js"></script></body>
+</html>

@@ -1,0 +1,72 @@
+name = "paypal-handler-v3"
+main = "worker.js"
+compatibility_date = "2025-07-18"
+
+[triggers]
+crons = ["0 3 * * *"]
+
+[vars]
+PAYPAL_ENV = "sandbox"
+ALLOWED_ORIGINS = "https://magicfancyworks.pages.dev,https://magicfancyworks-v4.pages.dev,https://paypal-handler-v3.camar.workers.dev,http://localhost:8787,http://127.0.0.1:8787,null"
+PRODUCTS_JSON_KEY = "mfw-json/producten.json"
+PUBLIC_WORKER_URL = "https://paypal-handler-v3.camar.workers.dev"
+PAYPAL_WEBHOOK_ID = "1SR547877X756531J"
+SELLER_ENDPOINT_ID = "0500363711"
+SELLER_ENDPOINT_SCHEME_ID = "0208"
+SELLER_NAME = "Magic Fancy Works"
+SELLER_VAT = "BE0500363711"
+SELLER_STREET = "Churchilllaan 150 bus 2"
+SELLER_POSTAL_ZONE = "2900"
+SELLER_CITY = "Schoten"
+SELLER_COUNTRY_CODE = "BE"
+
+[[kv_namespaces]]
+binding = "ORDERS"
+id = "2517d9821a2d411b9690b55cf0fad41a"
+preview_id = "a3a6ebcfb8ba41078b945b9cd1243526"
+
+[[r2_buckets]]
+binding = "PATTERNS"
+bucket_name = "digital-products"
+preview_bucket_name = "digital-products"
+
+[[r2_buckets]]
+binding = "FACTUREN"
+bucket_name = "mfw-facturen"
+preview_bucket_name = "mfw-facturen-preview"
+
+[ai]
+binding = "AI"
+
+[env.test]
+name = "paypal-handler-v3-test"
+
+[env.test.vars]
+PAYPAL_ENV = "sandbox"
+ALLOWED_ORIGINS = "https://magicfancyworks.pages.dev,https://magicfancyworks-v4.pages.dev,https://paypal-handler-v3-test.camar.workers.dev,http://localhost:8787,http://127.0.0.1:8787,null"
+PRODUCTS_JSON_KEY = "mfw-json/producten.json"
+PUBLIC_WORKER_URL = "https://paypal-handler-v3-test.camar.workers.dev"
+PAYPAL_WEBHOOK_ID = "1SR547877X756531J"
+SELLER_ENDPOINT_ID = "0500363711"
+SELLER_ENDPOINT_SCHEME_ID = "0208"
+SELLER_NAME = "Magic Fancy Works"
+SELLER_VAT = "BE0500363711"
+SELLER_STREET = "Churchilllaan 150 bus 2"
+SELLER_POSTAL_ZONE = "2900"
+SELLER_CITY = "Schoten"
+SELLER_COUNTRY_CODE = "BE"
+
+[[env.test.kv_namespaces]]
+binding = "ORDERS"
+id = "a3a6ebcfb8ba41078b945b9cd1243526"
+
+[[env.test.r2_buckets]]
+binding = "PATTERNS"
+bucket_name = "digital-products"
+
+[[env.test.r2_buckets]]
+binding = "FACTUREN"
+bucket_name = "mfw-facturen-preview"
+
+[env.test.ai]
+binding = "AI"

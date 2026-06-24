@@ -1,0 +1,80 @@
+ 0500363711
+ 
+ 
+ Test 1: private AT
+  Doel: de basisflow zonder bedrijfsgegevens.
+
+  Invullen:
+
+  - invoiceRequested = true
+  - invoiceType = private
+  - invoiceCountry = AT
+  - buyerEndpointID = leeg
+  - vatNumber = leeg
+  - invoiceEmail = ingevuld
+
+  Wat je verwacht:
+
+  - bestelling wordt aanvaard
+  - factuur wordt aangemaakt
+  - UBL bevat klantadres met AT
+  - geen business-specifieke velden zoals buyer EndpointID of buyer PartyTaxScheme
+  - validator geeft geen nieuwe fouten
+
+  Test 2: business AT
+  Doel: business-invoice flow, maar nog steeds met sandbox-land AT.
+
+  Invullen:
+
+  - invoiceRequested = true
+  - invoiceType = business
+  - invoiceCountry = AT
+  - companyName = ingevuld
+  - vatNumber = gevuld
+  - invoiceEmail = ingevuld
+  - buyerEndpointID = leeg, tenzij je die expliciet wil testen
+
+  Wat je verwacht:
+
+  - businessgegevens worden opgeslagen
+  - factuur bevat bedrijf + btw-nummer
+  - btw-logica volgt het pad dat bij AT hoort
+  - Peppol-UBL blijft valide
+
+  Test 3: business AT met Peppol-gegevens
+  Doel: alle factuurvelden tegelijk testen.
+
+  Invullen:
+
+  - hetzelfde als test 2
+  - plus buyerEndpointID invullen als je de buyer Peppol-route wil testen
+
+  Wat je verwacht:
+
+  - seller EndpointID blijft in de UBL staan via config
+  - buyer EndpointID verschijnt alleen als je die invult
+  - validator blijft groen
+  - dit is de beste proef voor het volledige invoice-pad
+
+  Wat ik daarna zou doen
+
+  1. eerst test 1 draaien
+  2. daarna svrl.xml controleren
+  3. als die goed is, test 2
+  4. daarna test 3
+
+  Waar je op let per test
+
+  - facturen/<nummer>.xml bestaat echt
+  - cbc:EndpointID van de seller staat in de UBL
+  - cac:PaymentMeans staat erin
+  - cac:InvoiceLine bevat quantity, tax category en price
+  - grep -n "failed-assert" svrl.xml geeft niets terug
+
+  Mijn praktische advies
+  Gebruik AT als vaste sandbox-parameter en wijzig per test alleen:
+
+  - invoiceType
+  - vatNumber
+  - buyerEndpointID
+  - eventueel companyName

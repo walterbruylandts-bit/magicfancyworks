@@ -1,0 +1,139 @@
+/* MagicFancyworks V3 Theme Overrides */
+* { font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif !important; }
+
+body {
+  background-image: none !important;
+  background-color: #fafafa !important;
+  color: #18181b !important;
+}
+
+header {
+  background: #ffffff !important;
+  color: #1e293b !important;
+  border-bottom: 1px solid #e4e4e7 !important;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.05) !important;
+  height: auto !important;
+}
+header h1 { 
+  color: #1e293b !important; 
+  font-size: 2.5rem !important;
+  font-weight: 800 !important;
+  letter-spacing: -0.025em !important;
+}
+header p { 
+  color: #52525b !important; 
+  font-size: 1.125rem !important;
+  font-weight: 400 !important;
+}
+
+/* Container kader verwijderen */
+.shop-container { border: none !important; outline: none !important; }
+
+.card {
+  background: #ffffff !important;
+  border: 1px solid rgba(228,228,231,0.5) !important;
+  border-radius: 16px !important;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.05) !important;
+  outline: none !important;
+  border-top: none !important;
+  border-right: none !important;
+  border-left: none !important;
+}
+.card:hover {
+  transform: translateY(-2px) !important;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.08) !important;
+  border-color: #d4d4d8 !important;
+}
+.card img { border-radius: 12px !important; background: #f4f4f5 !important; }
+.card h3 { color: #18181b !important; font-weight: 600 !important; }
+.card .price { color: #059669 !important; font-weight: 700 !important; }
+.card button {
+  background: #059669 !important; 
+  border: none !important;
+  border-radius: 8px !important; 
+  padding: 8px 16px !important;
+  font-weight: 600 !important;
+  color: white !important;
+}
+.card button:hover { background: #047857 !important; }
+
+/* Taalkeuze knoppen */
+#lang-switcher button, .lang-btn {
+  background: transparent !important;
+  color: #52525b !important;
+  border: 1px solid #d4d4d8 !important;
+  border-radius: 6px !important;
+  padding: 4px 10px !important;
+  font-weight: 600 !important;
+  font-size: 13px !important;
+}
+#lang-switcher button.active, .lang-btn.active {
+  background: #059669 !important;
+  color: white !important;
+  border-color: #059669 !important;
+}
+
+/* Modal */
+.modal-content { 
+  border-radius: 20px !important; 
+  box-shadow: 0 25px 50px rgba(0,0,0,0.15) !important;
+  background: #ffffff !important;
+}
+.modal-details h2 { color: #1e293b !important; }
+.modal-details .price { color: #059669 !important; }
+.close-button { background: #f4f4f5 !important; color: #18181b !important; }
+
+/* Payment states */
+.payment-success { background: #ecfdf5 !important; color: #047857 !important; border-left-color: #059669 !important; }
+.payment-error { background: #fef2f2 !important; color: #991b1b !important; border-left-color: #ef4444 !important; }
+.payment-loading { background: #eff6ff !important; color: #1e40af !important; border-left-color: #3b82f6 !important; }
+
+/* Footer */
+footer { 
+  background: #ffffff !important; 
+  color: #52525b !important; 
+  border-top: 1px solid #e4e4e7 !important;
+}
+footer a { color: #52525b !important; }
+footer a:hover { color: #059669 !important; }
+
+/* Cart */
+#cart-sidebar { background: #ffffff !important; box-shadow: -5px 0 25px rgba(0,0,0,0.08) !important; }
+#cart-sidebar div:first-child { background: #059669 !important; color: white !important; }
+
+/* Diverse paarse elementen */
+.view-image-btn, .kleur-keuze-label { background: #059669 !important; border: none !important; }
+.kleur-btn.active { background: #059669 !important; border-color: #059669 !important; }
+.keuze-select:focus { border-color: #059669 !important; outline-color: #059669 !important; }
+
+/* Cookie banner */
+#cookie-banner { background: #ffffff !important; color: #18181b !important; border-top: 1px solid #e4e4e7 !important; }
+#cookie-banner button:first-of-type { background: #059669 !important; color: white !important; border: none !important; }
+#cookie-banner button:last-of-type { background: transparent !important; color: #52525b !important; border: 1px solid #d4d4d8 !important; }
+
+/* Taal overlay */
+#lang-overlay > div { 
+  background: #ffffff !important; 
+  color: #18181b !important;
+  border: 1px solid #e4e4e7 !important;
+  box-shadow: 0 25px 50px rgba(0,0,0,0.15) !important;
+}
+#lang-overlay h2 { color: #1e293b !important; }
+#lang-overlay button {
+  background: #ffffff !important;
+  color: #18181b !important;
+  border: 1px solid #e4e4e7 !important;
+}
+#lang-overlay button:hover {
+  background: #f4f4f5 !important;
+  border-color: #059669 !important;
+}
+
+/* Andere pagina's (contact, privacy, etc.) */
+body > div.max-w-3xl, body > div.max-w-xl {
+  background: #ffffff !important;
+  border-radius: 16px !important;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.05) !important;
+  margin: 2rem auto !important;
+  padding: 2rem !important;
+}

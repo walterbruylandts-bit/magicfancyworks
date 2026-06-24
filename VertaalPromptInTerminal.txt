@@ -1,0 +1,9 @@
+./run-translate-product-texts.sh
+
+Voor de worker-bronmap:
+
+  cd ~/Desktop/magicfancyworks-v4/AAniet\ uploaden
+
+Voor de shop/frontend-map:
+
+  cd ~/Desktop/magicfancyworks-v4/AAwel\ uploaden
