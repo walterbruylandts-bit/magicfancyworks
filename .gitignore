@@ -3,4 +3,5 @@ node_modules/
 indexBACKUPS/
 workerBACKUPS/
 duo-zang-*/
+schematron/
 .DS_Store
