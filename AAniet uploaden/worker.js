@@ -1240,8 +1240,9 @@ const {
     const normalizedVat = invoiceType === "business"
       ? normalizeVatNumberInput(vatNumber, invoiceCountry)
       : null;
+    const isSandboxMode = String(env.PAYPAL_ENV || "").toLowerCase() !== "live";
 
-    if (invoiceRequested === true && invoiceType === "business") {
+    if (invoiceRequested === true && invoiceType === "business" && !isSandboxMode) {
       if (!normalizedVat) {
         return new Response(JSON.stringify({ error: "BTW-nummer ontbreekt of heeft een ongeldig formaat" }), {
           status: 400,
