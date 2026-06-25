@@ -37,8 +37,9 @@ header p {
   box-shadow: 0 8px 22px rgba(15,23,42,0.05) !important;
   outline: none !important;
   text-align: left !important;
-  overflow: visible !important;
+  overflow: hidden !important;
   position: relative !important;
+  min-width: 0 !important;
 }
 
 .card:hover {
@@ -55,8 +56,9 @@ header p {
   background: linear-gradient(180deg, rgba(15,118,110,0.05), rgba(15,118,110,0.01)) !important;
   border-radius: 14px !important;
   display: block !important;
-  width: calc(100% - 20px) !important;
-  margin: 10px 10px 0 10px !important;
+  width: calc(100% - 24px) !important;
+  max-width: calc(100% - 24px) !important;
+  margin: 12px auto 0 !important;
   box-shadow: 0 10px 20px rgba(15, 23, 42, 0.08) !important;
   border: 1px solid rgba(228,228,231,0.65) !important;
   padding: 12px !important;
