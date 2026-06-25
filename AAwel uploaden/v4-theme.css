@@ -85,11 +85,12 @@ header p {
   background: linear-gradient(180deg, #0f766e 0%, #0b5f58 100%) !important;
   color: white !important;
   border: none !important;
-  border-radius: 8px !important;
+  border-radius: 12px !important;
   padding: 8px 16px !important;
   font-weight: 600 !important;
   width: calc(100% - 24px) !important;
   margin: 0 12px 12px 12px !important;
+  box-shadow: 0 6px 14px rgba(15, 118, 110, 0.14) !important;
 }
 
 .modal-content {
