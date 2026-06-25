@@ -174,7 +174,7 @@ async function checkVatNumberViaVies(countryCode, vatNumber) {
 
   const text = await response.text();
   if (!response.ok) {
-    throw new Error("VIES-service is tijdelijk niet bereikbaar");
+    throw new Error("We kunnen het BTW-nummer momenteel niet controleren. Probeer het later opnieuw.");
   }
 
   const validMatch = text.match(/<valid>\s*(true|false)\s*<\/valid>/i);
@@ -1264,7 +1264,7 @@ const {
 
       const viesResult = await checkVatNumberViaVies(normalizedVat.countryCode, normalizedVat.vatNumber);
       if (!viesResult.valid) {
-        return new Response(JSON.stringify({ error: "BTW-nummer is niet geldig volgens VIES" }), {
+        return new Response(JSON.stringify({ error: "Dit BTW-nummer lijkt niet geldig. Controleer het nummer of kies particuliere facturatie." }), {
           status: 400,
           headers: { "Content-Type": "application/json", ...corsHeaders }
         });

@@ -2404,7 +2404,7 @@ createOrder:(data,actions)=>{
 
   if (invoiceRequested && invoiceType === 'business' && !vatNumber) {
     if (errorBox) {
-      errorBox.innerText = '⚠ Gelieve een geldig BTW-nummer in te vullen.';
+      errorBox.innerText = '⚠ Gelieve je BTW-nummer in te vullen.';
       errorBox.style.display = 'block';
     }
     return actions.reject();
