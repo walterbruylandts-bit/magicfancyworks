@@ -3,38 +3,38 @@
 * { font-family: 'Inter', system-ui, sans-serif !important; }
 
 html, body {
-  background: #FAF9F6 !important;
+  background: #f7f3ec !important;
   background-image: none !important;
   color: #18181b !important;
 }
 
 header {
-  background: #FAF9F6 !important;
-  border-bottom: 1px solid rgba(228,228,231,0.5) !important;
-  box-shadow: none !important;
+  background: linear-gradient(180deg, #f8f4ee 0%, #f4eee6 100%) !important;
+  border-bottom: 1px solid rgba(217,211,203,0.9) !important;
+  box-shadow: 0 2px 12px rgba(17,24,39,0.04) !important;
   height: auto !important;
-  padding: 16px 20px !important;
+  padding: 18px 22px !important;
 }
 
 header h1 {
   font-family: 'Playfair Display', serif !important;
-  color: #065f46 !important;
-  font-size: 2.5rem !important;
+  color: #0f766e !important;
+  font-size: 2.35rem !important;
   font-weight: 600 !important;
 }
 
 header p {
-  color: #065f46 !important;
-  font-size: 1.05rem !important;
+  color: #0f766e !important;
+  font-size: 1rem !important;
   font-style: italic !important;
   margin: 0 !important;
 }
 
 .card {
   background: #ffffff !important;
-  border-radius: 16px !important;
-  border: 1px solid rgba(228,228,231,0.5) !important;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.05) !important;
+  border-radius: 18px !important;
+  border: 1px solid rgba(226,232,240,0.9) !important;
+  box-shadow: 0 8px 22px rgba(15,23,42,0.05) !important;
   outline: none !important;
   text-align: left !important;
   overflow: visible !important;
@@ -42,8 +42,8 @@ header p {
 }
 
 .card:hover {
-  transform: translateY(-4px) !important;
-  box-shadow: 0 12px 30px rgba(0,0,0,0.08) !important;
+  transform: translateY(-3px) !important;
+  box-shadow: 0 14px 26px rgba(15,23,42,0.08) !important;
 }
 
 .card img {
@@ -52,7 +52,7 @@ header p {
   min-height: 180px !important;
   object-fit: contain !important;
   object-position: center center !important;
-  background: linear-gradient(180deg, rgba(5,150,105,0.04), rgba(5,150,105,0.01)) !important;
+  background: linear-gradient(180deg, rgba(15,118,110,0.05), rgba(15,118,110,0.01)) !important;
   border-radius: 14px !important;
   display: block !important;
   width: calc(100% - 20px) !important;
@@ -73,14 +73,14 @@ header p {
 }
 
 .card .price {
-  color: #059669 !important;
+  color: #0f766e !important;
   font-weight: 700 !important;
   margin: 8px 12px 12px 12px !important;
   text-align: left !important;
 }
 
 .card button {
-  background: #059669 !important;
+  background: linear-gradient(180deg, #0f766e 0%, #0b5f58 100%) !important;
   color: white !important;
   border: none !important;
   border-radius: 8px !important;
@@ -107,14 +107,14 @@ header p {
 }
 
 #cart-sidebar div:first-child {
-  background: #059669 !important;
+  background: linear-gradient(180deg, #0f766e 0%, #0b5f58 100%) !important;
   color: white !important;
 }
 
 .lang-btn.active, #lang-switcher button.active {
-  background: #059669 !important;
+  background: #0f766e !important;
   color: white !important;
-  border-color: #059669 !important;
+  border-color: #0f766e !important;
 }
 
 footer {
@@ -128,7 +128,7 @@ footer a {
 }
 
 footer a:hover {
-  color: #059669 !important;
+  color: #0f766e !important;
 }
 
 #cookie-banner {
@@ -138,7 +138,7 @@ footer a:hover {
 }
 
 #cookie-banner button:first-of-type {
-  background: #059669 !important;
+  background: #0f766e !important;
   color: white !important;
   border: none !important;
   border-radius: 8px !important;
@@ -153,7 +153,7 @@ footer a:hover {
 .payment-success {
   background: #ecfdf5 !important;
   color: #047857 !important;
-  border-left: 4px solid #059669 !important;
+  border-left: 4px solid #0f766e !important;
 }
 
 .payment-error {
@@ -163,13 +163,13 @@ footer a:hover {
 }
 
 .view-image-btn, .kleur-keuze-label {
-  background: #059669 !important;
+  background: #0f766e !important;
   border: none !important;
   border-radius: 8px !important;
 }
 
 .kleur-btn.active {
-  background: #059669 !important;
-  border-color: #059669 !important;
+  background: #0f766e !important;
+  border-color: #0f766e !important;
   color: white !important;
 }
