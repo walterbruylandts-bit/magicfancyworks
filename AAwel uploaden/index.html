@@ -2402,6 +2402,14 @@ createOrder:(data,actions)=>{
     return actions.reject();
   }
 
+  if (invoiceRequested && invoiceType === 'business' && !vatNumber) {
+    if (errorBox) {
+      errorBox.innerText = '⚠ Gelieve een geldig BTW-nummer in te vullen.';
+      errorBox.style.display = 'block';
+    }
+    return actions.reject();
+  }
+
   console.log('STEP 2 DATA', {
     invoiceRequested,
     invoiceType,
@@ -2442,8 +2450,20 @@ createOrder:(data,actions)=>{
       })
     }
   )
-  .then(r => r.json())
-  .then(d => d.id);
+  .then(async r => {
+    const d = await r.json().catch(() => ({}));
+    if (!r.ok || d.error) {
+      throw new Error(d.error || 'Kon bestelling niet aanmaken');
+    }
+    return d.id;
+  })
+  .catch(err => {
+    if (errorBox) {
+      errorBox.innerText = `⚠ ${err.message}`;
+      errorBox.style.display = 'block';
+    }
+    throw err;
+  });
 },
 
         onShippingChange: async (data, actions) => {

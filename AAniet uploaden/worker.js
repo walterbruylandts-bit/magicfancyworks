@@ -117,6 +117,84 @@ function summarizeOrderItems(items) {
   };
 }
 
+function normalizeVatNumberInput(vatNumber, countryHint = "") {
+  const raw = String(vatNumber || "")
+    .trim()
+    .toUpperCase()
+    .replace(/[\s.\-_/]/g, "");
+
+  if (!raw) {
+    return null;
+  }
+
+  const prefixed = raw.match(/^([A-Z]{2})([A-Z0-9]+)$/);
+  if (prefixed) {
+    return {
+      countryCode: prefixed[1],
+      vatNumber: prefixed[2],
+      normalized: prefixed[1] + prefixed[2]
+    };
+  }
+
+  const fallbackCountry = String(countryHint || "").trim().toUpperCase();
+  if (/^[A-Z]{2}$/.test(fallbackCountry)) {
+    return {
+      countryCode: fallbackCountry,
+      vatNumber: raw,
+      normalized: fallbackCountry + raw
+    };
+  }
+
+  return null;
+}
+
+async function checkVatNumberViaVies(countryCode, vatNumber) {
+  const envelope = `<?xml version="1.0" encoding="UTF-8"?>
+<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:tns="urn:ec.europa.eu:taxud:vies:services:checkVat:types">
+  <soapenv:Body>
+    <tns:checkVat>
+      <tns:countryCode>${escapeXml(countryCode)}</tns:countryCode>
+      <tns:vatNumber>${escapeXml(vatNumber)}</tns:vatNumber>
+    </tns:checkVat>
+  </soapenv:Body>
+</soapenv:Envelope>`;
+
+  const response = await fetch(
+    "https://ec.europa.eu/taxation_customs/vies/services/checkVatService",
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "text/xml; charset=utf-8",
+        "SOAPAction": "checkVat",
+        "Accept": "text/xml"
+      },
+      body: envelope
+    }
+  );
+
+  const text = await response.text();
+  if (!response.ok) {
+    throw new Error("VIES-service is tijdelijk niet bereikbaar");
+  }
+
+  const validMatch = text.match(/<valid>\s*(true|false)\s*<\/valid>/i);
+  if (!validMatch) {
+    const faultMatch = text.match(/<faultstring>([\s\S]*?)<\/faultstring>/i);
+    throw new Error(
+      faultMatch ? `VIES-fout: ${faultMatch[1].replace(/<[^>]*>/g, "").trim()}` : "Onverwacht VIES-antwoord"
+    );
+  }
+
+  const nameMatch = text.match(/<name>\s*([\s\S]*?)\s*<\/name>/i);
+  const addressMatch = text.match(/<address>\s*([\s\S]*?)\s*<\/address>/i);
+
+  return {
+    valid: validMatch[1].toLowerCase() === "true",
+    name: nameMatch ? nameMatch[1].replace(/<[^>]*>/g, "").trim() : "",
+    address: addressMatch ? addressMatch[1].replace(/<[^>]*>/g, "").trim() : ""
+  };
+}
+
 function generateUBL(order, env = {}) {
 const productAmount = Number(order.productAmount || order.amount || 0);
 const shippingAmount = Number(order.invoiceShippingAmount || 0);
@@ -1159,6 +1237,40 @@ const {
     }
 
     const orderType = summary.orderType;
+    const normalizedVat = invoiceType === "business"
+      ? normalizeVatNumberInput(vatNumber, invoiceCountry)
+      : null;
+
+    if (invoiceRequested === true && invoiceType === "business") {
+      if (!normalizedVat) {
+        return new Response(JSON.stringify({ error: "BTW-nummer ontbreekt of heeft een ongeldig formaat" }), {
+          status: 400,
+          headers: { "Content-Type": "application/json", ...corsHeaders }
+        });
+      }
+
+      const euVatCountries = [
+        "AT", "BE", "BG", "HR", "CY", "CZ", "DK", "EE", "FI", "FR",
+        "DE", "GR", "HU", "IE", "IT", "LV", "LT", "LU", "MT", "NL",
+        "PL", "PT", "RO", "SK", "SI", "ES", "SE"
+      ];
+
+      if (!euVatCountries.includes(normalizedVat.countryCode)) {
+        return new Response(JSON.stringify({ error: "Alleen EU-btw-nummers kunnen via VIES worden gecontroleerd" }), {
+          status: 400,
+          headers: { "Content-Type": "application/json", ...corsHeaders }
+        });
+      }
+
+      const viesResult = await checkVatNumberViaVies(normalizedVat.countryCode, normalizedVat.vatNumber);
+      if (!viesResult.valid) {
+        return new Response(JSON.stringify({ error: "BTW-nummer is niet geldig volgens VIES" }), {
+          status: 400,
+          headers: { "Content-Type": "application/json", ...corsHeaders }
+        });
+      }
+    }
+
         const auth = btoa(env.PAYPAL_CLIENT_ID + ":" + env.PAYPAL_SECRET);
         const tokenResp = await fetch(paypalBase + "/v1/oauth2/token", {
           method: "POST",
@@ -1209,7 +1321,7 @@ const {
         invoiceRequested,
         invoiceType,
         companyName,
-        vatNumber,
+        vatNumber: normalizedVat?.normalized || String(vatNumber || "").trim().toUpperCase(),
         invoiceEmail,
         invoiceCountry: body.invoiceCountry || "",
         buyerEndpointID: body.buyerEndpointID || "",
