@@ -1139,6 +1139,10 @@ var worker_default = {
     
     const publicWorkerUrl =
   env.PUBLIC_WORKER_URL || "https://paypal-handler-v3.camar.workers.dev";
+    const shopFromEmail =
+  env.RESEND_FROM_EMAIL || "MagicFancyworks <onboarding@resend.dev>";
+const orderNotificationEmail =
+  env.ORDER_NOTIFY_EMAIL || env.SHOP_EMAIL || env.ADMIN_EMAIL || "magicfancyworks@telenet.be";
 
 const origin = request.headers.get("Origin") || "";
 
@@ -1813,8 +1817,8 @@ if (storedInvoiceRequested) {
                 method: "POST",
                 headers: { "Authorization": "Bearer " + env.RESEND_API_KEY, "Content-Type": "application/json" },
                 body: JSON.stringify({
-                  from: "MagicFancyworks <onboarding@resend.dev>",
-                  to: "walter.bruylandts@gmail.com",
+                  from: shopFromEmail,
+                  to: orderNotificationEmail,
                   subject: "Nieuwe bestelling: " + productName + " (" + currency + " " + amount + ")",
                   html: "<h2>Nieuwe bestelling!</h2><p><strong>Product:</strong> " + escapeHtml(productName) + "</p><p><strong>Bedrag:</strong> " + escapeHtml(currency) + " " + escapeHtml(amount) + "</p><p><strong>Klant:</strong> " + escapeHtml(payerName) + "</p><p><strong>Email klant:</strong> " + escapeHtml(payerEmail) + "</p><p><strong>Order ID:</strong> " + escapeHtml(orderID) + "</p><p><strong>Tijd:</strong> " + escapeHtml((/* @__PURE__ */ new Date()).toLocaleString("nl-BE")) + '</p><p><a href="' + escapeHtml(publicWorkerUrl) + '/admin">Ga naar admin om goed te keuren</a></p>'
                 })
@@ -2837,25 +2841,25 @@ if (order.invoiceRequested) {
         const mailSubject = subjects[orderLang] || subjects["nl"];
         const mailBody = bodies[orderLang] || bodies["nl"];
         try {
-          await fetch("https://api.resend.com/emails", {
-            method: "POST",
-            headers: { "Authorization": "Bearer " + env.RESEND_API_KEY, "Content-Type": "application/json" },
-            body: JSON.stringify({
-              from: "MagicFancyworks <onboarding@resend.dev>",
-              to: order.payerEmail,
-              subject: mailSubject,
-              html: mailBody
-            })
-          });
-          await fetch("https://api.resend.com/emails", {
-            method: "POST",
-            headers: { "Authorization": "Bearer " + env.RESEND_API_KEY, "Content-Type": "application/json" },
-            body: JSON.stringify({
-              from: "MagicFancyworks <onboarding@resend.dev>",
-              to: "walter.bruylandts@gmail.com",
-              subject: "[KOPIE KLANT] " + mailSubject,
-              html: mailBody
-            })
+            await fetch("https://api.resend.com/emails", {
+              method: "POST",
+              headers: { "Authorization": "Bearer " + env.RESEND_API_KEY, "Content-Type": "application/json" },
+              body: JSON.stringify({
+                from: shopFromEmail,
+                to: order.payerEmail,
+                subject: mailSubject,
+                html: mailBody
+              })
+            });
+            await fetch("https://api.resend.com/emails", {
+              method: "POST",
+              headers: { "Authorization": "Bearer " + env.RESEND_API_KEY, "Content-Type": "application/json" },
+              body: JSON.stringify({
+                from: shopFromEmail,
+                to: orderNotificationEmail,
+                subject: "[KOPIE KLANT] " + mailSubject,
+                html: mailBody
+              })
           });
         } catch (e) {
           console.error("Email fout:", e);
@@ -2875,25 +2879,25 @@ if (order.invoiceRequested) {
         const mailSubject = subjects[orderLang] || subjects["nl"];
         const mailBody = bodies[orderLang] || bodies["nl"];
         try {
-          await fetch("https://api.resend.com/emails", {
-            method: "POST",
-            headers: { "Authorization": "Bearer " + env.RESEND_API_KEY, "Content-Type": "application/json" },
-            body: JSON.stringify({
-              from: "MagicFancyworks <onboarding@resend.dev>",
-              to: order.payerEmail,
-              subject: mailSubject,
-              html: mailBody
-            })
-          });
-          await fetch("https://api.resend.com/emails", {
-            method: "POST",
-            headers: { "Authorization": "Bearer " + env.RESEND_API_KEY, "Content-Type": "application/json" },
-            body: JSON.stringify({
-              from: "MagicFancyworks <onboarding@resend.dev>",
-              to: "walter.bruylandts@gmail.com",
-              subject: "[KOPIE KLANT] " + mailSubject,
-              html: mailBody
-            })
+            await fetch("https://api.resend.com/emails", {
+              method: "POST",
+              headers: { "Authorization": "Bearer " + env.RESEND_API_KEY, "Content-Type": "application/json" },
+              body: JSON.stringify({
+                from: shopFromEmail,
+                to: order.payerEmail,
+                subject: mailSubject,
+                html: mailBody
+              })
+            });
+            await fetch("https://api.resend.com/emails", {
+              method: "POST",
+              headers: { "Authorization": "Bearer " + env.RESEND_API_KEY, "Content-Type": "application/json" },
+              body: JSON.stringify({
+                from: shopFromEmail,
+                to: orderNotificationEmail,
+                subject: "[KOPIE KLANT] " + mailSubject,
+                html: mailBody
+              })
           });
         } catch (e) {
           console.error("Email fout:", e);
@@ -2915,9 +2919,9 @@ if (order.invoiceRequested) {
         await fetch("https://api.resend.com/emails", {
           method: "POST",
           headers: { "Authorization": "Bearer " + env.RESEND_API_KEY, "Content-Type": "application/json" },
-          body: JSON.stringify({
-            from: "MagicFancyworks <onboarding@resend.dev>",
-            to: "walter.bruylandts@gmail.com",
+              body: JSON.stringify({
+            from: shopFromEmail,
+            to: orderNotificationEmail,
             subject: "Nieuwe bestelling: " + order.productName,
             html: walterBody
           })
@@ -2954,7 +2958,7 @@ return Response.redirect(publicWorkerUrl + "/admin", 302);
       const file = patternLookup.file;
       if (!file) {
         const tried = (patternLookup.triedPatternFiles || [download.patternFile]).map(escapeHtml).join("<br>");
-        return new Response("<h1>Bestand niet gevonden</h1><p>Contacteer walter.bruylandts@gmail.com</p><p>Geprobeerd:<br><code>" + tried + "</code></p>", {
+        return new Response("<h1>Bestand niet gevonden</h1><p>Contacteer " + escapeHtml(orderNotificationEmail) + "</p><p>Geprobeerd:<br><code>" + tried + "</code></p>", {
           status: 404,
           headers: { "Content-Type": "text/html; charset=utf-8" }
         });
@@ -3059,8 +3063,8 @@ return Response.redirect(publicWorkerUrl + "/admin", 302);
             method: "POST",
             headers: { "Authorization": "Bearer " + env.RESEND_API_KEY, "Content-Type": "application/json" },
             body: JSON.stringify({
-              from: "MagicFancyworks <onboarding@resend.dev>",
-              to: "walter.bruylandts@gmail.com",
+              from: shopFromEmail,
+              to: orderNotificationEmail,
               subject: "Webhook: betaling EUR " + totalDisplay,
               html: "<h2>PayPal Webhook!</h2><p><strong>Totaal:</strong> €" + escapeHtml(totalDisplay) + "</p><p><strong>Product:</strong> €" + escapeHtml(itemDisplay) + "</p><p><strong>Verzendkosten:</strong> €" + escapeHtml(shippingDisplay) + "</p><p><strong>ID:</strong> " + escapeHtml(payment.id) + "</p>"
             })
@@ -3164,8 +3168,8 @@ const shipping =
           method: "POST",
           headers: { "Authorization": "Bearer " + env.RESEND_API_KEY, "Content-Type": "application/json" },
           body: JSON.stringify({
-            from: "MagicFancyworks <onboarding@resend.dev>",
-            to: "walter.bruylandts@gmail.com",
+            from: shopFromEmail,
+            to: orderNotificationEmail,
             subject: "Contactformulier: " + (subject || "Geen onderwerp"),
             html: "<h2>Nieuw contactbericht</h2><p><strong>Naam:</strong> " + escapeHtml(name) + "</p><p><strong>Email:</strong> " + escapeHtml(email) + "</p><p><strong>Onderwerp:</strong> " + escapeHtml(subject || "-") + "</p><p><strong>Bericht:</strong></p><p>" + escapeHtml(message).replace(/\n/g, "<br>") + "</p>"
           })
@@ -3249,7 +3253,7 @@ function loginPage(error) {
     };
     const t = texts[lang] || texts["nl"];
     return {
-      from: "MagicFancyworks <onboarding@resend.dev>",
+      from: shopFromEmail,
       to: order.payerEmail,
       subject: t.subject,
       html: "<h2>" + t.greeting + " " + escapeHtml(order.payerName.split(" ")[0]) + "!</h2><p>" + t.thanks + " <strong>" + escapeHtml(order.productName) + "</strong>.</p><p>" + t.ready + '</p><p><a href="' + escapeHtml(downloadUrl) + '" style="background:#10b981;color:white;padding:12px 24px;border-radius:4px;text-decoration:none;display:inline-block">' + t.button + "</a></p><p><strong>" + t.notice + "</strong></p><p>" + t.regards + "<br>MagicFancyworks</p>"
