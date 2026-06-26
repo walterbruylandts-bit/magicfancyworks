@@ -1875,6 +1875,7 @@ if (modal && modal.classList.contains('active')) {
 }
 
 const R2_URL = "https://pub-ad74d32a13e446fbba18cdb7e699f91b.r2.dev";
+const WORKER_BASE_URL = "https://paypal-handler-v3.camar.workers.dev";
 let alleProducten = [];
 let cart = [];
 let shippingRates = {};
@@ -1883,7 +1884,7 @@ let activeProductFilter = 'all';
 
 async function laadVerzendkosten() {
   try {
-    const res = await fetch('https://paypal-handler-v3.camar.workers.dev/shipping-rates');
+    const res = await fetch(`${WORKER_BASE_URL}/shipping-rates`);
     if (res.ok) shippingRates = await res.json();
   } catch (e) { console.error('Verzendkosten niet geladen:', e); }
 }
@@ -2461,7 +2462,7 @@ createOrder:(data,actions)=>{
   console.log('STEP 6 FETCH START');
 
   return fetch(
-    'https://paypal-handler-v3.camar.workers.dev/create-order',
+    `${WORKER_BASE_URL}/create-order`,
     {
       method:'POST',
       headers:{'Content-Type':'application/json'},
@@ -2507,7 +2508,7 @@ createOrder:(data,actions)=>{
           if(!hasPhysical) return actions.resolve();
           const countryCode = data.shipping_address?.country_code || 'BE';
           try {
-            const res = await fetch('https://paypal-handler-v3.camar.workers.dev/update-shipping',{
+            const res = await fetch(`${WORKER_BASE_URL}/update-shipping`,{
               method:'POST',
               headers:{'Content-Type':'application/json'},
               body:JSON.stringify({orderID:data.orderID,countryCode})
@@ -2555,7 +2556,7 @@ onApprove:async(data,actions)=>{
     });
 
     const res = await fetch(
-      'https://paypal-handler-v3.camar.workers.dev/capture',
+      `${WORKER_BASE_URL}/capture`,
       {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -3126,7 +3127,7 @@ async function openPopup(code) {
 
                     if (sourceText) {
                         try {
-                            const transRes = await fetch('https://paypal-handler-v3.camar.workers.dev/translate', {
+                            const transRes = await fetch(`${WORKER_BASE_URL}/translate`, {
                                 method: 'POST',
                                 headers: { 'Content-Type': 'application/json' },
                                 body: JSON.stringify({ text: sourceText, targetLang: currentLang })
@@ -3281,7 +3282,7 @@ function renderPayPalButtons(product, container) {
                     if(!isPhysical) return actions.resolve();
                     const countryCode = data.shipping_address?.country_code || 'BE';
                     try {
-                        const res = await fetch('https://paypal-handler-v3.camar.workers.dev/update-shipping',{
+                        const res = await fetch(`${WORKER_BASE_URL}/update-shipping`,{
                             method:'POST',
                             headers:{'Content-Type':'application/json'},
                             body:JSON.stringify({orderID:data.orderID,countryCode})
@@ -3298,7 +3299,7 @@ function renderPayPalButtons(product, container) {
 
                     try {
                         const keuzes = getPopupKeuzes();
-                        const response = await fetch('https://paypal-handler-v3.camar.workers.dev/capture', {
+                        const response = await fetch(`${WORKER_BASE_URL}/capture`, {
                             method: 'POST',
                             headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({
