@@ -1240,11 +1240,19 @@ const {
     const normalizedVat = invoiceType === "business"
       ? normalizeVatNumberInput(vatNumber, invoiceCountry)
       : null;
+    const normalizedInvoiceCountry = String(invoiceCountry || "").trim().toUpperCase();
     const isSandboxMode = String(env.PAYPAL_ENV || "").toLowerCase() !== "live";
 
     if (invoiceRequested === true && invoiceType === "business" && !isSandboxMode) {
       if (!normalizedVat) {
         return new Response(JSON.stringify({ error: "BTW-nummer ontbreekt of heeft een ongeldig formaat" }), {
+          status: 400,
+          headers: { "Content-Type": "application/json", ...corsHeaders }
+        });
+      }
+
+      if (normalizedInvoiceCountry === "BE" && !String(buyerEndpointID || "").trim()) {
+        return new Response(JSON.stringify({ error: "Peppol Endpoint ID ontbreekt voor Belgische zakelijke facturatie" }), {
           status: 400,
           headers: { "Content-Type": "application/json", ...corsHeaders }
         });
@@ -1573,10 +1581,20 @@ const isBusinessInvoice =
 const isBelgianBusiness =
   isBusinessInvoice &&
   vatNumber?.toUpperCase().startsWith('BE');
+const isSandboxMode = String(env.PAYPAL_ENV || "").toLowerCase() !== "live";
+const normalizedBuyerCountry =
+  String(buyerInvoiceCountry || "").trim().toUpperCase();
   let peppolRequired = false;
 
-if (isBelgianBusiness) {
+if (isBelgianBusiness && !isSandboxMode) {
   peppolRequired = true;
+
+  if (!String(buyerEndpointID || "").trim() && normalizedBuyerCountry === "BE") {
+    return new Response(JSON.stringify({ error: "Peppol Endpoint ID ontbreekt voor Belgische zakelijke facturatie" }), {
+      status: 400,
+      headers: { "Content-Type": "application/json", ...corsHeaders }
+    });
+  }
 }
 
 const invoiceMailData = {

@@ -2288,6 +2288,10 @@ if (invoiceCheckbox && invoiceWrapper) {
     document.getElementById('invoiceCountry')
       ?.value?.trim().toUpperCase() || '';
 
+  const buyerEndpointID =
+    document.getElementById('buyerEndpointID')
+      ?.value?.trim() || '';
+
   const errorBox =
     document.getElementById('invoice-error');
 
@@ -2324,6 +2328,21 @@ if (invoiceCheckbox && invoiceWrapper) {
       if (errorBox) {
         errorBox.innerText =
           '⚠ Gelieve de landcode in te vullen.';
+        errorBox.style.display =
+          'block';
+      }
+
+      return actions.reject();
+    }
+
+    if (
+      invoiceType === 'business' &&
+      invoiceCountry === 'BE' &&
+      !buyerEndpointID
+    ) {
+      if (errorBox) {
+        errorBox.innerText =
+          '⚠ Gelieve je Peppol Endpoint ID in te vullen voor Belgische zakelijke facturatie.';
         errorBox.style.display =
           'block';
       }
@@ -2406,6 +2425,19 @@ createOrder:(data,actions)=>{
   if (invoiceRequested && invoiceType === 'business' && !vatNumber) {
     if (errorBox) {
       errorBox.innerText = '⚠ Gelieve je BTW-nummer in te vullen.';
+      errorBox.style.display = 'block';
+    }
+    return actions.reject();
+  }
+
+  if (
+    invoiceRequested &&
+    invoiceType === 'business' &&
+    invoiceCountry === 'BE' &&
+    !buyerEndpointID
+  ) {
+    if (errorBox) {
+      errorBox.innerText = '⚠ Gelieve je Peppol Endpoint ID in te vullen voor Belgische zakelijke facturatie.';
       errorBox.style.display = 'block';
     }
     return actions.reject();
