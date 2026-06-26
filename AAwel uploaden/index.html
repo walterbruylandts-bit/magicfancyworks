@@ -2021,7 +2021,7 @@ const invoiceCheckoutText = {
     vatNumber: "BTW-nummer (bv. BE0123456789)",
     invoiceEmail: "Facturatie e-mail",
     invoiceCountry: "Landcode (bv. BE)",
-    buyerEndpointID: "Peppol Endpoint ID",
+    buyerEndpointID: "Peppol Endpoint ID (verplicht voor Belgische bedrijven)",
     invoiceCity: "Stad",
     invoicePostalCode: "Postcode"
   },
@@ -2033,7 +2033,7 @@ const invoiceCheckoutText = {
     vatNumber: "Numéro de TVA (ex. BE0123456789)",
     invoiceEmail: "E-mail de facturation",
     invoiceCountry: "Code pays (ex. BE)",
-    buyerEndpointID: "ID Endpoint Peppol",
+    buyerEndpointID: "ID Endpoint Peppol (obligatoire pour entreprises belges)",
     invoiceCity: "Ville",
     invoicePostalCode: "Code postal"
   },
@@ -2045,7 +2045,7 @@ const invoiceCheckoutText = {
     vatNumber: "VAT number (e.g. BE0123456789)",
     invoiceEmail: "Billing email",
     invoiceCountry: "Country code (e.g. BE)",
-    buyerEndpointID: "Peppol Endpoint ID",
+    buyerEndpointID: "Peppol Endpoint ID (required for Belgian businesses)",
     invoiceCity: "City",
     invoicePostalCode: "Postal code"
   }
@@ -2124,6 +2124,10 @@ ppc.innerHTML = `
           placeholder="${ict.buyerEndpointID}"
           style="width:100%;padding:10px;margin-top:8px;border:1px solid #ccc;border-radius:6px;"
         >
+
+        <div style="font-size:12px;color:#64748b;margin:6px 0 0 2px;line-height:1.4">
+          Voor Belgische zakelijke facturatie is dit veld verplicht.
+        </div>
 
         <input
           type="text"

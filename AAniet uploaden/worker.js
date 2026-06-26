@@ -1252,7 +1252,7 @@ const {
       }
 
       if (normalizedInvoiceCountry === "BE" && !String(buyerEndpointID || "").trim()) {
-        return new Response(JSON.stringify({ error: "Peppol Endpoint ID ontbreekt voor Belgische zakelijke facturatie" }), {
+        return new Response(JSON.stringify({ error: "Voor Belgische zakelijke facturatie is een Peppol Endpoint ID verplicht" }), {
           status: 400,
           headers: { "Content-Type": "application/json", ...corsHeaders }
         });
@@ -1584,13 +1584,13 @@ const isBelgianBusiness =
 const isSandboxMode = String(env.PAYPAL_ENV || "").toLowerCase() !== "live";
 const normalizedBuyerCountry =
   String(buyerInvoiceCountry || "").trim().toUpperCase();
-  let peppolRequired = false;
+let peppolRequired = false;
 
 if (isBelgianBusiness && !isSandboxMode) {
   peppolRequired = true;
 
   if (!String(buyerEndpointID || "").trim() && normalizedBuyerCountry === "BE") {
-    return new Response(JSON.stringify({ error: "Peppol Endpoint ID ontbreekt voor Belgische zakelijke facturatie" }), {
+    return new Response(JSON.stringify({ error: "Voor Belgische zakelijke facturatie is een Peppol Endpoint ID verplicht" }), {
       status: 400,
       headers: { "Content-Type": "application/json", ...corsHeaders }
     });
