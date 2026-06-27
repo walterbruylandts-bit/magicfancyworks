@@ -1250,6 +1250,25 @@ function getOrderTotalAmount(order) {
   return amount;
 }
 
+function adminShell(title, bodyHtml, accent = "#0f766e") {
+  return '<!DOCTYPE html><html><head><meta charset="utf-8"><title>' + escapeHtml(title) + '</title><style>' +
+    'body{font-family:system-ui;max-width:1200px;margin:0 auto;padding:20px;color:#0f172a;background:#fff}' +
+    'h1{color:#1e293b;margin:0}' +
+    'h2{margin:26px 0 12px;color:' + accent + '}' +
+    '.topbar{display:flex;flex-wrap:wrap;justify-content:space-between;gap:12px;align-items:center;margin-bottom:16px}' +
+    '.nav{display:flex;flex-wrap:wrap;gap:10px;margin:16px 0 8px}' +
+    '.btn,.back,.action-btn,.danger-btn,.ghost-btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:11px 18px;border-radius:10px;border:1px solid transparent;text-decoration:none;font-weight:700;font-size:14px;cursor:pointer;line-height:1.1}' +
+    '.btn,.action-btn,.back{background:' + accent + ';color:#fff}' +
+    '.btn.alt{background:#e2e8f0;color:#334155}' +
+    '.danger-btn{background:#b91c1c;color:#fff}' +
+    '.ghost-btn{background:#fff;color:' + accent + ';border-color:rgba(0,0,0,0.08)}' +
+    '.btn:hover,.action-btn:hover,.back:hover,.danger-btn:hover,.ghost-btn:hover{filter:brightness(0.97)}' +
+    'table{width:100%;border-collapse:collapse;margin:20px 0}th,td{padding:10px 12px;text-align:left;border-bottom:1px solid #e2e8f0;vertical-align:top}th{background:#f8fafc;font-weight:600}small{color:#64748b}' +
+    '.kpi{display:flex;gap:16px;flex-wrap:wrap;margin:18px 0}.kpi-card{background:#f8fafc;padding:18px;border-radius:12px;min-width:160px;border-left:4px solid ' + accent + '}.kpi-value{font-size:28px;font-weight:700;color:#1e293b}.kpi-label{font-size:13px;color:#64748b;margin-top:4px}' +
+    '.summary{margin-top:18px;border:1px solid #e2e8f0;border-radius:10px;overflow:hidden}.summary summary{cursor:pointer;list-style:none;padding:12px 16px;background:#f8fafc;color:' + accent + ';font-weight:700;border-bottom:1px solid #e2e8f0}.summary summary::-webkit-details-marker{display:none}.summary-body{padding:0 0 4px 0}' +
+    '</style></head><body><div class="topbar"><h1>' + escapeHtml(title) + '</h1><a href="/admin/logout" class="ghost-btn" style="color:#ef4444;border-color:#fecaca">Uitloggen</a></div>' + bodyHtml + '</body></html>';
+}
+
 var worker_default = {
   async fetch(request, env, ctx) {
     const url = new URL(request.url);
@@ -2254,90 +2273,36 @@ return new Response(file.body, {
 
   const files = await env.FACTUREN.list();
   files.objects.sort((a, b) => {
-  const getNum = (key) => {
-    const match = key.match(/(\d{4})-(\d+)/);
-    if (!match) return 0;
-    return Number(match[1] + match[2].padStart(6, "0"));
-  };
+    const getNum = (key) => {
+      const match = key.match(/(\d{4})-(\d+)/);
+      if (!match) return 0;
+      return Number(match[1] + match[2].padStart(6, "0"));
+    };
+    return getNum(b.key) - getNum(a.key);
+  });
 
-  return getNum(b.key) - getNum(a.key);
-});
+  const invoiceFiles = files.objects.filter((f) => f.key.startsWith("facturen/"));
+  const newestInvoice = invoiceFiles
+    .map((f) => f.key.replace("facturen/", "").replace(".html", "").replace(".pdf", ""))
+    .sort()
+    .reverse()[0] || "-";
 
-  let html = `
-  <html>
-  <head>
-    <title>Facturen</title>
-    <style>
-      body{
-        font-family:system-ui;
-        max-width:900px;
-        margin:40px auto;
-        padding:20px;
-      }
-
-      .file{
-        padding:10px;
-        border-bottom:1px solid #ddd;
-      }
-
-      a{
-        text-decoration:none;
-      }
-    </style>
-  </head>
-  <body>
-
-<a href="/admin"
-   style="
-     display:inline-block;
-     margin-bottom:20px;
-     color:#5C2D6E;
-     text-decoration:none;
-     font-weight:600;
-   ">
-   ← Terug naar admin
-</a>
-
-<h1>Facturen in R2</h1>
-<p>
-Totaal aantal facturen:
-${files.objects.filter(f => f.key.startsWith("facturen/")).length}
-</p>
-
-<p>
-Nieuwste factuur:
-${files.objects
-  .filter(f => f.key.startsWith("facturen/"))
-  .map(f => f.key.replace("facturen/", "").replace(".html", "").replace(".pdf", ""))
-  .sort()
-  .reverse()[0] || "-"}
-</p>
-  `;
-
-for (const file of files.objects) {
-
-  if (!file.key.startsWith("facturen/")) {
-    continue;
-  }
-
-  html += `
-    <div class="file">
-      <a href="/r2-file/${encodeURIComponent(file.key)}"
-         target="_blank">
-         👁 Open
-      </a>
-      &nbsp;&nbsp;
-      <strong>${file.key.replace("facturen/", "").replace(".html", "").replace(".pdf", "")}</strong>
+  const body = `
+    <div class="topbar">
+      <a href="/admin" class="ghost-btn">&larr; Terug naar admin</a>
     </div>
+    <h2>Facturen in R2</h2>
+    <p>Totaal aantal facturen: ${invoiceFiles.length}</p>
+    <p>Nieuwste factuur: ${escapeHtml(newestInvoice)}</p>
+    ${invoiceFiles.map((file) => `
+      <div class="file" style="padding:10px 0;border-bottom:1px solid #e2e8f0">
+        <a href="/r2-file/${encodeURIComponent(file.key)}" target="_blank" class="ghost-btn" style="margin-right:10px">👁 Open</a>
+        <strong>${escapeHtml(file.key.replace("facturen/", "").replace(".html", "").replace(".pdf", ""))}</strong>
+      </div>
+    `).join("")}
   `;
-}
 
-  html += `
-  </body>
-  </html>
-  `;
-
-  return new Response(html, {
+  return new Response(adminShell("Facturen", body, "#16a34a"), {
     headers: {
       "Content-Type": "text/html;charset=utf-8"
     }
@@ -2478,8 +2443,8 @@ const approvedOrders = orders.filter((o) => o.status === "approved").map(
   "</td></tr>"
 ).join("");
 
-const html = '<!DOCTYPE html><html><head><meta charset="utf-8"><title>Admin - MagicFancyworks</title><style>body{font-family:system-ui;max-width:1200px;margin:0 auto;padding:20px}h1{color:#1e293b}table{width:100%;border-collapse:collapse;margin:20px 0}th,td{padding:10px 12px;text-align:left;border-bottom:1px solid #e2e8f0;vertical-align:top}th{background:#f1f5f9;font-weight:600}.logout{float:right;margin-top:-40px}h2{color:#475569;margin-top:30px}</style></head><body><h1>Admin - MagicFancyworks</h1><a href="/admin/logout" class="logout" style="color:#ef4444;text-decoration:none;font-weight:600">Uitloggen</a><div style="margin:20px 0"><a href="/admin/boekhouding" style="display:inline-block;padding:12px 24px;border-radius:8px;text-decoration:none;font-weight:700;margin-right:10px;background:#5C2D6E;color:white">Boekhouding</a><a href="/admin/invoices" style="display:inline-block;padding:12px 24px;border-radius:8px;text-decoration:none;font-weight:700;margin-right:10px;background:#16a34a;color:white">Facturen</a><a href="/admin/newsletter" style="display:inline-block;padding:12px 24px;border-radius:8px;text-decoration:none;font-weight:700;margin-right:10px;background:#0f766e;color:white">Nieuwsbrief</a><a href="/admin/reviews" style="display:inline-block;padding:12px 24px;border-radius:8px;text-decoration:none;font-weight:700;margin-right:10px;background:#0f766e;color:white">Reviews</a><a href="/admin/statistiek" style="display:inline-block;padding:12px 24px;border-radius:8px;text-decoration:none;font-weight:700;margin-right:10px;background:#3b82f6;color:white">Statistiek</a><form method="POST" action="/admin/purge-retention" style="display:inline-block;margin:0 10px 0 0"><button type="submit" style="padding:12px 24px;border:none;border-radius:8px;background:#ea580c;color:white;font-weight:700;cursor:pointer">Purge verlopen tijdelijke orders</button></form><form method="POST" action="/admin/purge-testdata" style="display:inline-block;margin:0 10px 0 0" onsubmit="return confirm(\'Testdata en gekoppelde factuurbestanden echt verwijderen?\')"><button type="submit" style="padding:12px 24px;border:none;border-radius:8px;background:#b91c1c;color:white;font-weight:700;cursor:pointer">Reset testdata</button></form><form method="POST" action="/admin/retention-selftest" style="display:inline-block;margin:0"><button type="submit" style="padding:12px 24px;border:none;border-radius:8px;background:#0f766e;color:white;font-weight:700;cursor:pointer">Retentie zelftest</button></form></div><h2>Nieuwe bestellingen (' + orders.filter((o) => o.status === "new").length + ")</h2>" + (newOrders ? "<table><tr><th>Order ID</th><th>Product</th><th>Bedrag</th><th>Klant</th><th>Email</th><th>Factuur</th><th>Bestand</th><th>Retentie</th><th>Tijd</th><th>Actie</th></tr>" + newOrders + "</table>" : "<p>Geen nieuwe bestellingen</p>") + "<h2>Goedgekeurd (" + orders.filter((o) => o.status === "approved").length + ")</h2>" + (approvedOrders ? "<table><tr><th>Order ID</th><th>Product</th><th>Bedrag</th><th>Klant</th><th>Email</th><th>Factuur</th><th>Retentie</th><th>Download</th></tr>" + approvedOrders + "</table>" : "<p>Nog geen goedgekeurde bestellingen</p>") + "</body></html>";
-      return new Response(html, { headers: { "Content-Type": "text/html; charset=utf-8" } });
+const body = '<div class="nav"><a href="/admin/boekhouding" class="btn">Boekhouding</a><a href="/admin/invoices" class="btn">Facturen</a><a href="/admin/newsletter" class="btn">Nieuwsbrief</a><a href="/admin/reviews" class="btn">Reviews</a><a href="/admin/statistiek" class="btn">Statistiek</a><form method="POST" action="/admin/purge-retention" style="margin:0"><button type="submit" class="danger-btn">Purge verlopen orders</button></form></div><h2>Nieuwe bestellingen (' + orders.filter((o) => o.status === "new").length + ")</h2>" + (newOrders ? "<table><tr><th>Order ID</th><th>Product</th><th>Bedrag</th><th>Klant</th><th>Email</th><th>Factuur</th><th>Bestand</th><th>Retentie</th><th>Tijd</th><th>Actie</th></tr>" + newOrders + "</table>" : "<p>Geen nieuwe bestellingen</p>") + "<h2>Goedgekeurd (" + orders.filter((o) => o.status === "approved").length + ")</h2>" + (approvedOrders ? "<table><tr><th>Order ID</th><th>Product</th><th>Bedrag</th><th>Klant</th><th>Email</th><th>Factuur</th><th>Retentie</th><th>Download</th></tr>" + approvedOrders + "</table>" : "<p>Nog geen goedgekeurde bestellingen</p>") + "";
+      return new Response(adminShell("Admin - MagicFancyworks", body, "#5C2D6E"), { headers: { "Content-Type": "text/html; charset=utf-8" } });
     }
     if (url.pathname === "/admin/purge-retention" && request.method === "POST") {
       if (!await checkAuth(request, env)) {
@@ -2612,9 +2577,9 @@ const html = '<!DOCTYPE html><html><head><meta charset="utf-8"><title>Admin - Ma
         "<tr><td>" + escapeHtml(s.email || "-") + "</td><td>" + escapeHtml(s.lang || "-") + "</td><td>" + escapeHtml(s.confirmedAt ? new Date(s.confirmedAt).toLocaleString("nl-BE") : "-") + "</td></tr>"
       ).join("");
 
-      const html = '<!DOCTYPE html><html><head><meta charset="utf-8"><title>Nieuwsbrief</title><style>body{font-family:system-ui;max-width:900px;margin:40px auto;padding:20px}h1{color:#1e293b}table{width:100%;border-collapse:collapse;margin:20px 0}th,td{padding:10px 12px;text-align:left;border-bottom:1px solid #e2e8f0}th{background:#f1f5f9;font-weight:600}.back{display:inline-block;margin-bottom:20px;color:#5C2D6E;text-decoration:none;font-weight:600}</style></head><body><a href="/admin" class="back">&larr; Terug naar admin</a><h1>Nieuwsbrief</h1><p>Totaal bevestigde inschrijvingen: ' + subscribers.length + '</p>' + (rows ? '<table><tr><th>E-mail</th><th>Taal</th><th>Bevestigd op</th></tr>' + rows + '</table>' : '<p>Nog geen inschrijvingen</p>') + '</body></html>';
+      const body = '<div class="topbar"><a href="/admin" class="ghost-btn">&larr; Terug naar admin</a></div><h2>Nieuwsbrief</h2><p>Totaal bevestigde inschrijvingen: ' + subscribers.length + '</p>' + (rows ? '<table><tr><th>E-mail</th><th>Taal</th><th>Bevestigd op</th></tr>' + rows + '</table>' : '<p>Nog geen inschrijvingen</p>');
 
-      return new Response(html, { headers: { "Content-Type": "text/html; charset=utf-8" } });
+      return new Response(adminShell("Nieuwsbrief", body, "#0f766e"), { headers: { "Content-Type": "text/html; charset=utf-8" } });
     }
     if (url.pathname === "/admin/boekhouding") {
       if (!await checkAuth(request, env)) {
@@ -2693,8 +2658,8 @@ const html = '<!DOCTYPE html><html><head><meta charset="utf-8"><title>Admin - Ma
         '</tr>';
       });
       allOrdersHTML += "</table>";
-const html = '<!DOCTYPE html><html><head><meta charset="utf-8"><title>Boekhouding</title><style>body{font-family:system-ui;max-width:1100px;margin:0 auto;padding:20px}h1{color:#1e293b}h2{color:#5C2D6E;margin-top:30px}.back{display:inline-block;margin-bottom:20px;padding:8px 16px;background:#5C2D6E;color:white;text-decoration:none;border-radius:6px;font-weight:600}.kpi{display:flex;gap:20px;flex-wrap:wrap;margin:20px 0}.kpi-card{background:#f8fafc;padding:20px;border-radius:8px;min-width:150px;border-left:4px solid #5C2D6E}.kpi-value{font-size:28px;font-weight:700;color:#1e293b}.kpi-label{font-size:13px;color:#64748b;margin-top:4px}.summary{margin-top:18px;border:1px solid #e2e8f0;border-radius:8px;overflow:hidden}.summary summary{cursor:pointer;list-style:none;padding:12px 16px;background:#f8fafc;color:#5C2D6E;font-weight:700;border-bottom:1px solid #e2e8f0}.summary summary::-webkit-details-marker{display:none}.summary-body{padding:0 0 4px 0}</style></head><body><a href="/admin" class="back">&larr; Terug</a><h1>Boekhouding</h1><div class="kpi"><div class="kpi-card"><div class="kpi-value">' + totalOrders + '</div><div class="kpi-label">Bestellingen</div></div><div class="kpi-card"><div class="kpi-value">&euro; ' + totalRevenue.toFixed(2) + '</div><div class="kpi-label">Omzet</div></div><div class="kpi-card"><div class="kpi-value">' + orders.filter(o => o.invoiceStatus === "Verzonden").length + '</div><div class="kpi-label">Verzonden facturen</div></div><div class="kpi-card"><div class="kpi-value">' + orders.filter(o => o.invoiceRequested && o.invoiceStatus !== "Verzonden").length + '</div><div class="kpi-label">Openstaande facturen</div></div></div><details class="summary"><summary>Per maand</summary><div class="summary-body">' + monthlyHTML + '</div></details><details class="summary"><summary>Per product</summary><div class="summary-body">' + productsHTML + '</div></details><details class="summary" open><summary>Alle bestellingen (' + totalOrders + ')</summary><div class="summary-body">' + allOrdersHTML + '</div></details><p style="font-size:11px;color:#64748b;margin-top:30px">BTW: BE0500363711 | Vrijstellingsregeling kleine ondernemingen - art. 56bis WBTW</p></body></html>';
-      return new Response(html, { headers: { "Content-Type": "text/html; charset=utf-8" } });
+const body = '<div class="topbar"><a href="/admin" class="ghost-btn">&larr; Terug</a></div><div class="kpi"><div class="kpi-card"><div class="kpi-value">' + totalOrders + '</div><div class="kpi-label">Bestellingen</div></div><div class="kpi-card"><div class="kpi-value">&euro; ' + totalRevenue.toFixed(2) + '</div><div class="kpi-label">Omzet</div></div><div class="kpi-card"><div class="kpi-value">' + orders.filter(o => o.invoiceStatus === "Verzonden").length + '</div><div class="kpi-label">Verzonden facturen</div></div><div class="kpi-card"><div class="kpi-value">' + orders.filter(o => o.invoiceRequested && o.invoiceStatus !== "Verzonden").length + '</div><div class="kpi-label">Openstaande facturen</div></div></div><details class="summary"><summary>Per maand</summary><div class="summary-body">' + monthlyHTML + '</div></details><details class="summary"><summary>Per product</summary><div class="summary-body">' + productsHTML + '</div></details><details class="summary" open><summary>Alle bestellingen (' + totalOrders + ')</summary><div class="summary-body">' + allOrdersHTML + '</div></details><p style="font-size:11px;color:#64748b;margin-top:30px">BTW: BE0500363711 | Vrijstellingsregeling kleine ondernemingen - art. 56bis WBTW</p>';
+      return new Response(adminShell("Boekhouding", body, "#5C2D6E"), { headers: { "Content-Type": "text/html; charset=utf-8" } });
     }
     if (url.pathname === "/admin/statistiek") {
       if (!await checkAuth(request, env)) {
@@ -2766,9 +2731,9 @@ const html = '<!DOCTYPE html><html><head><meta charset="utf-8"><title>Boekhoudin
           '</tr>';
       }).join("");
 
-      const html = '<!DOCTYPE html><html><head><meta charset="utf-8"><title>Reviews</title><style>body{font-family:system-ui;max-width:1200px;margin:0 auto;padding:20px}h1{color:#1e293b}table{width:100%;border-collapse:collapse;margin:20px 0}th,td{padding:10px 12px;text-align:left;border-bottom:1px solid #e2e8f0;vertical-align:top}th{background:#f1f5f9;font-weight:600}.back{display:inline-block;margin-bottom:20px;padding:8px 16px;background:#0f766e;color:white;text-decoration:none;border-radius:6px;font-weight:600}small{color:#64748b}</style></head><body><a href="/admin" class="back">&larr; Terug naar admin</a><h1>Reviews</h1><p>Totaal reviews: ' + reviews.length + '</p>' + (reviewRows ? '<table><tr><th>Datum</th><th>Product</th><th>Beoordeling</th><th>Naam</th><th>Taal</th><th>Bericht</th><th>Status</th></tr>' + reviewRows + '</table>' : '<p>Nog geen reviews</p>') + '</body></html>';
+      const body = '<div class="topbar"><a href="/admin" class="ghost-btn">&larr; Terug naar admin</a></div><h2>Reviews</h2><p>Totaal reviews: ' + reviews.length + '</p>' + (reviewRows ? '<table><tr><th>Datum</th><th>Product</th><th>Beoordeling</th><th>Naam</th><th>Taal</th><th>Bericht</th><th>Status</th></tr>' + reviewRows + '</table>' : '<p>Nog geen reviews</p>');
 
-      return new Response(html, { headers: { "Content-Type": "text/html; charset=utf-8" } });
+      return new Response(adminShell("Reviews", body, "#0f766e"), { headers: { "Content-Type": "text/html; charset=utf-8" } });
     }
     if (url.pathname === "/admin/reviews-approve" && request.method === "POST") {
       if (!await checkAuth(request, env)) {
