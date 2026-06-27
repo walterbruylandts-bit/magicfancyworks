@@ -783,6 +783,7 @@ No JS logic changed.
             margin-top: 0 !important;
         }
         .modal-body {
+            display: block !important;
             overflow: visible;
         }
         .modal-image-container,
@@ -791,11 +792,17 @@ No JS logic changed.
             overflow: visible;
         }
         .modal-image-container {
+            display: block !important;
             float: none;
             width: 100%;
+            max-width: 100%;
         }
         .modal-details {
+            display: block !important;
             width: 100%;
+            max-width: 100%;
+            max-height: none;
+            margin-top: 8px;
         }
         .modal-image-container img {
             max-height: 150px;
@@ -903,7 +910,16 @@ No JS logic changed.
         }
         .modal-body {
             padding: 20px;
+            display: block !important;
             gap: 20px;
+        }
+        .modal-image-container,
+        .modal-details {
+            display: block !important;
+            width: 100% !important;
+            max-width: 100% !important;
+            max-height: none !important;
+            overflow: visible !important;
         }
         .card button {
             padding: 15px 20px;
