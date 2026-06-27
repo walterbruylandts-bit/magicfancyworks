@@ -1840,14 +1840,6 @@ function getShortDescription(text) {
   return cleaned.slice(0, 220).trim() + '…';
 }
 
-function getModalMoreLabel() {
-  return currentLang === 'fr' ? 'Plus de détails' : currentLang === 'en' ? 'More details' : 'Meer details';
-}
-
-function getModalMoreLabelOpen() {
-  return currentLang === 'fr' ? 'Moins de détails' : currentLang === 'en' ? 'Less details' : 'Minder details';
-}
-
 function getPopupDescriptionCacheKey(productCode, lang) {
   return productCode + "::" + lang;
 }
@@ -1996,22 +1988,9 @@ function renderPopupDescription(product, tekst) {
         <div class="modal-fact"><span>${escapeHtml(labels.delivery)}</span><strong>${escapeHtml(getDeliverySummary(product.type))}</strong></div>
         ${choiceCount > 0 ? `<div class="modal-fact"><span>${escapeHtml(labels.choices)}</span><strong>${escapeHtml(choiceNames || '-')}</strong></div>` : ''}
       </div>
-      <details class="modal-more">
-        <summary>${escapeHtml(getModalMoreLabel())}</summary>
-        <div class="modal-more-body">${escapeHtml(descriptionText)}</div>
-      </details>
+      <div class="modal-more-body">${escapeHtml(descriptionText)}</div>
     </div>
   `;
-
-  const moreDetails = modalDescription.querySelector('.modal-more');
-  const moreSummary = modalDescription.querySelector('.modal-more summary');
-  if (moreDetails && moreSummary) {
-    const syncLabel = () => {
-      moreSummary.textContent = moreDetails.open ? getModalMoreLabelOpen() : getModalMoreLabel();
-    };
-    moreDetails.addEventListener('toggle', syncLabel);
-    syncLabel();
-  }
 }
 
 function setLang(lang) {
