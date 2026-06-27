@@ -1118,255 +1118,111 @@ No JS logic changed.
     background-color: #ffffff !important;
     color: #1a2a3a !important;
   }
-</style>
-
-/* Maak de logo-container vierkant en forceer uitlijning */
-/*.header-left .logo-container {
-    display: flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-}
-
-/* Zorg dat de tekst ernaast in het midden blijft staan */
-.header-left {
-    display: flex !important;
-    align-items: center !important;
-}
-
-.header-left h1 {
-    color: #065f46 !important;
-    margin: 0 !important;
-    line-height: 1 !important;
-}
-
-.header-left img {
-    width: 160px !important;
-    height: 160px !important;
-    max-width: 160px !important;
-    max-height: 160px !important;
-}
-
-/* 1. Titels donkergrijs */
-#productModal h2,
-#productModal .product-title {
-    color: #333333 !important;
-}
-
-/* 2. Prijs groen */
-#productModal .price {
-    color: #059669 !important;
-}
-
-/* 3. Knoppen expliciet wit houden */
-#productModal button,
-#productModal .btn,
-#productModal .color-choice-label {
-    color: #ffffff !important;
-}
-
-/* 1. Forceer alle tekst in de popup naar zwart */
-#productModal,
-#productModal .product-description,
-#productModal .description-text,
-#productModal p,
-#productModal div {
-    color: #333333 !important;
-}
-
-/* 2. Houd de prijs specifiek groen */
-#productModal .price {
-    color: #059669 !important;
-}
-
-/* 3. Houd de knoppen wit (tekst) */
-#productModal button,
-#productModal .btn,
-#productModal .color-choice-label {
-    color: #ffffff !important;
-}
-
-/* 4. Forceer het sluit-kruisje naar zwart */
-#productModal .modal-close,
-#productModal .close {
-    color: #333333 !important;
-    background-color: transparent !important;
-}
-/* Forceer de kleur van alles binnen het modal-venster naar zwart */
-#productModal,
-#productModal * {
-    color: #333333 !important;
-}
-
-/* Herstel de prijs naar groen */
-#productModal .price {
-    color: #059669 !important;
-}
-
-/* Herstel de tekst in de knoppen naar wit */
-#productModal .btn,
-#productModal button,
-#productModal .color-choice-label {
-    color: #ffffff !important;
-}
-/* Stap 1: Reset alles in de popup naar zwart en forceer dit */
-#productModal,
-#productModal * {
-    color: #333333 !important;
-    background-color: transparent !important;
-    text-shadow: none !important;
-}
-
-/* Stap 2: Herstel specifiek de prijs naar groen */
-#productModal .price {
-    color: #059669 !important;
-}
-
-/* Stap 3: Herstel specifiek de knoppen naar wit */
-#productModal .btn,
-#productModal button,
-#productModal .color-choice-label,
-#productModal .add-to-cart {
-    color: #ffffff !important;
-    background-color: #059669 !important; /* Forceer de groene achtergrond van de knop */
-}
-
-/* Stap 4: Maak het kruisje expliciet zwart en goed zichtbaar */
-#productModal .modal-close,
-#productModal .close {
-    color: #333333 !important;
-    opacity: 1 !important;
-}
-/* 1. Zorg dat de header en de shop-inhoud dezelfde maximale breedte hebben en links uitgelijnd zijn */
-.header-wrapper,
-.shop-container {
-    max-width: 90vw !important; /* Pas dit getal aan als je site breder moet zijn */
-    margin-left: auto !important;
-    margin-right: auto !important; /* Hiermee centreer je de 'blokken' in het midden, OF... */
-    padding: 0 20px !important;
-}
-
-/* 2. WIL JE ALLES ECHT LINKS? Gebruik dan dit in plaats van margin: auto */
-.header-wrapper,
-.shop-container {
-    margin-left: 0 !important;
-    margin-right: auto !important;
-}
-
-/* 3. Zorg dat de header-wrapper zijn elementen netjes verdeelt */
+<style>
+/* Clean overrides to prevent old duplicated CSS from leaking into the page */
 .header-wrapper {
     display: flex !important;
     justify-content: space-between !important;
     align-items: center !important;
     width: 100% !important;
-}
-
-/* 1. Zorg dat de wrapper de volle breedte pakt */
-.header-wrapper {
-    display: flex !important;
-    justify-content: space-between !important; /* Logo links, rechterkant rechts */
-    align-items: center !important;
-    width: 100% !important; /* Dwingt hem over de hele breedte */
     max-width: 100% !important;
-    padding: 0 40px !important; /* Voegt een beetje lucht aan de zijkanten toe */
-    box-sizing: border-box !important; /* Zorgt dat de padding niet zorgt voor scrollbalken */
+    padding: 0 40px !important;
+    box-sizing: border-box !important;
 }
 
-/* 2. Zorg dat de rechterkant niet "gecentreerd" blijft staan */
 .header-right {
     display: flex !important;
-    justify-content: flex-end !important; /* Dwingt alles naar uiterst rechts */
+    justify-content: flex-end !important;
     align-items: center !important;
     flex-grow: 0 !important;
 }
 
-/* 1. Forceer de kaarten naar een vaste breedte en gelijke grootte */
-/* --- DEFINITIEVE .card STIJL --- */
-
-.card:hover {
-    box-shadow: 0 10px 20px rgba(0,0,0,0.15) !important;
-}
-
-/* 2. Dwing de afbeeldingen naar een gelijke hoogte */
-.card img {
-    width: calc(100% - 24px) !important;
-    max-width: calc(100% - 24px) !important;
-    aspect-ratio: 1 / 1 !important;
-    height: auto !important;
-    min-height: 190px !important;
-    object-fit: contain !important;
-    object-position: center center !important;
-    display: block !important;
-    border-radius: 14px !important;
-    background: linear-gradient(180deg, rgba(5,150,105,0.04), rgba(5,150,105,0.01)) !important;
-    padding: 12px !important;
-    box-sizing: border-box !important;
-    margin: 12px auto 0 !important;
-    box-shadow: 0 10px 20px rgba(15, 23, 42, 0.08) !important;
-    border: 1px solid rgba(228,228,231,0.65) !important;
-}
-
-/* Dwingt de achtergrond van het mandje naar wit en verbiedt groen */
 #cart-items,
-#cart-items * {
+#cart-items > div,
+#cart-footer,
+#cart-paypal-container {
+    background-color: #ffffff !important;
+    color: #1a2a3a !important;
+}
+
+#cart-items .cart-item-row {
+    display: flex !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+    gap: 12px !important;
+    padding: 10px !important;
+    margin-bottom: 8px !important;
+    border: 1px solid #e5e7eb !important;
+    border-radius: 10px !important;
+    background: #ffffff !important;
+    color: #1a2a3a !important;
+    min-height: 56px !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+}
+
+#cart-items .cart-item-details {
+    flex: 1 1 auto !important;
+    min-width: 0 !important;
+    background: #ffffff !important;
+}
+
+#cart-items .cart-item-row strong,
+#cart-items .cart-item-row small,
+#cart-items .cart-item-row span {
+    color: #1a2a3a !important;
+    background: #ffffff !important;
+}
+
+#cart-paypal-container,
+#cart-paypal-container div,
+#cart-paypal-container * {
     background-color: #ffffff !important;
     background: #ffffff !important;
 }
-/*.logo-container img {
-    width: 120px !important;
-    height: 120px !important;
-    border-radius: 50% !important; /* Dit maakt het rond */
- /*   object-fit: cover !important;  /* Dit voorkomt dat het logo vervormt */
+
+.payment-loading,
+.payment-error,
+.payment-success {
+    border-radius: 8px;
+    margin: 10px 0;
+    padding: 12px !important;
+    font-size: 14px;
+    text-align: center;
 }
 
-/* --- DEFINITIEVE .card STIJL (Alles in één) --- */
-.card {
-    display: flex !important;
-    flex-direction: column !important;
-    width: 100% !important;
-    min-height: 380px !important;
-    overflow: hidden !important;
-    position: relative !important;
-    min-width: 0 !important;
-
-    /* Vormgeving */
-    background: #ffffff !important;
-    border: 1px solid #cce9df !important;
-    border-radius: 12px !important;
-    padding: 10px !important;
-    box-sizing: border-box !important;
-
-    /* Schaduw voor het zweef-effect */
-    box-shadow: 0 4px 10px rgba(0,0,0,0.1) !important;
-
-    /* Animatie instellingen */
-    transition: all 0.3s ease !important;
-    gap: 0 !important;
+.payment-loading {
+    background-color: #f4f4f5 !important;
+    color: #1a2a3a !important;
 }
 
-.card:hover {
-    /* "Zweven" bij muis erover */
-    transform: translateY(-5px) !important;
-    box-shadow: 0 12px 24px rgba(0,0,0,0.2) !important;
-    border-color: #059669 !important; /* Optioneel: rand wordt groen bij hover */
+.payment-success {
+    background-color: #065f46 !important;
+    color: #ffffff !important;
+    border: 1px solid #047857;
 }
 
-.card-type {
-    display: inline-flex;
-    align-self: flex-start;
-    margin: 2px 0 8px 0;
-    padding: 4px 10px;
-    border-radius: 999px;
-    font-size: 0.72rem;
-    font-weight: 700;
-    letter-spacing: 0;
-    line-height: 1;
-    background: #eaf7f1;
-    color: #0f766e;
+.payment-success h3,
+.payment-success p {
+    color: #ffffff !important;
+    margin: 4px 0 !important;
 }
 
-.card-type.physical {
-    background: #e0f2fe;
-    color: #0369a1;
+.payment-error {
+    background-color: #fef2f2 !important;
+    color: #991b1b !important;
+    border: 1px solid #fca5a5;
+}
+
+#cart-country {
+    background-color: #ffffff !important;
+    color: #1a2a3a !important;
+    border: 2px solid #e4e4e7 !important;
+}
+
+#cart-country option {
+    background-color: #ffffff !important;
+    color: #1a2a3a !important;
 }
 
 </style>
