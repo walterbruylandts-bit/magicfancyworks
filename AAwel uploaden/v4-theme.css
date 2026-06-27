@@ -348,6 +348,13 @@ footer .newsletter-box {
   font-size: 0.88rem !important;
 }
 
+.review-note {
+  margin: -6px 0 12px 0 !important;
+  color: #64748b !important;
+  font-size: 0.8rem !important;
+  font-style: italic !important;
+}
+
 .review-form {
   display: grid !important;
   gap: 10px !important;

@@ -1409,6 +1409,7 @@ const translations = {
     relatedOpen: 'Open product',
     reviewTitle: 'Schrijf een review',
     reviewText: 'Laat kort weten wat je van dit product vindt.',
+    reviewNote: 'Reviews worden eerst gecontroleerd voor ze zichtbaar worden.',
     reviewName: 'Naam of bijnaam',
     reviewNamePlaceholder: 'Bijvoorbeeld: Anoniem',
     reviewRating: 'Beoordeling',
@@ -1492,6 +1493,7 @@ const translations = {
     relatedOpen: 'Ouvrir le produit',
     reviewTitle: 'Écrire un avis',
     reviewText: 'Dites brièvement ce que vous pensez de ce produit.',
+    reviewNote: 'Les avis sont d’abord vérifiés avant d’être affichés.',
     reviewName: 'Nom ou pseudo',
     reviewNamePlaceholder: 'Par exemple: Anonyme',
     reviewRating: 'Évaluation',
@@ -1575,6 +1577,7 @@ const translations = {
     relatedOpen: 'Open product',
     reviewTitle: 'Write a review',
     reviewText: 'Let us know what you think about this product.',
+    reviewNote: 'Reviews are checked before they become visible.',
     reviewName: 'Name or nickname',
     reviewNamePlaceholder: 'For example: Anonymous',
     reviewRating: 'Rating',
@@ -1786,6 +1789,7 @@ function getReviewLabels() {
   return {
     title: t('reviewTitle'),
     text: t('reviewText'),
+    note: t('reviewNote'),
     name: t('reviewName'),
     namePlaceholder: t('reviewNamePlaceholder'),
     rating: t('reviewRating'),
@@ -2159,6 +2163,7 @@ function renderReviewSection(product) {
     <div class="review-box">
       <span class="review-title">${escapeHtml(labels.title)}</span>
       <p class="review-text">${escapeHtml(labels.text)}</p>
+      <p class="review-note">${escapeHtml(labels.note)}</p>
       <form class="review-form" data-review-form>
         <label class="review-field">
           <span>${escapeHtml(labels.name)}</span>
