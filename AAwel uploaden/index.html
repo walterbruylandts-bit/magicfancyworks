@@ -788,19 +788,23 @@ No JS logic changed.
         }
         .modal-image-container,
         .modal-details {
-            width: 100%;
+            width: 100% !important;
+            max-width: 100% !important;
             overflow: visible;
+            float: none !important;
+            clear: both !important;
         }
         .modal-image-container {
             display: block !important;
             float: none;
-            width: 100%;
-            max-width: 100%;
+            width: 100% !important;
+            max-width: 100% !important;
+            margin-right: 0 !important;
         }
         .modal-details {
             display: block !important;
-            width: 100%;
-            max-width: 100%;
+            width: 100% !important;
+            max-width: 100% !important;
             max-height: none;
             margin-top: 8px;
         }
@@ -810,6 +814,7 @@ No JS logic changed.
         .modal-content {
             max-height: 92vh;
             border-radius: 16px;
+            overflow-y: auto;
         }
         .modal-body {
             padding: 18px 16px 16px;
@@ -907,6 +912,7 @@ No JS logic changed.
         }
         .modal-content {
             max-height: 95vh;
+            overflow-y: auto;
         }
         .modal-body {
             padding: 20px;
@@ -920,6 +926,12 @@ No JS logic changed.
             max-width: 100% !important;
             max-height: none !important;
             overflow: visible !important;
+            float: none !important;
+            clear: both !important;
+        }
+        .modal-image-container {
+            margin-right: 0 !important;
+            margin-bottom: 14px !important;
         }
         .card button {
             padding: 15px 20px;
