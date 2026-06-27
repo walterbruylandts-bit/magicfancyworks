@@ -2293,15 +2293,11 @@ async function updateCardReviewSummaries(products) {
     box.innerHTML = '<span class="card-review-loading"></span>';
     reviewSummaryCache[code].then((summary) => {
       if (box.dataset.reviewSummary !== code) return;
-      if (!summary.count) {
-        box.innerHTML = '';
-        return;
-      }
-      const stars = getStarDisplay(summary.avg);
+      const stars = summary.count ? getStarDisplay(summary.avg) : 0;
       box.innerHTML = `
         <div class="card-review-badge">
           <span class="card-review-stars" aria-hidden="true">${renderStarIcons(stars)}</span>
-          <span class="card-review-count">${escapeHtml(summary.avg.toFixed(1).replace('.', ','))} (${summary.count})</span>
+          <span class="card-review-count">${escapeHtml((summary.count ? summary.avg : 0).toFixed(1).replace('.', ','))} (${summary.count})</span>
         </div>
       `;
     });
