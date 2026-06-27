@@ -222,9 +222,12 @@ async function checkVatNumberViaVies(countryCode, vatNumber) {
 }
 
 function generateUBL(order, env = {}) {
-const productAmount = Number(order.productAmount || order.amount || 0);
-const shippingAmount = Number(order.invoiceShippingAmount || 0);
-const totalAmount = productAmount + shippingAmount;
+const pricing = getInvoicePricing(order);
+const productAmount = pricing.originalProductAmount;
+const discountAmount = pricing.discountAmount;
+const netProductAmount = pricing.discountedProductAmount;
+const shippingAmount = pricing.shippingAmount;
+const totalAmount = netProductAmount + shippingAmount;
 
 const currency = order.currency || "EUR";
 const sellerEndpointId = env.SELLER_ENDPOINT_ID || "0500363711";
@@ -249,6 +252,9 @@ const buyerPartyTaxSchemeXml = order.invoiceType === "business" && order.vatNumb
   : "";
 const buyerPostalAddressXml = order.invoiceCountry || order.invoiceCity || order.invoicePostalCode
   ? `    <cac:PostalAddress>\n${order.invoiceCity ? `      <cbc:CityName>${escapeXml(order.invoiceCity)}</cbc:CityName>\n` : ""}${order.invoicePostalCode ? `      <cbc:PostalZone>${escapeXml(order.invoicePostalCode)}</cbc:PostalZone>\n` : ""}${order.invoiceCountry ? `      <cac:Country>\n        <cbc:IdentificationCode>${escapeXml(order.invoiceCountry)}</cbc:IdentificationCode>\n      </cac:Country>\n` : ""}    </cac:PostalAddress>\n`
+  : "";
+const allowanceChargeXml = discountAmount > 0.00001
+  ? `\n<cac:AllowanceCharge>\n  <cbc:ChargeIndicator>false</cbc:ChargeIndicator>\n  <cbc:AllowanceChargeReason>${escapeXml(order.lang === "fr" ? "Réduction" : order.lang === "en" ? "Discount" : "Korting")}</cbc:AllowanceChargeReason>\n  <cbc:Amount currencyID="${escapeXml(currency)}">${discountAmount.toFixed(2)}</cbc:Amount>\n</cac:AllowanceCharge>\n`
   : "";
 
   return `<?xml version="1.0" encoding="UTF-8"?>
@@ -370,6 +376,7 @@ ${buyerPostalAddressXml}
     <cbc:PriceAmount currencyID="${escapeXml(currency)}">${shippingAmount.toFixed(2)}</cbc:PriceAmount>
   </cac:Price>
 </cac:InvoiceLine>
+${allowanceChargeXml}
  
 <cac:TaxTotal>
   <cbc:TaxAmount currencyID="${escapeXml(currency)}">0.00</cbc:TaxAmount>
@@ -410,6 +417,7 @@ ${invoiceVatNoteXml}
 }
 function buildInvoiceText(order) {
   const t = getInvoiceTexts(order.lang || "nl");
+  const pricing = getInvoicePricing(order);
   return `
 ${COMPANY.name}
 ${COMPANY.vat}
@@ -424,7 +432,9 @@ Klant: ${order.companyName || order.payerName || "-"}
 BTW nummer: ${order.vatNumber || "-"}
 
 Product: ${order.productName}
-Bedrag: €${order.amount}
+${pricing.discountAmount > 0 ? `Korting: -€${formatMoneyDisplay(pricing.discountAmount, false)}` : ""}
+Verzendkosten: €${formatMoneyDisplay(pricing.shippingAmount, false)}
+Totaal: €${formatMoneyDisplay(pricing.totalAmount, false)}
 
 ${order.invoiceVatNote || ""}
 
@@ -490,12 +500,14 @@ const lang = order.lang || "nl";
 const t = getInvoiceTexts(lang);
 
 const vatInfo = getVatInfo(order, lang, env);
-
-const productAmount = Number(order.productAmount || order.amount || 0);
+const pricing = getInvoicePricing(order);
+const productAmount = pricing.originalProductAmount;
+const discountAmount = pricing.discountAmount;
+const netProductAmount = pricing.discountedProductAmount;
 const shippingAmount = await getShippingAmount(order, env);
 const showShipping = shippingAmount > 0.00001;
-	  
-	  const totalAmount = productAmount + shippingAmount;
+const showDiscount = discountAmount > 0.00001;
+const totalAmount = netProductAmount + shippingAmount;
 const useCommaAmounts = true;
 
 const pdfDoc = await PDFDocument.create();
@@ -756,9 +768,8 @@ page.drawLine({
 });
 
 // Productregels niet bold
-const row1Y = 460;
-const row2Y = 438;
 const valueRight = right - 35;
+let currentRowY = 460;
 
 drawTextRight(
   t.amount,
@@ -780,16 +791,37 @@ page.drawText(order.productName || "-", {
 drawTextRight(
   `${formatMoneyDisplay(productAmount, useCommaAmounts)} ${order.currency || "EUR"}`,
   valueRight,
-  row1Y,
+  currentRowY,
   10.5,
   font,
   black
 );
 
+if (showDiscount) {
+  currentRowY -= 22;
+  page.drawText(order.lang === "fr" ? "Réduction" : order.lang === "en" ? "Discount" : "Korting", {
+    x: left + 12,
+    y: currentRowY,
+    size: 10.5,
+    font,
+    color: rgb(0.8, 0.12, 0.12),
+  });
+
+  drawTextRight(
+    `- ${formatMoneyDisplay(discountAmount, useCommaAmounts)} ${order.currency || "EUR"}`,
+    valueRight,
+    currentRowY,
+    10.5,
+    font,
+    rgb(0.8, 0.12, 0.12)
+  );
+}
+
 if (showShipping) {
+  currentRowY -= 22;
   page.drawText(t.shipping, {
     x: left + 12,
-    y: row2Y,
+    y: currentRowY,
     size: 10.5,
     font,
     color: black,
@@ -798,14 +830,14 @@ if (showShipping) {
   drawTextRight(
     `${formatMoneyDisplay(shippingAmount, useCommaAmounts)} ${order.currency || "EUR"}`,
     valueRight,
-    row2Y,
+    currentRowY,
     10.5,
     font,
     black
   );
 }
 
-const totalLineY = showShipping ? 420 : 438;
+const totalLineY = currentRowY - 18;
 
 // Totaalbalk: rechte bovenkant + enkel onderste hoeken rond
 const totalBoxHeight = 30;
@@ -998,7 +1030,26 @@ if (isDigital && !isEU) {
 return { key: "digitalNonEU", category: "O", note: n.digitalNonEU };
 }
 
-return { key: "small", category: "E", note: n.small };
+  return { key: "small", category: "E", note: n.small };
+}
+function getInvoicePricing(order) {
+  const originalProductAmount = Number(order.originalBasePrice || order.productAmount || order.amount || 0);
+  const discountedProductAmount = Number(order.productAmount || order.amount || originalProductAmount || 0);
+  const discountAmountRaw = Number(order.discountAmount || 0);
+  const inferredDiscount = Math.max(0, originalProductAmount - discountedProductAmount);
+  const discountAmount = Number.isFinite(discountAmountRaw) && discountAmountRaw > 0
+    ? discountAmountRaw
+    : inferredDiscount;
+  const shippingAmount = Number(order.invoiceShippingAmount || order.shippingAmount || 0);
+  const totalAmount = discountedProductAmount + shippingAmount;
+
+  return {
+    originalProductAmount,
+    discountedProductAmount,
+    discountAmount,
+    shippingAmount,
+    totalAmount
+  };
 }
 async function purgeTemporaryOrders(env) {
   const list = await env.ORDERS.list({ prefix: "order:" });
@@ -2512,10 +2563,17 @@ if (!orderRaw) {
 
 const order = JSON.parse(orderRaw);
 const useCommaAmounts = true;
-const invoiceShippingAmount = Number(order.invoiceShippingAmount || 0);
+const pricing = getInvoicePricing(order);
+const invoiceShippingAmount = pricing.shippingAmount;
+const invoiceDiscountAmount = pricing.discountAmount;
 const showShippingRow = invoiceShippingAmount > 0.00001;
+const showDiscountRow = invoiceDiscountAmount > 0.00001;
+const discountLabel = order.lang === "fr" ? "Réduction" : order.lang === "en" ? "Discount" : "Korting";
 const shippingRowHtml = showShippingRow
   ? '<tr><td>' + (order.lang === "fr" ? "Frais de livraison" : order.lang === "en" ? "Shipping" : "Verzendkosten") + '</td><td class="right">€ ' + formatMoneyDisplay(invoiceShippingAmount, useCommaAmounts) + '</td></tr>'
+  : "";
+const discountRowHtml = showDiscountRow
+  ? '<tr><td>' + discountLabel + '</td><td class="right" style="color:#b91c1c">- € ' + formatMoneyDisplay(invoiceDiscountAmount, useCommaAmounts) + '</td></tr>'
   : "";
 
 const invoiceText =
@@ -2580,9 +2638,10 @@ const invoiceText =
 
   '<table>' +
   '<tr><th>Omschrijving</th><th class="right">Bedrag</th></tr>' +
-  '<tr><td>' + escapeHtml(order.productName || "Bestelling") + '</td><td class="right">€ ' + formatMoneyDisplay(order.amount || 0, useCommaAmounts) + '</td></tr>' +
+  '<tr><td>' + escapeHtml(order.productName || "Bestelling") + '</td><td class="right">€ ' + formatMoneyDisplay(pricing.originalProductAmount, useCommaAmounts) + '</td></tr>' +
+  discountRowHtml +
   shippingRowHtml +
-  '<tr><th>Totaal</th><th class="right">€ ' + formatMoneyDisplay(order.amount || 0, useCommaAmounts) + '</th></tr>' +
+  '<tr><th>Totaal</th><th class="right">€ ' + formatMoneyDisplay(pricing.totalAmount, useCommaAmounts) + '</th></tr>' +
   '<tr><td colspan="2" style="padding-top:5px;border-bottom:none;font-size:12px;color:#475569;font-weight:500">' + escapeHtml(t.paymentStatus || "Betaald via PayPal") + '</td></tr>' +
   '</table>' +
 
@@ -2706,10 +2765,17 @@ if (url.pathname.startsWith("/admin/invoice-file/") && request.method === "GET")
 
   const order = JSON.parse(data);
   const useCommaAmounts = true;
-  const invoiceShippingAmount = Number(order.invoiceShippingAmount || 0);
+  const pricing = getInvoicePricing(order);
+  const invoiceShippingAmount = pricing.shippingAmount;
+  const invoiceDiscountAmount = pricing.discountAmount;
   const showShippingRow = invoiceShippingAmount > 0.00001;
+  const showDiscountRow = invoiceDiscountAmount > 0.00001;
+  const discountLabel = order.lang === "fr" ? "Réduction" : order.lang === "en" ? "Discount" : "Korting";
   const shippingRowHtml = showShippingRow
     ? '<tr><td>' + (order.lang === "fr" ? "Frais de livraison" : order.lang === "en" ? "Shipping" : "Verzendkosten") + '</td><td class="right">€ ' + formatMoneyDisplay(invoiceShippingAmount, useCommaAmounts) + '</td></tr>'
+    : "";
+  const discountRowHtml = showDiscountRow
+    ? '<tr><td>' + discountLabel + '</td><td class="right" style="color:#b91c1c">- € ' + formatMoneyDisplay(invoiceDiscountAmount, useCommaAmounts) + '</td></tr>'
     : "";
 
   if (!order.invoiceRequested) {
@@ -2778,9 +2844,10 @@ if (url.pathname.startsWith("/admin/invoice-file/") && request.method === "GET")
 
     '<table>' +
       '<tr><th>Omschrijving</th><th class="right">Bedrag</th></tr>' +
-      '<tr><td>' + escapeHtml(order.productName || "Bestelling") + '</td><td class="right">€ ' + formatMoneyDisplay(order.amount || 0, useCommaAmounts) + '</td></tr>' +
+      '<tr><td>' + escapeHtml(order.productName || "Bestelling") + '</td><td class="right">€ ' + formatMoneyDisplay(pricing.originalProductAmount, useCommaAmounts) + '</td></tr>' +
+      discountRowHtml +
       shippingRowHtml +
-      '<tr><th>Totaal</th><th class="right">€ ' + formatMoneyDisplay(order.amount || 0, useCommaAmounts) + '</th></tr>' +
+      '<tr><th>Totaal</th><th class="right">€ ' + formatMoneyDisplay(pricing.totalAmount, useCommaAmounts) + '</th></tr>' +
       '<tr><td colspan="2" style="padding-top:5px;border-bottom:none;font-size:12px;color:#475569;font-weight:500">' + escapeHtml(t.paymentStatus || "Betaald via PayPal") + '</td></tr>' +
     '</table>' +
 
