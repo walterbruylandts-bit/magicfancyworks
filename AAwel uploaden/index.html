@@ -235,6 +235,53 @@ No JS logic changed.
         align-items: center;
     }
 
+    .shop-search {
+        width: 95%;
+        margin: 0 auto 14px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 12px 14px;
+        border: 1px solid #dbe7e2;
+        border-radius: 14px;
+        background: rgba(255,255,255,0.76);
+        box-shadow: 0 6px 18px rgba(0,0,0,0.05);
+        backdrop-filter: blur(4px);
+    }
+
+    .shop-search input {
+        flex: 1;
+        min-width: 0;
+        border: 1px solid #cbd5e1;
+        border-radius: 999px;
+        padding: 11px 14px;
+        font-size: 0.95rem;
+        background: rgba(255,255,255,0.96);
+        color: #0f172a;
+        outline: none;
+    }
+
+    .shop-search input:focus {
+        border-color: #059669;
+        box-shadow: 0 0 0 3px rgba(5,150,105,0.12);
+    }
+
+    .shop-search button {
+        border: 1px solid #cbd5e1;
+        background: #f8fafc;
+        color: #475569;
+        border-radius: 999px;
+        padding: 10px 14px;
+        font-size: 0.85rem;
+        font-weight: 700;
+        cursor: pointer;
+        white-space: nowrap;
+    }
+
+    .shop-search button:hover {
+        background: #eef2f7;
+    }
+
     .shop-chip {
         display: inline-flex;
         align-items: center;
@@ -1417,12 +1464,16 @@ No JS logic changed.
      <span id="shopIntroTitle" class="shop-intro-title"></span>
      <p id="shopIntroText" class="shop-intro-text"></p>
     </div>
-    <div class="shop-intro-chips">
+   <div class="shop-intro-chips">
      <button id="shopIntroChip1" class="shop-chip shop-chip-button" type="button" data-filter="digital"></button>
      <button id="shopIntroChip2" class="shop-chip shop-chip-button accent" type="button" data-filter="physical"></button>
      <button id="shopIntroChip3" class="shop-chip shop-chip-button neutral" type="button" data-filter="all"></button>
     </div>
    </section>
+   <div class="shop-search" aria-label="Zoeken in shop">
+    <input id="product-search-input" type="search" autocomplete="off" spellcheck="false">
+    <button id="clear-search-button" type="button">Wissen</button>
+   </div>
    <div id="shop-grid" class="shop-grid"></div>
   </main>
   <div id="cart-sidebar" style="display:none;position:fixed;top:0;right:0;width:350px;height:100%;background:#fff;color:#1a2a3a;z-index:99998;box-shadow:-5px 0 20px rgba(0,0,0,0.5);flex-direction:column">
@@ -1501,6 +1552,10 @@ const translations = {
       shopChip1: 'Digitaal',
       shopChip2: 'Fysiek',
       shopChip3: 'Alles',
+      searchPlaceholder: 'Zoek op naam, code of beschrijving',
+      searchClear: 'Wissen',
+      searchNoResults: 'Geen producten gevonden.',
+      searchNoResultsFor: 'Geen producten gevonden voor',
       physicalNotice: '⏳ Fysieke producten worden binnen 10 werkdagen verzonden na goedkeuring.',
     deliveryNotice: '⏳ Digitale bestanden worden binnen 72 uur per email bezorgd na goedkeuring.',
     viewLarger: '🔍 Bekijk groter beeld',
@@ -1544,6 +1599,10 @@ const translations = {
       shopChip1: 'Numérique',
       shopChip2: 'Physique',
       shopChip3: 'Tout',
+      searchPlaceholder: 'Rechercher par nom, code ou description',
+      searchClear: 'Effacer',
+      searchNoResults: 'Aucun produit trouvé.',
+      searchNoResultsFor: 'Aucun produit trouvé pour',
       physicalNotice: '⏳ Les produits physiques seront expédiés sous 10 jours ouvrables après approbation.',
     deliveryNotice: '⏳ Les fichiers numériques seront livrés par email dans les 72 heures après approbation.',
     viewLarger: '🔍 Voir en grand',
@@ -1587,6 +1646,10 @@ const translations = {
       shopChip1: 'Digital',
       shopChip2: 'Physical',
       shopChip3: 'All',
+      searchPlaceholder: 'Search by name, code or description',
+      searchClear: 'Clear',
+      searchNoResults: 'No products found.',
+      searchNoResultsFor: 'No products found for',
       physicalNotice: '⏳ Physical products will be shipped within 10 business days after approval.',
     deliveryNotice: '⏳ Digital files will be delivered by email within 72 hours after approval.',
     viewLarger: '🔍 View larger image',
@@ -1634,6 +1697,38 @@ function getProductTypeLabel(type) {
     return currentLang === 'fr' ? 'Physique' : currentLang === 'en' ? 'Physical' : 'Fysiek';
   }
   return currentLang === 'fr' ? 'Numérique' : currentLang === 'en' ? 'Digital' : 'Digitaal';
+}
+
+function normalizeSearchValue(value) {
+  return String(value || '').toLowerCase().trim();
+}
+
+function getSearchInputValue() {
+  const input = document.getElementById('product-search-input');
+  return input ? input.value.trim() : '';
+}
+
+function updateSearchControls() {
+  const input = document.getElementById('product-search-input');
+  const clearButton = document.getElementById('clear-search-button');
+  if (input) input.placeholder = t('searchPlaceholder');
+  if (clearButton) clearButton.textContent = t('searchClear');
+}
+
+function productMatchesSearch(product, query) {
+  if (!query) return true;
+  const fields = [
+    product.code,
+    product.titel,
+    product['titel_' + currentLang],
+    product.beschrijving,
+    product.zoekwoorden,
+    product.tags
+  ]
+    .flat()
+    .filter(Boolean)
+    .join(' ');
+  return normalizeSearchValue(fields).includes(query);
 }
 
 function getDeliverySummary(type) {
@@ -1727,6 +1822,7 @@ function updateShopIntro() {
   if (chip1) chip1.textContent = t('shopChip1');
   if (chip2) chip2.textContent = t('shopChip2');
   if (chip3) chip3.textContent = t('shopChip3');
+  updateSearchControls();
   [chip1, chip2, chip3].forEach((chip) => {
     if (!chip) return;
     const filter = chip.dataset.filter || 'all';
@@ -1740,6 +1836,11 @@ function setProductFilter(filter) {
   activeProductFilter = activeProductFilter === filter ? 'all' : filter;
   renderProducten();
   updateShopIntro();
+}
+
+function setSearchTerm(value) {
+  activeSearchTerm = normalizeSearchValue(value);
+  renderProducten();
 }
 
 function renderPopupDescription(product, tekst) {
@@ -1837,6 +1938,7 @@ function setLang(lang) {
   const footerPrivacy = document.getElementById('footerPrivacy'); if (footerPrivacy) footerPrivacy.textContent = t('footerPrivacy');
   const footerCookies = document.getElementById('footerCookies'); if (footerCookies) footerCookies.textContent = t('footerCookies');
   const footerBTW = document.getElementById('footerBTW'); if (footerBTW) footerBTW.textContent = t('footerBTW');
+  updateSearchControls();
 
   // Update footer link hrefs based on language
   const langSuffix = lang === 'nl' ? '' : '-' + lang;
@@ -1881,6 +1983,7 @@ let cart = [];
 let shippingRates = {};
 let selectedShippingCountry = 'BE';
 let activeProductFilter = 'all';
+let activeSearchTerm = '';
 
 async function laadVerzendkosten() {
   try {
@@ -2909,11 +3012,14 @@ alleProducten.forEach(p => {
 // Render producten in grid
 function renderProducten() {
     const grid = document.getElementById('shop-grid');
+    const typedSearch = getSearchInputValue();
+    const searchTerm = activeSearchTerm || normalizeSearchValue(typedSearch);
     const filteredProducten = activeProductFilter === 'all'
       ? alleProducten
       : alleProducten.filter(p => p.type === activeProductFilter);
+    const searchedProducten = filteredProducten.filter(p => productMatchesSearch(p, searchTerm));
 
-    grid.innerHTML = filteredProducten.map(p => {
+    grid.innerHTML = searchedProducten.map(p => {
         const escapedCode = escapeHtml(p.code);
         const escapedTitel = escapeHtml(p['titel_' + currentLang] || p.titel);
         const escapedPrijs = escapeHtml(String(p.prijs));
@@ -2939,8 +3045,12 @@ function renderProducten() {
         `;
     }).join('');
 
-    if (filteredProducten.length === 0) {
-      grid.innerHTML = '<div class="error-message">Geen producten voor deze filter.</div>';
+    if (searchedProducten.length === 0) {
+      grid.innerHTML = '<div class="error-message">' + (
+        searchTerm
+          ? `${t('searchNoResultsFor')} "${escapeHtml(typedSearch)}".`
+          : t('searchNoResults')
+      ) + '</div>';
     }
 
     updateShopIntro();
@@ -2965,6 +3075,24 @@ function attachCardEventListeners() {
             });
         }
     });
+}
+
+function bindSearchControls() {
+    const input = document.getElementById('product-search-input');
+    const clearButton = document.getElementById('clear-search-button');
+    if (input && input.dataset.bound !== '1') {
+        input.dataset.bound = '1';
+        input.addEventListener('input', () => setSearchTerm(input.value));
+    }
+    if (clearButton && clearButton.dataset.bound !== '1') {
+        clearButton.dataset.bound = '1';
+        clearButton.addEventListener('click', () => {
+            if (input) input.value = '';
+            activeSearchTerm = '';
+            renderProducten();
+            if (input) input.focus();
+        });
+    }
 }
 
   // EINDE wijziging
@@ -3429,6 +3557,7 @@ if (savedLang && translations[savedLang]) {
 
 // Laad producten bij start
 attachShopIntroFilters();
+bindSearchControls();
 laadVerzendkosten();
 laadProducten();
 
