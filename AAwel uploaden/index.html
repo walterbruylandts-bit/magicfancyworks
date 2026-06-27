@@ -809,7 +809,13 @@ No JS logic changed.
             margin-top: 8px;
         }
         .modal-image-container img {
-            max-height: 150px;
+            display: block !important;
+            width: 100% !important;
+            height: auto !important;
+            max-width: 100% !important;
+            max-height: 320px !important;
+            object-fit: contain !important;
+            margin: 0 auto !important;
         }
         .modal-content {
             max-height: 92vh;
@@ -932,6 +938,9 @@ No JS logic changed.
         .modal-image-container {
             margin-right: 0 !important;
             margin-bottom: 14px !important;
+        }
+        .modal-image-container img {
+            max-height: 260px !important;
         }
         .card button {
             padding: 15px 20px;
