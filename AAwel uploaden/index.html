@@ -1106,9 +1106,31 @@ No JS logic changed.
 /* 1. Dit dwingt de rij van het product (zoals Baby Boy) om ALTIJD wit te zijn met donkere tekst */
 #cart-items div,
 #cart-items > div[style] {
-    background-color: #ffffff !important;
-    background: #ffffff !important;
-    color: #1a2a3a !important;
+    background-color: #ffffff !important;
+    background: #ffffff !important;
+    color: #1a2a3a !important;
+}
+
+#cart-items .cart-item-row {
+    display: flex !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+    gap: 12px !important;
+    padding: 10px !important;
+    margin-bottom: 8px !important;
+    border: 1px solid #e5e7eb !important;
+    border-radius: 10px !important;
+    background: #ffffff !important;
+    color: #1a2a3a !important;
+    min-height: 56px !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+}
+
+#cart-items .cart-item-details {
+    flex: 1 1 auto !important;
+    min-width: 0 !important;
+    background: #ffffff !important;
 }
 
 /* Zorg dat de productnaam en de prijs (die nu groen op groen staan) goed leesbaar donker worden */
@@ -2835,14 +2857,13 @@ itemsDiv.innerHTML = cart.map(function(i){
       if(labels.length > 0) keuzesText = ' (' + labels.join(', ') + ')';
     }
 
-    // Hier staat nu slechts één div met de inhoud
-return `<div style="display: flex !important; justify-content: space-between !important; align-items: center !important; padding: 10px !important; border-bottom: 1px solid #e4e4e7 !important; background-color: #ffffff !important; color: #1a2a3a !important; min-height: 50px !important; width: 100% !important; box-sizing: border-box !important;">
-      <div style="display: block !important; color: #1a2a3a !important; font-size: 14px !important; background-color: #ffffff !important;">
-        <strong style="color: #1a2a3a !important; display: block !important; background-color: #ffffff !important;">${titel}</strong>
-        <span style="display: block !important; color: #666 !important; background-color: #ffffff !important;">${keuzesText}</span>
-        <small style="color: #4b5563 !important; display: block !important; background-color: #ffffff !important;">€ ${i.prijs} x ${i.qty}</small>
+    return `<div class="cart-item-row">
+      <div class="cart-item-details">
+        <strong style="color:#1a2a3a;display:block">${titel}</strong>
+        <span style="display:block;color:#666">${keuzesText}</span>
+        <small style="color:#4b5563;display:block">€ ${i.prijs} x ${i.qty}</small>
       </div>
-      <button onclick="removeFromCart('${i.code}', '${i.keuzesKey}')" style="background: #ef4444 !important; color: white !important; border: none !important; border-radius: 4px !important; padding: 4px 8px !important; cursor: pointer !important; font-size: 12px !important; display: block !important;">✕</button>
+      <button type="button" onclick="removeFromCart(this.dataset.code, this.dataset.keuzesKey)" data-code="${escapeHtml(i.code)}" data-keuzes-key="${escapeHtml(i.keuzesKey || '')}" style="background:#ef4444 !important;color:white !important;border:none !important;border-radius:6px !important;padding:6px 10px !important;cursor:pointer !important;font-size:12px !important;flex:0 0 auto !important;">✕</button>
     </div>`;
 }).join('');
 
