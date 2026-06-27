@@ -600,6 +600,13 @@ No JS logic changed.
         word-break: break-word;
     }
 
+    .modal-more-hint {
+        margin: 0;
+        font-size: 0.82rem;
+        color: #64748b;
+        font-weight: 600;
+    }
+
     .modal-more {
         border: 1px solid #dbe7e2;
         border-radius: 10px;
@@ -825,6 +832,9 @@ No JS logic changed.
         .modal-more summary,
         .modal-more-body {
             font-size: 0.92rem;
+        }
+        .modal-more-hint {
+            font-size: 0.8rem;
         }
 
         .shop-intro {
@@ -1775,6 +1785,11 @@ function getModalLabels() {
     files: currentLang === 'fr' ? 'Fichiers' : currentLang === 'en' ? 'Files' : 'Bestanden',
     delivery: currentLang === 'fr' ? 'Livraison' : currentLang === 'en' ? 'Delivery' : 'Levering',
     choices: currentLang === 'fr' ? 'Options' : currentLang === 'en' ? 'Options' : 'Keuzes',
+    moreHint: currentLang === 'fr'
+      ? 'Faites défiler pour plus de détails'
+      : currentLang === 'en'
+        ? 'Scroll for more details'
+        : 'Scroll verder voor meer details',
     noDescription: currentLang === 'fr' ? 'Aucune description disponible.' : currentLang === 'en' ? 'No description available.' : 'Geen beschrijving beschikbaar.',
     translatedNote: currentLang === 'fr'
       ? 'Traduction automatique utilisée'
@@ -1886,6 +1901,7 @@ function renderPopupDescription(product, tekst) {
         <div class="modal-fact"><span>${escapeHtml(labels.delivery)}</span><strong>${escapeHtml(getDeliverySummary(product.type))}</strong></div>
         ${choiceCount > 0 ? `<div class="modal-fact"><span>${escapeHtml(labels.choices)}</span><strong>${escapeHtml(choiceNames || '-')}</strong></div>` : ''}
       </div>
+      <p class="modal-more-hint">↓ ${escapeHtml(labels.moreHint)}</p>
       <details class="modal-more">
         <summary>${escapeHtml(getModalMoreLabel())}</summary>
         <div class="modal-more-body">${escapeHtml(descriptionText)}</div>
