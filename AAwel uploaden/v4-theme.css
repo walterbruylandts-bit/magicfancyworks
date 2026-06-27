@@ -215,7 +215,7 @@ footer .newsletter-box {
   box-shadow: -5px 0 25px rgba(0,0,0,0.08) !important;
 }
 
-#favorites-sidebar div:first-child {
+#favorites-sidebar > div:first-child {
   background: linear-gradient(180deg, #0f766e 0%, #0b5f58 100%) !important;
   color: white !important;
 }
@@ -235,6 +235,19 @@ footer .newsletter-box {
   border-radius: 10px !important;
   background: #ffffff !important;
   color: #1a2a3a !important;
+}
+
+.favorite-item-row .favorite-item-main {
+  flex: 1 1 auto !important;
+  min-width: 0 !important;
+  background: transparent !important;
+  color: #0f172a !important;
+}
+
+.favorite-item-row .favorite-item-main strong,
+.favorite-item-row .favorite-item-main small {
+  background: transparent !important;
+  color: inherit !important;
 }
 
 .favorite-item-actions {
