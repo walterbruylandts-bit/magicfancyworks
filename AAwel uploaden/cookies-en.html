@@ -27,6 +27,7 @@
 
       <h2 class="text-xl font-semibold mt-6 mb-2 text-zinc-900">3. How do you manage cookies?</h2>
       <p>You can manage your choice through the cookie banner. Your consent choice is stored in localStorage. You can change it later by clearing site data or browser storage. Some features may not work properly if necessary cookies are blocked.</p>
+      <button id="reset-cookie-choice" type="button" class="inline-flex items-center rounded-full border border-emerald-700 px-4 py-2 text-sm font-semibold text-emerald-700 hover:bg-emerald-700 hover:text-white transition">Reset cookie choice</button>
 
       <h2 class="text-xl font-semibold mt-6 mb-2 text-zinc-900">4. Third parties</h2>
       <p>We use Cloudflare for hosting and security, which may place technical cookies. PayPal places cookies during the payment process. Please consult their own privacy policies for more information.</p>
@@ -49,5 +50,14 @@
     </p>
     <p style="font-size:11px;margin-top:12px;color:#a0b4c8">VAT number: BE0500363711 | Special exemption scheme for small enterprises - art. 56bis Belgian VAT Code | Digital products — no right of withdrawal</p>
   </footer>
+  <script>
+    const resetCookieChoice = document.getElementById('reset-cookie-choice');
+    if (resetCookieChoice) {
+      resetCookieChoice.addEventListener('click', function () {
+        localStorage.removeItem('cookie_consent_v3');
+        window.location.reload();
+      });
+    }
+  </script>
 </body>
 </html>
