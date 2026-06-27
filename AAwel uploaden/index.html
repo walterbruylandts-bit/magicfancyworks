@@ -795,18 +795,30 @@ No JS logic changed.
             clear: both !important;
         }
         .modal-image-container {
-            display: block !important;
-            float: none;
+            display: grid !important;
+            grid-template-columns: minmax(190px, 1fr) minmax(180px, 0.95fr);
+            gap: 14px !important;
+            float: none !important;
             width: 100% !important;
             max-width: 100% !important;
             margin-right: 0 !important;
+            align-items: start;
         }
         .modal-details {
             display: block !important;
             width: 100% !important;
             max-width: 100% !important;
             max-height: none;
-            margin-top: 8px;
+            margin-top: 14px;
+        }
+        .modal-image-top {
+            min-width: 0;
+        }
+        .modal-image-side {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            min-width: 0;
         }
         .modal-image-container img {
             display: block !important;
@@ -938,6 +950,16 @@ No JS logic changed.
         .modal-image-container {
             margin-right: 0 !important;
             margin-bottom: 14px !important;
+        }
+        .modal-image-container {
+            display: block !important;
+        }
+        .modal-image-side {
+            display: block;
+        }
+        .modal-image-top,
+        .modal-image-side {
+            width: 100%;
         }
         .modal-image-container img {
             max-height: 260px !important;
@@ -1416,45 +1438,48 @@ No JS logic changed.
     <button class="close-button" id="closeModalBtn" aria-label="Sluit popup">×</button>
 <div class="modal-body">
   <div class="modal-image-container" style="display:inline-block;width:200px;vertical-align:top;text-align:center;margin-right:30px">
-    <img id="modalImage" alt="" loading="lazy">
-
-    <button class="view-image-btn" onclick="openImageOverlay()">
-      <span id="viewLargerText">🔍 Bekijk groter beeld</span>
-    </button>
-
-    <div id="thumbRow" class="thumb-row"></div>
-
-    <div id="kleur-keuze-container" class="kleur-keuze-container" style="display:none;">
-      <div id="kleur-keuze-label" class="kleur-keuze-label"></div>
-      <div id="kleur-keuze-buttons" class="kleur-keuze-buttons"></div>
-      <div id="kleur-verplicht" class="kleur-verplicht" style="display:none;">
-        Kies een kleur
-      </div>
+    <div class="modal-image-top">
+      <img id="modalImage" alt="" loading="lazy">
     </div>
-
-    <div id="popup-add-to-cart" style="margin-top:8px;text-align:center;">
-      <button id="popup-add-btn"
-              onclick="addToCartFromPopup()"
-              style="background:#059669;color:white;border:none;padding:8px 16px;border-radius:8px;cursor:pointer;font-weight:700;font-size:13px;width:100%;">
+    <div class="modal-image-side">
+      <button class="view-image-btn" onclick="openImageOverlay()">
+        <span id="viewLargerText">🔍 Bekijk groter beeld</span>
       </button>
-      <div id="popup-add-confirmation" style="display:none;margin-top:6px;font-size:12px;font-weight:700;color:#0f766e;"></div>
+
+      <div id="thumbRow" class="thumb-row"></div>
+
+      <div id="kleur-keuze-container" class="kleur-keuze-container" style="display:none;">
+        <div id="kleur-keuze-label" class="kleur-keuze-label"></div>
+        <div id="kleur-keuze-buttons" class="kleur-keuze-buttons"></div>
+        <div id="kleur-verplicht" class="kleur-verplicht" style="display:none;">
+          Kies een kleur
+        </div>
+      </div>
+
+      <div id="popup-add-to-cart" style="margin-top:8px;text-align:center;">
+        <button id="popup-add-btn"
+                onclick="addToCartFromPopup()"
+                style="background:#059669;color:white;border:none;padding:8px 16px;border-radius:8px;cursor:pointer;font-weight:700;font-size:13px;width:100%;">
+        </button>
+        <div id="popup-add-confirmation" style="display:none;margin-top:6px;font-size:12px;font-weight:700;color:#0f766e;"></div>
+      </div>
+
+      <div id="popup-video-container" style="display:none;margin-top:8px;">
+        <video id="popup-video"
+               controls
+               playsinline
+               style="width:100%;max-width:200px;border-radius:8px;border:1px solid #e4e4e7;">
+          <source id="popup-video-source" type="video/mp4">
+        </video>
+      </div>
+
+      <div id="paypal-button-container" style="display:none"></div>
+
+      <p id="deliveryNotice"
+         style="font-size:12px;color:#059669;margin-top:8px;text-align:center;font-weight:600">
+        ⏳ Digitale bestanden worden binnen 24 uur per email bezorgd na goedkeuring.
+      </p>
     </div>
-
-    <div id="popup-video-container" style="display:none;margin-top:8px;">
-      <video id="popup-video"
-             controls
-             playsinline
-             style="width:100%;max-width:200px;border-radius:8px;border:1px solid #e4e4e7;">
-        <source id="popup-video-source" type="video/mp4">
-      </video>
-    </div>
-
-    <div id="paypal-button-container" style="display:none"></div>
-
-    <p id="deliveryNotice"
-       style="font-size:12px;color:#059669;margin-top:8px;text-align:center;font-weight:600">
-      ⏳ Digitale bestanden worden binnen 24 uur per email bezorgd na goedkeuring.
-    </p>
   </div>
 <div class="modal-details"
        style="display:inline-block;vertical-align:top;width:calc(100% - 240px);overflow-y:auto;max-height:70vh">
