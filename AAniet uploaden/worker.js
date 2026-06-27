@@ -2670,8 +2670,25 @@ const body = '<div class="topbar"><a href="/admin" class="ghost-btn">&larr; Teru
         const since = url.searchParams.get("since") || "30d";
         const daysMap = { "7d": 7, "30d": 30, "90d": 90 };
         const days = daysMap[since] || 30;
-        const startDate = new Date(Date.now() - days * 864e5);
-        const query = JSON.stringify({ query: '{viewer{accounts(filter:{accountTag:"5e1f868320c106902f92dcee90238422"}){httpRequestsOverviewAdaptiveGroups(filter:{datetime_geq:"' + startDate.toISOString() + '",datetime_leq:"' + (/* @__PURE__ */ new Date()).toISOString() + '"},limit:10000,orderBy:[date_ASC]){sum{requests pageViews visits bytes}dimensions{date}}}}}' });
+        const now = new Date();
+        const fetchAnalyticsSummary = async (rangeDays) => {
+          const startDate = new Date(Date.now() - rangeDays * 864e5);
+          const query = JSON.stringify({ query: '{viewer{accounts(filter:{accountTag:"5e1f868320c106902f92dcee90238422"}){httpRequestsOverviewAdaptiveGroups(filter:{datetime_geq:"' + startDate.toISOString() + '",datetime_leq:"' + now.toISOString() + '"},limit:10000,orderBy:[date_ASC]){sum{requests pageViews visits bytes}dimensions{date}}}}}' });
+          const analyticsResp = await fetch("https://api.cloudflare.com/client/v4/graphql", { method: "POST", headers: { "Content-Type": "application/json", "Authorization": "Bearer " + env.CF_API_TOKEN }, body: query });
+          const analyticsData = await analyticsResp.json();
+          const groups = analyticsData?.data?.viewer?.accounts?.[0]?.httpRequestsOverviewAdaptiveGroups || [];
+          return groups.reduce((acc, g) => {
+            acc.requests += g.sum.requests || 0;
+            acc.pageViews += g.sum.pageViews || 0;
+            acc.visits += g.sum.visits || 0;
+            acc.bytes += g.sum.bytes || 0;
+            return acc;
+          }, { requests: 0, pageViews: 0, visits: 0, bytes: 0 });
+        };
+
+        const summary1d = await fetchAnalyticsSummary(1);
+        const summary7d = await fetchAnalyticsSummary(7);
+        const query = JSON.stringify({ query: '{viewer{accounts(filter:{accountTag:"5e1f868320c106902f92dcee90238422"}){httpRequestsOverviewAdaptiveGroups(filter:{datetime_geq:"' + new Date(Date.now() - days * 864e5).toISOString() + '",datetime_leq:"' + now.toISOString() + '"},limit:10000,orderBy:[date_ASC]){sum{requests pageViews visits bytes}dimensions{date}}}}}' });
         const analyticsResp = await fetch("https://api.cloudflare.com/client/v4/graphql", { method: "POST", headers: { "Content-Type": "application/json", "Authorization": "Bearer " + env.CF_API_TOKEN }, body: query });
         const analyticsData = await analyticsResp.json();
         const groups = analyticsData?.data?.viewer?.accounts?.[0]?.httpRequestsOverviewAdaptiveGroups || [];
@@ -2685,7 +2702,7 @@ const body = '<div class="topbar"><a href="/admin" class="ghost-btn">&larr; Teru
           });
           const btnStyle = /* @__PURE__ */ __name2((p) => since === p ? "background:#3b82f6;color:white" : "background:#e2e8f0;color:#475569", "btnStyle");
           statsHTML += '<div style="margin-bottom:15px"><a href="/admin/statistiek?since=7d" style="' + btnStyle("7d") + ';padding:6px 14px;border-radius:4px;text-decoration:none;margin-right:6px">7 dagen</a><a href="/admin/statistiek?since=30d" style="' + btnStyle("30d") + ';padding:6px 14px;border-radius:4px;text-decoration:none;margin-right:6px">30 dagen</a><a href="/admin/statistiek?since=90d" style="' + btnStyle("90d") + ';padding:6px 14px;border-radius:4px;text-decoration:none">90 dagen</a></div>';
-          statsHTML += '<div class="kpi"><div class="kpi-card"><div class="kpi-value">' + totalReq.toLocaleString() + '</div><div class="kpi-label">Requests</div></div><div class="kpi-card"><div class="kpi-value">' + totalViews.toLocaleString() + '</div><div class="kpi-label">Weergaves</div></div><div class="kpi-card"><div class="kpi-value">' + totalVisits.toLocaleString() + '</div><div class="kpi-label">Bezoeken</div></div><div class="kpi-card"><div class="kpi-value">' + (totalBytes / 1024 / 1024).toFixed(1) + ' MB</div><div class="kpi-label">Bandbreedte</div></div></div>';
+          statsHTML += '<div class="kpi"><div class="kpi-card"><div class="kpi-value">' + summary1d.visits.toLocaleString() + '</div><div class="kpi-label">Bezoeken vandaag</div></div><div class="kpi-card"><div class="kpi-value">' + summary7d.visits.toLocaleString() + '</div><div class="kpi-label">Bezoeken laatste 7 dagen</div></div><div class="kpi-card"><div class="kpi-value">' + totalReq.toLocaleString() + '</div><div class="kpi-label">Requests</div></div><div class="kpi-card"><div class="kpi-value">' + totalViews.toLocaleString() + '</div><div class="kpi-label">Weergaves</div></div><div class="kpi-card"><div class="kpi-value">' + totalVisits.toLocaleString() + '</div><div class="kpi-label">Bezoeken</div></div><div class="kpi-card"><div class="kpi-value">' + (totalBytes / 1024 / 1024).toFixed(1) + ' MB</div><div class="kpi-label">Bandbreedte</div></div></div>';
           const maxReq = Math.max(...groups.map((g) => g.sum.requests));
           statsHTML += '<h2>Dagelijks overzicht</h2><table style="width:100%;border-collapse:collapse;margin:15px 0;font-family:system-ui"><tr style="background:#f1f5f9"><th style="padding:8px;text-align:left;border-bottom:2px solid #3b82f6">Datum</th><th style="padding:8px;text-align:right;border-bottom:2px solid #3b82f6">Requests</th><th style="padding:8px;text-align:right;border-bottom:2px solid #3b82f6">Weergaves</th><th style="padding:8px;text-align:right;border-bottom:2px solid #3b82f6">Bezoeken</th><th style="width:40%;padding:8px;border-bottom:2px solid #3b82f6"></th></tr>';
           groups.forEach((g) => {
