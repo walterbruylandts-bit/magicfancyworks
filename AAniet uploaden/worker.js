@@ -826,7 +826,7 @@ drawTextRight(
 
 page.drawText(order.productName || "-", {
   x: left + 12,
-  y: row1Y,
+  y: currentRowY,
   size: 10.5,
   font,
   color: black,
@@ -1697,20 +1697,28 @@ if (url.pathname.startsWith("/admin/invoice-pdf-v2/") && request.method === "GET
   
 const order = JSON.parse(orderRaw);
 
-const result = await generateInvoicePdfAndUbl(order, env);
-const updatedOrder = result.order;
-const pdfBytes = result.pdfBytes;
+try {
+  const result = await generateInvoicePdfAndUbl(order, env);
+  const updatedOrder = result.order;
+  const pdfBytes = result.pdfBytes;
 
-await env.ORDERS.put(
-  "order:" + orderID,
-  JSON.stringify(updatedOrder)
-);
+  await env.ORDERS.put(
+    "order:" + orderID,
+    JSON.stringify(updatedOrder)
+  );
 
-return new Response(pdfBytes, {
-  headers: {
-    "Content-Type": "application/pdf",
-  },
-});
+  return new Response(pdfBytes, {
+    headers: {
+      "Content-Type": "application/pdf",
+      "Content-Disposition": `inline; filename="${updatedOrder.invoiceNumber}.pdf"`
+    }
+  });
+} catch (error) {
+  return new Response("Fout bij genereren van de factuur PDF: " + escapeHtml(error.message), {
+    status: 500,
+    headers: { "Content-Type": "text/html; charset=utf-8" }
+  });
+}
 }
 // === INVOICE PDF/UBL GENERATION ROUTE END ===
 
