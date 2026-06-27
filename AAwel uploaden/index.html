@@ -1415,7 +1415,6 @@ const translations = {
     reviewSubmit: 'Verstuur review',
     reviewSuccess: 'Bedankt. Je review is ontvangen.',
     reviewError: 'Vul minstens een naam, beoordeling en review in.',
-    reviewNoReviews: 'Nog geen reviews voor dit product.',
     cartTitle: 'Winkelmandje',
     cartEmpty: 'Mandje is leeg',
     cartTotal: 'Totaal',
@@ -1493,7 +1492,6 @@ const translations = {
     reviewSubmit: 'Envoyer l’avis',
     reviewSuccess: 'Merci. Votre avis a bien été reçu.',
     reviewError: 'Veuillez remplir au minimum un nom, une évaluation et un avis.',
-    reviewNoReviews: 'Aucun avis pour ce produit pour le moment.',
     cartTitle: 'Panier',
     cartEmpty: 'Le panier est vide',
     cartTotal: 'Total',
@@ -1571,7 +1569,6 @@ const translations = {
     reviewSubmit: 'Send review',
     reviewSuccess: 'Thanks. Your review has been received.',
     reviewError: 'Please fill in at least a name, rating and review.',
-    reviewNoReviews: 'No reviews for this product yet.',
     cartTitle: 'Shopping Cart',
     cartEmpty: 'Cart is empty',
     cartTotal: 'Total',
@@ -1943,8 +1940,6 @@ if (modal && modal.classList.contains('active')) {
     renderPopupDescription(activeProduct, activeProduct._popupDescription || activeProduct.beschrijving || '');
     renderRelatedProducts(activeProduct);
     renderReviewSection(activeProduct);
-    renderReviewOverview(activeProduct);
-    renderReviewList(activeProduct);
   }
 }
 }
@@ -2112,77 +2107,6 @@ function renderRelatedProducts(product) {
   });
 }
 
-function renderReviewStars(value) {
-  const score = Math.max(0, Math.min(5, Number(value) || 0));
-  const fullStars = Math.round(score);
-  return '★★★★★'.split('').map((star, index) => index < fullStars ? '★' : '☆').join('');
-}
-
-function formatReviewDate(value) {
-  if (!value) return '';
-  try {
-    return new Date(value).toLocaleDateString('nl-BE', { day: '2-digit', month: 'short', year: 'numeric' });
-  } catch (e) {
-    return '';
-  }
-}
-
-async function loadProductReviews(product) {
-  if (!product) return { count: 0, average: 0, reviews: [] };
-  try {
-    const res = await fetch(`${WORKER_BASE_URL}/reviews?productCode=${encodeURIComponent(product.code)}`);
-    const data = await res.json().catch(() => ({}));
-    const summary = data.summary || { count: 0, average: 0 };
-    const reviews = Array.isArray(data.reviews) ? data.reviews : [];
-    product._reviewSummary = summary;
-    product._reviews = reviews;
-    return { ...summary, reviews };
-  } catch (e) {
-    product._reviewSummary = { count: 0, average: 0 };
-    product._reviews = [];
-    return { count: 0, average: 0, reviews: [] };
-  }
-}
-
-function renderReviewOverview(product) {
-  const box = document.getElementById('review-summary');
-  if (!box || !product) return;
-  const summary = product._reviewSummary || { count: 0, average: 0 };
-  const count = Number(summary.count || 0);
-  const average = Number(summary.average || 0);
-  const label = count > 0
-    ? `${average.toFixed(1)} / 5 · ${count} ${count === 1 ? (currentLang === 'fr' ? 'avis' : 'review') : (currentLang === 'fr' ? 'avis' : 'reviews')}`
-    : t('reviewNoReviews');
-
-  box.innerHTML = `
-    <div class="review-summary">
-      <div class="review-score" aria-label="${escapeHtml(label)}">${escapeHtml(renderReviewStars(average))}</div>
-      <div class="review-summary-text">${escapeHtml(label)}</div>
-    </div>
-  `;
-}
-
-function renderReviewList(product) {
-  const box = document.getElementById('review-list');
-  if (!box || !product) return;
-  const reviews = Array.isArray(product._reviews) ? product._reviews : [];
-  if (!reviews.length) {
-    box.innerHTML = '<p style="margin:0;color:#64748b;font-size:0.88rem;">' + escapeHtml(t('reviewNoReviews')) + '</p>';
-    return;
-  }
-
-  box.innerHTML = reviews.slice(0, 5).map((review) => `
-    <div class="review-item">
-      <div class="review-item-head">
-        <div class="review-item-name">${escapeHtml(review.name || '-')}</div>
-        <div class="review-item-date">${escapeHtml(formatReviewDate(review.createdAt))}</div>
-      </div>
-      <div class="review-score" style="margin-bottom:6px">${escapeHtml(renderReviewStars(review.rating))}</div>
-      <p class="review-item-text">${escapeHtml(review.message || '')}</p>
-    </div>
-  `).join('');
-}
-
 function getStoredReviewName() {
   try {
     return localStorage.getItem('mfw-review-name') || '';
@@ -2205,7 +2129,6 @@ function renderReviewSection(product) {
   box.innerHTML = `
     <span class="review-title">${escapeHtml(t('reviewTitle'))}</span>
     <p class="review-intro">${escapeHtml(t('reviewIntro'))}</p>
-    <div id="review-summary"></div>
     <form id="review-form" class="review-form">
       <input id="review-name" type="text" maxlength="60" placeholder="${escapeHtml(t('reviewName'))}" value="${nameValue}">
       <select id="review-rating" aria-label="${escapeHtml(t('reviewRating'))}">
@@ -2220,7 +2143,6 @@ function renderReviewSection(product) {
       <button id="review-submit" type="submit" class="review-submit">${escapeHtml(t('reviewSubmit'))}</button>
       <div id="review-status" class="review-status" style="display:none"></div>
     </form>
-    <div id="review-list" class="review-list"></div>
   `;
 
   const form = document.getElementById('review-form');
@@ -2275,9 +2197,6 @@ async function submitReview(product) {
     setStoredReviewName(name);
     const messageBox = document.getElementById('review-message');
     if (messageBox) messageBox.value = '';
-    await loadProductReviews(product);
-    renderReviewOverview(product);
-    renderReviewList(product);
     if (status) {
       status.style.color = '#065f46';
       status.textContent = data.message || t('reviewSuccess');
@@ -3738,18 +3657,12 @@ async function openPopup(code) {
         renderPopupDescription(product, product._popupDescription);
         renderRelatedProducts(product);
         renderReviewSection(product);
-        await loadProductReviews(product);
-        renderReviewOverview(product);
-        renderReviewList(product);
     } catch (error) {
         console.error('Fout bij laden beschrijving:', error);
         product._popupDescription = product.beschrijving || '';
         renderPopupDescription(product, product._popupDescription);
         renderRelatedProducts(product);
         renderReviewSection(product);
-        await loadProductReviews(product);
-        renderReviewOverview(product);
-        renderReviewList(product);
     }
 
 // Render PayPal buttons
