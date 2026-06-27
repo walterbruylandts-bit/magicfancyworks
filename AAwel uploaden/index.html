@@ -1418,6 +1418,9 @@ const translations = {
     reviewSaving: 'Review wordt opgeslagen...',
     reviewSuccess: 'Bedankt, je review is opgeslagen.',
     reviewError: 'Vul een reviewbericht in en kies een beoordeling.',
+    reviewListTitle: 'Reviews',
+    reviewListEmpty: 'Nog geen reviews voor dit product.',
+    reviewListLoading: 'Reviews laden...',
     cartTitle: 'Winkelmandje',
     cartEmpty: 'Mandje is leeg',
     cartTotal: 'Totaal',
@@ -1498,6 +1501,9 @@ const translations = {
     reviewSaving: 'Enregistrement de l’avis...',
     reviewSuccess: 'Merci, votre avis a été enregistré.',
     reviewError: 'Veuillez écrire un avis et choisir une évaluation.',
+    reviewListTitle: 'Avis',
+    reviewListEmpty: 'Aucun avis pour ce produit pour le moment.',
+    reviewListLoading: 'Chargement des avis...',
     cartTitle: 'Panier',
     cartEmpty: 'Le panier est vide',
     cartTotal: 'Total',
@@ -1578,6 +1584,9 @@ const translations = {
     reviewSaving: 'Saving review...',
     reviewSuccess: 'Thanks, your review has been saved.',
     reviewError: 'Please write a review and choose a rating.',
+    reviewListTitle: 'Reviews',
+    reviewListEmpty: 'No reviews for this product yet.',
+    reviewListLoading: 'Loading reviews...',
     cartTitle: 'Shopping Cart',
     cartEmpty: 'Cart is empty',
     cartTotal: 'Total',
@@ -1785,7 +1794,10 @@ function getReviewLabels() {
     submit: t('reviewSubmit'),
     saving: t('reviewSaving'),
     success: t('reviewSuccess'),
-    error: t('reviewError')
+    error: t('reviewError'),
+    listTitle: t('reviewListTitle'),
+    listEmpty: t('reviewListEmpty'),
+    listLoading: t('reviewListLoading')
   };
 }
 
@@ -2141,6 +2153,7 @@ function renderReviewSection(product) {
   }
 
   const labels = getReviewLabels();
+  box.dataset.productCode = product.code;
   box.innerHTML = `
     <div class="review-box">
       <span class="review-title">${escapeHtml(labels.title)}</span>
@@ -2168,11 +2181,16 @@ function renderReviewSection(product) {
         <button type="submit" class="review-submit">${escapeHtml(labels.submit)}</button>
         <div class="review-status" aria-live="polite"></div>
       </form>
+      <div class="review-list">
+        <span class="review-title">${escapeHtml(labels.listTitle)}</span>
+        <div class="review-list-items">${escapeHtml(labels.listLoading)}</div>
+      </div>
     </div>
   `;
 
   const form = box.querySelector('[data-review-form]');
   const status = box.querySelector('.review-status');
+  const listItems = box.querySelector('.review-list-items');
   if (!form || !status) return;
 
   form.addEventListener('submit', async (event) => {
@@ -2221,6 +2239,45 @@ function renderReviewSection(product) {
       submitButton.disabled = false;
     }
   });
+
+  loadReviewsForProduct(product.code, listItems, labels, box);
+}
+
+async function loadReviewsForProduct(productCode, listItems, labels, box) {
+  if (!listItems) return;
+  listItems.textContent = labels.listLoading;
+
+  try {
+    const response = await fetch(`${WORKER_BASE_URL}/reviews?productCode=${encodeURIComponent(productCode)}`);
+    const data = await response.json().catch(() => ({ reviews: [] }));
+    if (!response.ok) throw new Error('load failed');
+    if (box?.dataset?.productCode !== productCode) return;
+
+    const reviews = Array.isArray(data.reviews) ? data.reviews : [];
+    if (reviews.length === 0) {
+      listItems.textContent = labels.listEmpty;
+      return;
+    }
+
+    listItems.innerHTML = reviews.map((review) => {
+      const rating = Math.max(1, Math.min(5, Number(review.rating || 0)));
+      const stars = '★★★★★'.slice(0, rating) + '☆☆☆☆☆'.slice(0, 5 - rating);
+      const date = review.createdAt ? new Date(review.createdAt).toLocaleDateString(currentLang === 'fr' ? 'fr-BE' : currentLang === 'en' ? 'en-GB' : 'nl-BE') : '';
+      return `
+        <article class="review-item">
+          <div class="review-item-top">
+            <strong>${escapeHtml(review.name || 'Anoniem')}</strong>
+            <span>${escapeHtml(date)}</span>
+          </div>
+          <div class="review-stars" aria-label="${escapeHtml(String(rating) + ' / 5')}">${escapeHtml(stars)}</div>
+          <p>${escapeHtml(review.message || '')}</p>
+        </article>
+      `;
+    }).join('');
+  } catch (error) {
+    if (box?.dataset?.productCode !== productCode) return;
+    listItems.textContent = labels.listEmpty;
+  }
 }
 
 function updateFavoritesUI() {

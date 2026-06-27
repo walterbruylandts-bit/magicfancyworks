@@ -1343,6 +1343,40 @@ const corsHeaders = {
       }
     }
 
+    if (url.pathname === "/reviews" && request.method === "GET") {
+      const productCode = String(url.searchParams.get("productCode") || "").trim();
+      if (!productCode) {
+        return new Response(JSON.stringify({ reviews: [] }), {
+          headers: { "Content-Type": "application/json", ...corsHeaders }
+        });
+      }
+
+      const list = await env.ORDERS.list({ prefix: "review:" });
+      const reviews = [];
+      for (const key of list.keys) {
+        const data = await env.ORDERS.get(key.name);
+        if (!data) continue;
+        const review = JSON.parse(data);
+        if (review.productCode === productCode) {
+          reviews.push(review);
+        }
+      }
+
+      reviews.sort((a, b) => new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime());
+
+      return new Response(JSON.stringify({
+        reviews: reviews.slice(0, 6).map((review) => ({
+          name: review.name || "Anoniem",
+          rating: Math.max(1, Math.min(5, Number(review.rating || 0) || 0)),
+          message: review.message || "",
+          createdAt: review.createdAt || "",
+          lang: review.lang || "nl"
+        }))
+      }), {
+        headers: { "Content-Type": "application/json", ...corsHeaders }
+      });
+    }
+
     if (url.pathname === "/newsletter-signup" && request.method === "POST") {
       try {
         const body = await request.json();
