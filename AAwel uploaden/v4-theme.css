@@ -321,6 +321,65 @@ footer .newsletter-box {
   font-weight: 500 !important;
 }
 
+.review-section {
+  margin-top: 14px !important;
+  padding-top: 12px !important;
+  border-top: 1px solid #e2e8f0 !important;
+}
+
+.review-section .review-title {
+  display: block !important;
+  margin-bottom: 6px !important;
+  font-weight: 700 !important;
+  color: #0f766e !important;
+  font-size: 0.92rem !important;
+}
+
+.review-section .review-intro {
+  margin: 0 0 10px !important;
+  color: #475569 !important;
+  font-size: 0.88rem !important;
+}
+
+.review-section .review-form {
+  display: grid !important;
+  gap: 8px !important;
+}
+
+.review-section .review-form input,
+.review-section .review-form select,
+.review-section .review-form textarea {
+  width: 100% !important;
+  border: 1px solid #cbd5e1 !important;
+  border-radius: 10px !important;
+  background: #ffffff !important;
+  color: #0f172a !important;
+  padding: 10px 12px !important;
+  font-size: 0.92rem !important;
+}
+
+.review-section .review-form textarea {
+  min-height: 96px !important;
+  resize: vertical !important;
+}
+
+.review-section .review-submit {
+  border: none !important;
+  border-radius: 10px !important;
+  padding: 10px 14px !important;
+  background: #0f766e !important;
+  color: #ffffff !important;
+  font-weight: 700 !important;
+  cursor: pointer !important;
+}
+
+.review-section .review-status {
+  margin-top: 6px !important;
+  font-size: 0.85rem !important;
+  font-weight: 600 !important;
+  color: #475569 !important;
+}
+
 #favorites-count {
   position: absolute !important;
   top: -8px !important;
