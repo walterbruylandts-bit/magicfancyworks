@@ -415,8 +415,8 @@ footer .newsletter-box {
 }
 
 .review-item {
-  background: #ffffff !important;
-  border: 1px solid #dbe7e2 !important;
+  background: #fbfdfc !important;
+  border: 1px solid #dce9e5 !important;
   border-radius: 12px !important;
   padding: 10px 12px !important;
 }
@@ -451,6 +451,32 @@ footer .newsletter-box {
   color: #334155 !important;
   font-size: 0.86rem !important;
   white-space: pre-wrap !important;
+}
+
+.card-review-summary {
+  min-height: 18px !important;
+  margin: -2px 0 8px !important;
+}
+
+.card-review-badge {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 6px !important;
+  padding: 4px 8px !important;
+  border-radius: 999px !important;
+  background: rgba(15,118,110,0.08) !important;
+  color: #0f766e !important;
+  font-size: 0.75rem !important;
+  font-weight: 700 !important;
+}
+
+.card-review-stars {
+  letter-spacing: 1px !important;
+}
+
+.card-review-count {
+  color: #0f766e !important;
+  white-space: nowrap !important;
 }
 
 #favorites-count {

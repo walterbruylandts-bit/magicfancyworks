@@ -1991,6 +1991,7 @@ let shippingRates = {};
 let selectedShippingCountry = 'BE';
 let activeProductFilter = 'all';
 let activeSearchTerm = '';
+const reviewSummaryCache = {};
 const PROMO_CODES = {
   MAGIC10: { type: 'percent', value: 10 }
 };
@@ -2241,6 +2242,54 @@ function renderReviewSection(product) {
   });
 
   loadReviewsForProduct(product.code, listItems, labels, box);
+}
+
+function getStarDisplay(avg) {
+  const rating = Math.max(0, Math.min(5, Number(avg || 0)));
+  const full = Math.round(rating);
+  return '★★★★★'.slice(0, full) + '☆☆☆☆☆'.slice(0, 5 - full);
+}
+
+async function updateCardReviewSummaries(products) {
+  const visibleCodes = new Set((products || []).map((product) => product.code));
+  document.querySelectorAll('[data-review-summary]').forEach((box) => {
+    const code = box.dataset.reviewSummary;
+    if (!visibleCodes.has(code)) {
+      box.innerHTML = '';
+      return;
+    }
+    if (!reviewSummaryCache[code]) {
+      reviewSummaryCache[code] = fetch(`${WORKER_BASE_URL}/reviews?productCode=${encodeURIComponent(code)}`)
+        .then((response) => response.json().catch(() => ({ reviews: [] })).then((data) => ({
+          ok: response.ok,
+          data
+        })))
+        .then(({ ok, data }) => {
+          if (!ok) return { count: 0, avg: 0 };
+          const reviews = Array.isArray(data.reviews) ? data.reviews : [];
+          const count = reviews.length;
+          const avg = count ? reviews.reduce((sum, review) => sum + Number(review.rating || 0), 0) / count : 0;
+          return { count, avg };
+        })
+        .catch(() => ({ count: 0, avg: 0 }));
+    }
+
+    box.innerHTML = '<span class="card-review-loading"></span>';
+    reviewSummaryCache[code].then((summary) => {
+      if (box.dataset.reviewSummary !== code) return;
+      if (!summary.count) {
+        box.innerHTML = '';
+        return;
+      }
+      const stars = getStarDisplay(summary.avg);
+      box.innerHTML = `
+        <div class="card-review-badge">
+          <span class="card-review-stars">${escapeHtml(stars)}</span>
+          <span class="card-review-count">${escapeHtml(summary.avg.toFixed(1).replace('.', ','))} (${summary.count})</span>
+        </div>
+      `;
+    });
+  });
 }
 
 async function loadReviewsForProduct(productCode, listItems, labels, box) {
@@ -3470,6 +3519,7 @@ function renderProducten() {
                 >
                 <h3>${escapedTitel}</h3>
                 <p class="price">€ ${escapedPrijs}</p>
+                <div class="card-review-summary" data-review-summary="${escapedCode}"></div>
                 <button data-product-code="${escapedCode}" aria-label="Bekijk ${escapedTitel}">Info</button>
 
             </article>
@@ -3487,6 +3537,7 @@ function renderProducten() {
     updateShopIntro();
     attachCardEventListeners();
     updateFavoritesUI();
+    updateCardReviewSummaries(searchedProducten);
 }
 
 // Event listeners voor product cards
