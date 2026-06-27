@@ -1382,6 +1382,13 @@ const translations = {
     footerPrivacy: 'Privacybeleid',
     footerCookies: 'Cookiebeleid',
     footerBTW: 'BTW-nummer: BE0500363711 | Bijzondere vrijstellingsregeling kleine ondernemingen - art. 56bis WBTW | Digitale producten per email. Fysieke producten binnen 10 werkdagen verzonden.',
+    newsletterTitle: 'Nieuwsbrief',
+    newsletterText: 'Krijg af en toe een korte update over nieuwe creaties en acties.',
+    newsletterPlaceholder: 'Jouw e-mailadres',
+    newsletterButton: 'Inschrijven',
+    newsletterConsent: 'Ik wil e-mails ontvangen van Magic Fancy Works.',
+    newsletterSuccess: 'Controleer je e-mail om de inschrijving te bevestigen.',
+    newsletterError: 'Geef een geldig e-mailadres en vink toestemming aan.',
     cartTitle: 'Winkelmandje',
     cartEmpty: 'Mandje is leeg',
     cartTotal: 'Totaal',
@@ -1435,6 +1442,13 @@ const translations = {
     footerPrivacy: 'Confidentialite',
     footerCookies: 'Cookies',
     footerBTW: 'TVA : BE0500363711 | Régime de franchise taxale petites entreprises - art. 56bis CTV | Produits numériques par email. Produits physiques expédiés sous 10 jours ouvrables.',
+    newsletterTitle: 'Newsletter',
+    newsletterText: 'Recevez de temps en temps des nouvelles sur les créations et les offres.',
+    newsletterPlaceholder: 'Votre adresse e-mail',
+    newsletterButton: "S'inscrire",
+    newsletterConsent: 'Je souhaite recevoir des e-mails de Magic Fancy Works.',
+    newsletterSuccess: 'Vérifiez votre e-mail pour confirmer votre inscription.',
+    newsletterError: 'Entrez une adresse e-mail valide et cochez le consentement.',
     cartTitle: 'Panier',
     cartEmpty: 'Le panier est vide',
     cartTotal: 'Total',
@@ -1488,6 +1502,13 @@ const translations = {
     footerPrivacy: 'Privacy Policy',
     footerCookies: 'Cookies',
     footerBTW: 'VAT: BE0500363711 | Small business VAT exemption scheme - art. 56bis VAT Code | Digital products by email. Physical products shipped within 10 business days.',
+    newsletterTitle: 'Newsletter',
+    newsletterText: 'Get short updates about new creations and offers now and then.',
+    newsletterPlaceholder: 'Your email address',
+    newsletterButton: 'Sign up',
+    newsletterConsent: 'I want to receive emails from Magic Fancy Works.',
+    newsletterSuccess: 'Check your email to confirm the subscription.',
+    newsletterError: 'Please enter a valid email address and tick consent.',
     cartTitle: 'Shopping Cart',
     cartEmpty: 'Cart is empty',
     cartTotal: 'Total',
@@ -1537,6 +1558,65 @@ function updateSearchControls() {
   const clearButton = document.getElementById('clear-search-button');
   if (input) input.placeholder = t('searchPlaceholder');
   if (clearButton) clearButton.textContent = t('searchClear');
+}
+
+function updateNewsletterControls() {
+  const title = document.getElementById('newsletter-title');
+  const text = document.getElementById('newsletter-text');
+  const input = document.getElementById('newsletter-email');
+  const button = document.getElementById('newsletter-button');
+  const consent = document.getElementById('newsletter-consent-label');
+  if (title) title.textContent = t('newsletterTitle');
+  if (text) text.textContent = t('newsletterText');
+  if (input) input.placeholder = t('newsletterPlaceholder');
+  if (button) button.textContent = t('newsletterButton');
+  if (consent) consent.textContent = t('newsletterConsent');
+}
+
+function showNewsletterMessage(message, isError) {
+  const box = document.getElementById('newsletter-status');
+  if (!box) return;
+  box.textContent = message || '';
+  box.style.display = message ? 'block' : 'none';
+  box.style.color = isError ? '#991b1b' : '#065f46';
+  box.style.background = isError ? '#fef2f2' : '#ecfdf5';
+  box.style.borderColor = isError ? '#fca5a5' : '#bbf7d0';
+}
+
+async function subscribeNewsletter() {
+  const input = document.getElementById('newsletter-email');
+  const consent = document.getElementById('newsletter-consent');
+  const email = String(input?.value || '').trim();
+  const consentGiven = !!consent?.checked;
+  const emailOk = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+
+  if (!emailOk || !consentGiven) {
+    showNewsletterMessage(t('newsletterError'), true);
+    return;
+  }
+
+  const button = document.getElementById('newsletter-button');
+  if (button) button.disabled = true;
+  showNewsletterMessage('', false);
+
+  try {
+    const res = await fetch(`${WORKER_BASE_URL}/newsletter-signup`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, lang: currentLang })
+    });
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok || data.error) {
+      throw new Error(data.error || 'Kon inschrijving niet verwerken');
+    }
+    if (input) input.value = '';
+    if (consent) consent.checked = false;
+    showNewsletterMessage(data.message || t('newsletterSuccess'), false);
+  } catch (e) {
+    showNewsletterMessage(e.message || t('newsletterError'), true);
+  } finally {
+    if (button) button.disabled = false;
+  }
 }
 
 function productMatchesSearch(product, query) {
@@ -1762,6 +1842,7 @@ function setLang(lang) {
   const footerPrivacy = document.getElementById('footerPrivacy'); if (footerPrivacy) footerPrivacy.textContent = t('footerPrivacy');
   const footerCookies = document.getElementById('footerCookies'); if (footerCookies) footerCookies.textContent = t('footerCookies');
   const footerBTW = document.getElementById('footerBTW'); if (footerBTW) footerBTW.textContent = t('footerBTW');
+  updateNewsletterControls();
   updateSearchControls();
 
   // Update footer link hrefs based on language
@@ -3472,6 +3553,19 @@ function closeImageOverlay() {
 </script>
    <footer style="background:#059669;color:#ffffff;text-align:center;padding:12px 20px;margin-top:28px;font-size:12px;border-top:1px dashed #e2e8f0">
    <p style="margin-bottom:8px">© 2026 Magic Fancy Works</p>
+   <div style="max-width:640px;margin:0 auto 12px;background:rgba(255,255,255,0.14);border:1px solid rgba(255,255,255,0.28);border-radius:16px;padding:14px 16px;text-align:left">
+    <div id="newsletter-title" style="font-size:1rem;font-weight:800;margin-bottom:4px;color:#ffffff">Nieuwsbrief</div>
+    <p id="newsletter-text" style="margin:0 0 10px;color:#e8f7f2;line-height:1.4">Krijg af en toe een korte update over nieuwe creaties en acties.</p>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+      <input id="newsletter-email" type="email" autocomplete="email" placeholder="Jouw e-mailadres" style="flex:1 1 220px;padding:10px 12px;border-radius:10px;border:1px solid rgba(255,255,255,0.45);background:rgba(255,255,255,0.95);color:#1a2a3a;min-width:0">
+      <button id="newsletter-button" type="button" onclick="subscribeNewsletter()" style="padding:10px 16px;border:none;border-radius:10px;background:#ffffff;color:#047857;font-weight:800;cursor:pointer">Inschrijven</button>
+    </div>
+    <label style="display:flex;align-items:flex-start;gap:8px;margin-top:10px;color:#eefaf6;font-size:11.5px;line-height:1.35">
+      <input id="newsletter-consent" type="checkbox" style="margin-top:2px;accent-color:#ffffff">
+      <span id="newsletter-consent-label">Ik wil e-mails ontvangen van Magic Fancy Works.</span>
+    </label>
+    <div id="newsletter-status" style="display:none;margin-top:10px;padding:10px 12px;border-radius:10px;border:1px solid transparent;font-size:12px;font-weight:700"></div>
+   </div>
    <p style="margin-bottom:6px;line-height:1.5">
     <a href="/contact.html" id="footerContact" style="color:#ffffff;text-decoration:none;margin:0 10px;font-weight:600">Contact</a>
     <a href="/voorwaarden.html" id="footerVoorwaarden" style="color:#ffffff;text-decoration:none;margin:0 10px;font-weight:600">Algemene Voorwaarden</a>

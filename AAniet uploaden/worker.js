@@ -143,6 +143,50 @@ function calculatePromoDiscount(amount, code) {
   return 0;
 }
 
+function normalizeNewsletterEmail(email) {
+  return String(email || "").trim().toLowerCase();
+}
+
+function isValidNewsletterEmail(email) {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(email || "").trim());
+}
+
+function getNewsletterTexts(lang) {
+  return {
+    nl: {
+      subject: "Bevestig je nieuwsbriefinschrijving",
+      intro: "Je hebt je ingeschreven voor de nieuwsbrief van Magic Fancy Works.",
+      button: "Bevestig inschrijving",
+      note: "Als jij dit niet hebt aangevraagd, kun je dit bericht gewoon negeren.",
+      success: "Controleer je e-mail om de inschrijving te bevestigen.",
+      already: "Je staat al ingeschreven."
+    },
+    fr: {
+      subject: "Confirmez votre inscription à la newsletter",
+      intro: "Vous avez demandé à vous inscrire à la newsletter de Magic Fancy Works.",
+      button: "Confirmer l'inscription",
+      note: "Si vous n'avez rien demandé, vous pouvez ignorer ce message.",
+      success: "Vérifiez votre e-mail pour confirmer l'inscription.",
+      already: "Vous êtes déjà inscrit(e)."
+    },
+    en: {
+      subject: "Confirm your newsletter subscription",
+      intro: "You asked to subscribe to the Magic Fancy Works newsletter.",
+      button: "Confirm subscription",
+      note: "If you did not request this, you can ignore this email.",
+      success: "Check your email to confirm the subscription.",
+      already: "You are already subscribed."
+    }
+  }[lang] || {
+    subject: "Confirm your newsletter subscription",
+    intro: "You asked to subscribe to the Magic Fancy Works newsletter.",
+    button: "Confirm subscription",
+    note: "If you did not request this, you can ignore this email.",
+    success: "Check your email to confirm the subscription.",
+    already: "You are already subscribed."
+  };
+}
+
 function normalizeVatNumberInput(vatNumber, countryHint = "") {
   const raw = String(vatNumber || "")
     .trim()
@@ -1246,6 +1290,111 @@ const corsHeaders = {
         headers: { "Content-Type": "application/json", ...corsHeaders }
       });
     }
+
+    if (url.pathname === "/newsletter-signup" && request.method === "POST") {
+      try {
+        const body = await request.json();
+        const email = normalizeNewsletterEmail(body?.email);
+        const lang = ["nl", "fr", "en"].includes(String(body?.lang || "").toLowerCase())
+          ? String(body.lang).toLowerCase()
+          : "nl";
+        const texts = getNewsletterTexts(lang);
+
+        if (!isValidNewsletterEmail(email)) {
+          return new Response(JSON.stringify({ error: "Geef een geldig e-mailadres in" }), {
+            status: 400,
+            headers: { "Content-Type": "application/json", ...corsHeaders }
+          });
+        }
+
+        const existing = await env.ORDERS.get("newsletter:" + email);
+        if (existing) {
+          return new Response(JSON.stringify({ ok: true, message: texts.already }), {
+            headers: { "Content-Type": "application/json", ...corsHeaders }
+          });
+        }
+
+        const token = crypto.randomUUID().replace(/-/g, "");
+        const pending = {
+          email,
+          lang,
+          createdAt: new Date().toISOString()
+        };
+
+        await env.ORDERS.put("newsletter-pending:" + token, JSON.stringify(pending), { expirationTtl: 604800 });
+
+        const confirmUrl = publicWorkerUrl + "/newsletter-confirm/" + token;
+
+        await fetch("https://api.resend.com/emails", {
+          method: "POST",
+          headers: {
+            "Authorization": "Bearer " + env.RESEND_API_KEY,
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+            from: shopFromEmail,
+            to: email,
+            subject: texts.subject,
+            html: "<h2>" + escapeHtml(texts.intro) + "</h2><p><a href=\"" + escapeHtml(confirmUrl) + "\" style=\"display:inline-block;background:#059669;color:#ffffff;padding:12px 20px;border-radius:8px;text-decoration:none;font-weight:700\">" + escapeHtml(texts.button) + "</a></p><p style=\"color:#475569\">" + escapeHtml(texts.note) + "</p>"
+          })
+        });
+
+        return new Response(JSON.stringify({ ok: true, message: texts.success }), {
+          headers: { "Content-Type": "application/json", ...corsHeaders }
+        });
+      } catch (error) {
+        return new Response(JSON.stringify({ error: error.message }), {
+          status: 500,
+          headers: { "Content-Type": "application/json", ...corsHeaders }
+        });
+      }
+    }
+
+    if (url.pathname.startsWith("/newsletter-confirm/") && request.method === "GET") {
+      const token = url.pathname.split("/newsletter-confirm/")[1];
+      const pendingRaw = await env.ORDERS.get("newsletter-pending:" + token);
+
+      if (!pendingRaw) {
+        return new Response("<h1>Link verlopen</h1><p>Deze bevestigingslink is ongeldig of verlopen.</p>", {
+          status: 404,
+          headers: { "Content-Type": "text/html; charset=utf-8" }
+        });
+      }
+
+      const pending = JSON.parse(pendingRaw);
+      const email = normalizeNewsletterEmail(pending.email);
+
+      await env.ORDERS.put("newsletter:" + email, JSON.stringify({
+        email,
+        lang: pending.lang || "nl",
+        confirmedAt: new Date().toISOString()
+      }));
+      await env.ORDERS.delete("newsletter-pending:" + token);
+
+      return new Response(`
+        <!doctype html>
+        <html lang="nl">
+        <head>
+          <meta charset="utf-8">
+          <meta name="viewport" content="width=device-width, initial-scale=1">
+          <title>Nieuwsbrief bevestigd</title>
+          <style>
+            body{font-family:system-ui;margin:0;min-height:100vh;display:flex;align-items:center;justify-content:center;background:#f8fafc;color:#1e293b;padding:24px}
+            .box{max-width:520px;background:#fff;border:1px solid #e2e8f0;border-radius:16px;padding:28px;box-shadow:0 10px 30px rgba(15,23,42,0.08)}
+            a{color:#059669;font-weight:700;text-decoration:none}
+          </style>
+        </head>
+        <body>
+          <div class="box">
+            <h1>Nieuwsbrief bevestigd</h1>
+            <p>Je e-mailadres is nu ingeschreven voor de nieuwsbrief van Magic Fancy Works.</p>
+            <p><a href="${escapeHtml(publicWorkerUrl)}">Terug naar de shop</a></p>
+          </div>
+        </body>
+        </html>`, {
+        headers: { "Content-Type": "text/html; charset=utf-8", ...corsHeaders }
+      });
+    }
     
 if (url.pathname === "/pdf-lib-test") {
 
@@ -2234,7 +2383,7 @@ const approvedOrders = orders.filter((o) => o.status === "approved").map(
   "</td></tr>"
 ).join("");
 
-const html = '<!DOCTYPE html><html><head><meta charset="utf-8"><title>Admin - MagicFancyworks</title><style>body{font-family:system-ui;max-width:1200px;margin:0 auto;padding:20px}h1{color:#1e293b}table{width:100%;border-collapse:collapse;margin:20px 0}th,td{padding:10px 12px;text-align:left;border-bottom:1px solid #e2e8f0;vertical-align:top}th{background:#f1f5f9;font-weight:600}.logout{float:right;margin-top:-40px}h2{color:#475569;margin-top:30px}</style></head><body><h1>Admin - MagicFancyworks</h1><a href="/admin/logout" class="logout" style="color:#ef4444;text-decoration:none;font-weight:600">Uitloggen</a><div style="margin:20px 0"><a href="/admin/boekhouding" style="display:inline-block;padding:12px 24px;border-radius:8px;text-decoration:none;font-weight:700;margin-right:10px;background:#5C2D6E;color:white">Boekhouding</a><a href="/admin/invoices" style="display:inline-block;padding:12px 24px;border-radius:8px;text-decoration:none;font-weight:700;margin-right:10px;background:#16a34a;color:white">Facturen</a><a href="/admin/statistiek" style="display:inline-block;padding:12px 24px;border-radius:8px;text-decoration:none;font-weight:700;margin-right:10px;background:#3b82f6;color:white">Statistiek</a><form method="POST" action="/admin/purge-retention" style="display:inline-block;margin:0 10px 0 0"><button type="submit" style="padding:12px 24px;border:none;border-radius:8px;background:#ea580c;color:white;font-weight:700;cursor:pointer">Purge verlopen tijdelijke orders</button></form><form method="POST" action="/admin/purge-testdata" style="display:inline-block;margin:0 10px 0 0" onsubmit="return confirm(\'Testdata en gekoppelde factuurbestanden echt verwijderen?\')"><button type="submit" style="padding:12px 24px;border:none;border-radius:8px;background:#b91c1c;color:white;font-weight:700;cursor:pointer">Reset testdata</button></form><form method="POST" action="/admin/retention-selftest" style="display:inline-block;margin:0"><button type="submit" style="padding:12px 24px;border:none;border-radius:8px;background:#0f766e;color:white;font-weight:700;cursor:pointer">Retentie zelftest</button></form></div><h2>Nieuwe bestellingen (' + orders.filter((o) => o.status === "new").length + ")</h2>" + (newOrders ? "<table><tr><th>Order ID</th><th>Product</th><th>Bedrag</th><th>Klant</th><th>Email</th><th>Factuur</th><th>Bestand</th><th>Retentie</th><th>Tijd</th><th>Actie</th></tr>" + newOrders + "</table>" : "<p>Geen nieuwe bestellingen</p>") + "<h2>Goedgekeurd (" + orders.filter((o) => o.status === "approved").length + ")</h2>" + (approvedOrders ? "<table><tr><th>Order ID</th><th>Product</th><th>Bedrag</th><th>Klant</th><th>Email</th><th>Factuur</th><th>Retentie</th><th>Download</th></tr>" + approvedOrders + "</table>" : "<p>Nog geen goedgekeurde bestellingen</p>") + "</body></html>";
+const html = '<!DOCTYPE html><html><head><meta charset="utf-8"><title>Admin - MagicFancyworks</title><style>body{font-family:system-ui;max-width:1200px;margin:0 auto;padding:20px}h1{color:#1e293b}table{width:100%;border-collapse:collapse;margin:20px 0}th,td{padding:10px 12px;text-align:left;border-bottom:1px solid #e2e8f0;vertical-align:top}th{background:#f1f5f9;font-weight:600}.logout{float:right;margin-top:-40px}h2{color:#475569;margin-top:30px}</style></head><body><h1>Admin - MagicFancyworks</h1><a href="/admin/logout" class="logout" style="color:#ef4444;text-decoration:none;font-weight:600">Uitloggen</a><div style="margin:20px 0"><a href="/admin/boekhouding" style="display:inline-block;padding:12px 24px;border-radius:8px;text-decoration:none;font-weight:700;margin-right:10px;background:#5C2D6E;color:white">Boekhouding</a><a href="/admin/invoices" style="display:inline-block;padding:12px 24px;border-radius:8px;text-decoration:none;font-weight:700;margin-right:10px;background:#16a34a;color:white">Facturen</a><a href="/admin/newsletter" style="display:inline-block;padding:12px 24px;border-radius:8px;text-decoration:none;font-weight:700;margin-right:10px;background:#0f766e;color:white">Nieuwsbrief</a><a href="/admin/statistiek" style="display:inline-block;padding:12px 24px;border-radius:8px;text-decoration:none;font-weight:700;margin-right:10px;background:#3b82f6;color:white">Statistiek</a><form method="POST" action="/admin/purge-retention" style="display:inline-block;margin:0 10px 0 0"><button type="submit" style="padding:12px 24px;border:none;border-radius:8px;background:#ea580c;color:white;font-weight:700;cursor:pointer">Purge verlopen tijdelijke orders</button></form><form method="POST" action="/admin/purge-testdata" style="display:inline-block;margin:0 10px 0 0" onsubmit="return confirm(\'Testdata en gekoppelde factuurbestanden echt verwijderen?\')"><button type="submit" style="padding:12px 24px;border:none;border-radius:8px;background:#b91c1c;color:white;font-weight:700;cursor:pointer">Reset testdata</button></form><form method="POST" action="/admin/retention-selftest" style="display:inline-block;margin:0"><button type="submit" style="padding:12px 24px;border:none;border-radius:8px;background:#0f766e;color:white;font-weight:700;cursor:pointer">Retentie zelftest</button></form></div><h2>Nieuwe bestellingen (' + orders.filter((o) => o.status === "new").length + ")</h2>" + (newOrders ? "<table><tr><th>Order ID</th><th>Product</th><th>Bedrag</th><th>Klant</th><th>Email</th><th>Factuur</th><th>Bestand</th><th>Retentie</th><th>Tijd</th><th>Actie</th></tr>" + newOrders + "</table>" : "<p>Geen nieuwe bestellingen</p>") + "<h2>Goedgekeurd (" + orders.filter((o) => o.status === "approved").length + ")</h2>" + (approvedOrders ? "<table><tr><th>Order ID</th><th>Product</th><th>Bedrag</th><th>Klant</th><th>Email</th><th>Factuur</th><th>Retentie</th><th>Download</th></tr>" + approvedOrders + "</table>" : "<p>Nog geen goedgekeurde bestellingen</p>") + "</body></html>";
       return new Response(html, { headers: { "Content-Type": "text/html; charset=utf-8" } });
     }
     if (url.pathname === "/admin/purge-retention" && request.method === "POST") {
@@ -2350,6 +2499,27 @@ const html = '<!DOCTYPE html><html><head><meta charset="utf-8"><title>Admin - Ma
       }), {
         headers: { "Content-Type": "application/json", ...corsHeaders }
       });
+    }
+    if (url.pathname === "/admin/newsletter") {
+      if (!await checkAuth(request, env)) {
+        return Response.redirect(publicWorkerUrl + "/admin/login", 302);
+      }
+
+      const list = await env.ORDERS.list({ prefix: "newsletter:" });
+      const subscribers = [];
+      for (const key of list.keys) {
+        const data = await env.ORDERS.get(key.name);
+        if (data) subscribers.push(JSON.parse(data));
+      }
+      subscribers.sort((a, b) => new Date(b.confirmedAt || 0).getTime() - new Date(a.confirmedAt || 0).getTime());
+
+      const rows = subscribers.map((s) =>
+        "<tr><td>" + escapeHtml(s.email || "-") + "</td><td>" + escapeHtml(s.lang || "-") + "</td><td>" + escapeHtml(s.confirmedAt ? new Date(s.confirmedAt).toLocaleString("nl-BE") : "-") + "</td></tr>"
+      ).join("");
+
+      const html = '<!DOCTYPE html><html><head><meta charset="utf-8"><title>Nieuwsbrief</title><style>body{font-family:system-ui;max-width:900px;margin:40px auto;padding:20px}h1{color:#1e293b}table{width:100%;border-collapse:collapse;margin:20px 0}th,td{padding:10px 12px;text-align:left;border-bottom:1px solid #e2e8f0}th{background:#f1f5f9;font-weight:600}.back{display:inline-block;margin-bottom:20px;color:#5C2D6E;text-decoration:none;font-weight:600}</style></head><body><a href="/admin" class="back">&larr; Terug naar admin</a><h1>Nieuwsbrief</h1><p>Totaal bevestigde inschrijvingen: ' + subscribers.length + '</p>' + (rows ? '<table><tr><th>E-mail</th><th>Taal</th><th>Bevestigd op</th></tr>' + rows + '</table>' : '<p>Nog geen inschrijvingen</p>') + '</body></html>';
+
+      return new Response(html, { headers: { "Content-Type": "text/html; charset=utf-8" } });
     }
     if (url.pathname === "/admin/boekhouding") {
       if (!await checkAuth(request, env)) {
