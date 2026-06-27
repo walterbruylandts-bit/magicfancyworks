@@ -1347,6 +1347,7 @@ No JS logic changed.
     <p class="price" id="modalPrice"></p>
 
     <div id="modalDescription" class="scroll-area"></div>
+    <div id="related-products" class="related-products"></div>
 
 </div>
 </div>
@@ -1402,6 +1403,9 @@ const translations = {
     favoriteRemove: 'Verwijderen uit favorieten',
     favoritesOpen: 'Favorieten openen',
     favoritesOpenItem: 'Open product',
+    relatedTitle: 'Gerelateerde producten',
+    relatedEmpty: 'Nog geen gerelateerde producten gevonden.',
+    relatedOpen: 'Open product',
     cartTitle: 'Winkelmandje',
     cartEmpty: 'Mandje is leeg',
     cartTotal: 'Totaal',
@@ -1468,6 +1472,9 @@ const translations = {
     favoriteRemove: 'Retirer des favoris',
     favoritesOpen: 'Ouvrir les favoris',
     favoritesOpenItem: 'Ouvrir le produit',
+    relatedTitle: 'Produits liés',
+    relatedEmpty: 'Aucun produit lié trouvé pour le moment.',
+    relatedOpen: 'Ouvrir le produit',
     cartTitle: 'Panier',
     cartEmpty: 'Le panier est vide',
     cartTotal: 'Total',
@@ -1534,6 +1541,9 @@ const translations = {
     favoriteRemove: 'Remove from favorites',
     favoritesOpen: 'Open favorites',
     favoritesOpenItem: 'Open product',
+    relatedTitle: 'Related products',
+    relatedEmpty: 'No related products found yet.',
+    relatedOpen: 'Open product',
     cartTitle: 'Shopping Cart',
     cartEmpty: 'Cart is empty',
     cartTotal: 'Total',
@@ -1903,6 +1913,7 @@ if (modal && modal.classList.contains('active')) {
   if (activeProduct) {
     document.getElementById('modalTitle').textContent = activeProduct['titel_' + currentLang] || activeProduct.titel;
     renderPopupDescription(activeProduct, activeProduct._popupDescription || activeProduct.beschrijving || '');
+    renderRelatedProducts(activeProduct);
   }
 }
 }
@@ -1986,6 +1997,90 @@ function renderFavoritesPanel() {
   }).join('');
 }
 
+function getProductSearchTokens(product) {
+  const raw = [
+    product.titel,
+    product['titel_nl'],
+    product['titel_fr'],
+    product['titel_en'],
+    product.beschrijving,
+    product.zoekwoorden,
+    product.tags,
+    product.type,
+    product.formaat
+  ]
+    .flat()
+    .filter(Boolean)
+    .join(' ');
+  return normalizeSearchValue(raw)
+    .split(/[^a-z0-9]+/g)
+    .filter(Boolean);
+}
+
+function getRelatedProducts(product, limit = 3) {
+  if (!product) return [];
+  const sourceTokens = new Set(getProductSearchTokens(product));
+  const sourceTitle = normalizeSearchValue(product['titel_' + currentLang] || product.titel || '');
+  return alleProducten
+    .filter((candidate) => candidate && candidate.code !== product.code)
+    .map((candidate) => {
+      const candidateTokens = getProductSearchTokens(candidate);
+      let score = candidate.type === product.type ? 4 : 0;
+      candidateTokens.forEach((token) => {
+        if (sourceTokens.has(token)) score += 1;
+      });
+      const candidateTitle = normalizeSearchValue(candidate['titel_' + currentLang] || candidate.titel || '');
+      if (candidateTitle && sourceTitle) {
+        const titleWords = sourceTitle.split(' ').filter(Boolean);
+        const candidateWords = candidateTitle.split(' ').filter(Boolean);
+        if (titleWords.some((word) => candidateWords.includes(word))) score += 2;
+      }
+      return { candidate, score };
+    })
+    .filter((entry) => entry.score > 0)
+    .sort((a, b) => b.score - a.score || String(a.candidate.titel).localeCompare(String(b.candidate.titel)))
+    .slice(0, limit)
+    .map((entry) => entry.candidate);
+}
+
+function renderRelatedProducts(product) {
+  const box = document.getElementById('related-products');
+  if (!box) return;
+  const related = getRelatedProducts(product, 3);
+  if (!related.length) {
+    box.innerHTML = `
+      <span class="related-title">${escapeHtml(t('relatedTitle'))}</span>
+      <p style="margin:0;color:#64748b;font-size:0.88rem;">${escapeHtml(t('relatedEmpty'))}</p>
+    `;
+    return;
+  }
+
+  box.innerHTML = `
+    <span class="related-title">${escapeHtml(t('relatedTitle'))}</span>
+    <div class="related-list">
+      ${related.map((item) => {
+        const title = escapeHtml(item['titel_' + currentLang] || item.titel);
+        const code = escapeHtml(item.code);
+        const typeLabel = item.type === 'physical'
+          ? (currentLang === 'fr' ? 'Physique' : currentLang === 'en' ? 'Physical' : 'Fysiek')
+          : (currentLang === 'fr' ? 'Numérique' : currentLang === 'en' ? 'Digital' : 'Digitaal');
+        return `
+          <button type="button" class="related-item" data-related-code="${code}" aria-label="${escapeHtml(t('relatedOpen'))}">
+            <span>
+              <strong style="display:block;">${title}</strong>
+              <small>${typeLabel}</small>
+            </span>
+          </button>
+        `;
+      }).join('')}
+    </div>
+  `;
+
+  box.querySelectorAll('[data-related-code]').forEach((button) => {
+    button.addEventListener('click', () => openPopup(button.dataset.relatedCode));
+  });
+}
+
 function updateFavoritesUI() {
   const cnt = document.getElementById('favorites-count');
   const total = favorites.length;
@@ -1999,6 +2094,10 @@ function updateFavoritesUI() {
   if (title) title.textContent = '♡ ' + t('favoritesTitle');
   if (document.getElementById('favorites-sidebar')?.style.display === 'flex') {
     renderFavoritesPanel();
+  }
+  const relatedBox = document.getElementById('related-products');
+  if (relatedBox && relatedBox.style.display !== 'none' && currentProduct) {
+    renderRelatedProducts(currentProduct);
   }
   updateFavoriteButtons();
 }
@@ -3420,10 +3519,12 @@ async function openPopup(code) {
         }
         product._popupDescription = tekst || product.beschrijving || '';
         renderPopupDescription(product, product._popupDescription);
+        renderRelatedProducts(product);
     } catch (error) {
         console.error('Fout bij laden beschrijving:', error);
         product._popupDescription = product.beschrijving || '';
         renderPopupDescription(product, product._popupDescription);
+        renderRelatedProducts(product);
     }
 
 // Render PayPal buttons
