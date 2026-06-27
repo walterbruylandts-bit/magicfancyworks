@@ -70,6 +70,32 @@ header p {
   color: #047857 !important;
 }
 
+.card .card-favorite {
+  position: absolute !important;
+  top: 12px !important;
+  right: 12px !important;
+  z-index: 2 !important;
+  width: 34px !important;
+  height: 34px !important;
+  border-radius: 999px !important;
+  border: 1px solid rgba(15,23,42,0.08) !important;
+  background: rgba(255,255,255,0.96) !important;
+  color: #64748b !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  padding: 0 !important;
+  box-shadow: 0 4px 10px rgba(15,23,42,0.08) !important;
+  font-size: 17px !important;
+  line-height: 1 !important;
+}
+
+.card .card-favorite.active {
+  background: #fef2f2 !important;
+  color: #dc2626 !important;
+  border-color: rgba(220,38,38,0.18) !important;
+}
+
 .card:hover {
   transform: translateY(-3px) !important;
   box-shadow: 0 14px 26px rgba(15,23,42,0.08) !important;
@@ -182,6 +208,75 @@ footer #newsletter-consent {
 footer .newsletter-box {
   background: rgba(15,118,110,0.06) !important;
   border: 1px solid rgba(15,118,110,0.18) !important;
+}
+
+#favorites-sidebar {
+  background: #ffffff !important;
+  box-shadow: -5px 0 25px rgba(0,0,0,0.08) !important;
+}
+
+#favorites-sidebar div:first-child {
+  background: linear-gradient(180deg, #0f766e 0%, #0b5f58 100%) !important;
+  color: white !important;
+}
+
+#favorites-items {
+  background: #ffffff !important;
+}
+
+.favorite-item-row {
+  display: flex !important;
+  justify-content: space-between !important;
+  align-items: center !important;
+  gap: 12px !important;
+  padding: 10px !important;
+  margin-bottom: 8px !important;
+  border: 1px solid #e5e7eb !important;
+  border-radius: 10px !important;
+  background: #ffffff !important;
+  color: #1a2a3a !important;
+}
+
+.favorite-item-actions {
+  display: flex !important;
+  gap: 6px !important;
+  flex: 0 0 auto !important;
+}
+
+.favorite-item-actions button {
+  border: none !important;
+  border-radius: 6px !important;
+  padding: 6px 10px !important;
+  cursor: pointer !important;
+  font-size: 12px !important;
+  line-height: 1 !important;
+  font-weight: 700 !important;
+}
+
+.favorite-open-button {
+  background: #0f766e !important;
+  color: #ffffff !important;
+}
+
+.favorite-remove-button {
+  background: #ef4444 !important;
+  color: #ffffff !important;
+}
+
+#favorites-count {
+  position: absolute !important;
+  top: -8px !important;
+  right: -8px !important;
+  background: #ef4444 !important;
+  color: white !important;
+  border-radius: 50% !important;
+  width: 22px !important;
+  height: 22px !important;
+  font-size: 12px !important;
+  display: none !important;
+  align-items: center !important;
+  justify-content: center !important;
+  font-weight: 800 !important;
 }
 
 footer a {
