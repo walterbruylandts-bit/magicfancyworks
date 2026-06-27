@@ -1019,99 +1019,54 @@ No JS logic changed.
     background-color: #ffffff !important;
 }
 </style>
- <link rel="stylesheet" href="v4-theme.css">
- <style>
-   .payment-success { background: #e8f8f5 !important; color: #6a994e !important; }
-   .payment-success h3, .payment-success p { color: #6a994e !important; }
-   <style>
-/* ==========================================================================
-   MAGICFANCY WORKS - WINKELWAGEN & POPUP STYLING CORRECTIES
-   ========================================================================== */
-
-/* 1. Forceer de achtergrond en tekstkleur van de winkelwagen sidebar */
-#cart-sidebar {
-    background-color: #ffffff !important;
-    color: #1a2a3a !important;
-}
-
-/* 2. Zorg dat dynamisch gegenereerde items ALTIJD een witte achtergrond en donkere tekst hebben */
-#cart-items,
-#cart-items > div,
-#cart-footer,
-#cart-paypal-container {
-    background-color: #ffffff !important;
-    color: #1a2a3a !important;
-}
-
-/* Correctie voor de specifieke inline stijlen van de product-rijen in de winkelwagen */
-#cart-items div small {
-    color: #4b5563 !important;
-}
-
-/* 3. Styling voor de PayPal/Checkout status meldingen */
-.payment-loading,
-.payment-error,
-.payment-success {
+<link rel="stylesheet" href="v4-theme.css">
+<style>
+  .payment-loading,
+  .payment-error,
+  .payment-success {
     border-radius: 8px;
     margin: 10px 0;
     padding: 12px !important;
     font-size: 14px;
     text-align: center;
-}
+  }
 
-/* Loading status */
-.payment-loading {
+  .payment-loading {
     background-color: #f4f4f5 !important;
     color: #1a2a3a !important;
-}
+  }
 
-/* Succesmelding (Groene achtergrond, witte tekst) */
-.payment-success {
+  .payment-success {
     background-color: #065f46 !important;
     color: #ffffff !important;
     border: 1px solid #047857;
-}
+  }
 
-.payment-success h3,
-.payment-success p {
+  .payment-success h3,
+  .payment-success p {
     color: #ffffff !important;
     margin: 4px 0 !important;
-}
+  }
 
-/* Foutmelding (Rode achtergrond) */
-.payment-error {
+  .payment-error {
     background-color: #fef2f2 !important;
     color: #991b1b !important;
     border: 1px solid #fca5a5;
-}
+  }
 
-/* 4. Selectmenu voor het verzendland */
-#cart-country {
+  #cart-sidebar {
     background-color: #ffffff !important;
     color: #1a2a3a !important;
-    border: 2px solid #e4e4e7 !important;
-}
+  }
 
-#cart-country option {
+  #cart-items,
+  #cart-footer,
+  #cart-paypal-container {
     background-color: #ffffff !important;
     color: #1a2a3a !important;
-}
-</style>
- </style>
- <style>
-/* ==========================================================================
-   MAGICFANCY WORKS - HARDNEKKIGE GROENE BALKEN CORRECTIE
-   ========================================================================== */
+  }
 
-/* 1. Dit dwingt de rij van het product (zoals Baby Boy) om ALTIJD wit te zijn met donkere tekst */
-#cart-items div,
-#cart-items > div[style] {
-    background-color: #ffffff !important;
-    background: #ffffff !important;
-    color: #1a2a3a !important;
-}
-
-#cart-items .cart-item-row {
+  #cart-items .cart-item-row {
     display: flex !important;
     justify-content: space-between !important;
     align-items: center !important;
@@ -1121,76 +1076,49 @@ No JS logic changed.
     border: 1px solid #e5e7eb !important;
     border-radius: 10px !important;
     background: #ffffff !important;
+    background-color: #ffffff !important;
     color: #1a2a3a !important;
     min-height: 56px !important;
     width: 100% !important;
     box-sizing: border-box !important;
-}
+  }
 
-#cart-items .cart-item-details {
+  #cart-items .cart-item-details {
     flex: 1 1 auto !important;
     min-width: 0 !important;
     background: #ffffff !important;
-}
+    background-color: #ffffff !important;
+  }
 
-/* Zorg dat de productnaam en de prijs (die nu groen op groen staan) goed leesbaar donker worden */
-#cart-items div strong,
-#cart-items div small {
-    color: #1a2a3a !important;
-}
+  #cart-items .cart-item-row strong,
+  #cart-items .cart-item-row small,
+  #cart-items .cart-item-row span {
+    color: #1a2a3a !important;
+    background: #ffffff !important;
+  }
 
-/* 2. Dit pakt de achtergrond van de PayPal-container aan zodat die niet groen uitslaat */
-#cart-paypal-container,
-#cart-paypal-container div {
-    background-color: #ffffff !important;
-    background: #ffffff !important;
-}
+  #cart-items .cart-item-row button {
+    flex: 0 0 auto !important;
+  }
 
-/* 3. Algemene opfris voor de hele sidebar */
-#cart-sidebar {
-    background-color: #ffffff !important;
-    color: #1a2a3a !important;
-}
+  #cart-paypal-container,
+  #cart-paypal-container div,
+  #cart-paypal-container * {
+    background: #ffffff !important;
+    background-color: #ffffff !important;
+  }
 
-#cart-footer {
-    background-color: #ffffff !important;
-    color: #1a2a3a !important;
-}
+  #cart-country {
+    background-color: #ffffff !important;
+    color: #1a2a3a !important;
+    border: 2px solid #e4e4e7 !important;
+  }
 
-/* 4. Styling voor succes- en foutmeldingen na betaling */
-.payment-success {
-    background-color: #065f46 !important;
-    color: #ffffff !important;
-    padding: 12px !important;
-    border-radius: 8px;
-}
-.payment-error {
-    background-color: #fef2f2 !important;
-    color: #991b1b !important;
-    padding: 12px !important;
-    border-radius: 8px;
-    border: 1px solid #fca5a5;
-}
-/* Verberg het dubbele, hardnekkige groene blok aan de linkerkant */
-#cart-items div button + div,
-#cart-items > div > div:first-child:not([style*="color"]) {
-    display: none !important;
-}
-
-/* Zorg dat onze nieuwe, schone tekst de volledige breedte krijgt en niet wordt weggedrukt */
-#cart-items div {
-    background: #ffffff !important;
-    background-color: #ffffff !important;
-}
-
-/* Trek de PayPal-knopruimte onderin ook meteen helemaal strak naar wit */
-#cart-paypal-container {
-    background: #ffffff !important;
-    background-color: #ffffff !important;
-}
-#cart-paypal-container * {
-    background-color: transparent !important;
-}
+  #cart-country option {
+    background-color: #ffffff !important;
+    color: #1a2a3a !important;
+  }
+</style>
 
 /* Maak de logo-container vierkant en forceer uitlijning */
 /*.header-left .logo-container {
@@ -2857,13 +2785,13 @@ itemsDiv.innerHTML = cart.map(function(i){
       if(labels.length > 0) keuzesText = ' (' + labels.join(', ') + ')';
     }
 
-    return `<div class="cart-item-row">
-      <div class="cart-item-details">
+    return `<div class="cart-item-row" style="display:flex !important;justify-content:space-between !important;align-items:center !important;gap:12px !important;padding:10px !important;margin-bottom:8px !important;border:1px solid #e5e7eb !important;border-radius:10px !important;background:#ffffff !important;background-color:#ffffff !important;color:#1a2a3a !important;min-height:56px !important;width:100% !important;box-sizing:border-box !important;">
+      <div class="cart-item-details" style="flex:1 1 auto !important;min-width:0 !important;background:#ffffff !important;background-color:#ffffff !important;">
         <strong style="color:#1a2a3a;display:block">${titel}</strong>
         <span style="display:block;color:#666">${keuzesText}</span>
         <small style="color:#4b5563;display:block">€ ${i.prijs} x ${i.qty}</small>
       </div>
-      <button type="button" onclick="removeFromCart(this.dataset.code, this.dataset.keuzesKey)" data-code="${escapeHtml(i.code)}" data-keuzes-key="${escapeHtml(i.keuzesKey || '')}" style="background:#ef4444 !important;color:white !important;border:none !important;border-radius:6px !important;padding:6px 10px !important;cursor:pointer !important;font-size:12px !important;flex:0 0 auto !important;">✕</button>
+      <button type="button" onclick="removeFromCart(this.dataset.code, this.dataset.keuzesKey)" data-code="${escapeHtml(i.code)}" data-keuzes-key="${escapeHtml(i.keuzesKey || '')}" style="background:#ef4444 !important;color:white !important;border:none !important;border-radius:6px !important;padding:6px 10px !important;cursor:pointer !important;font-size:12px !important;flex:0 0 auto !important;line-height:1 !important;">✕</button>
     </div>`;
 }).join('');
 
