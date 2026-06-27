@@ -1983,14 +1983,14 @@ function renderFavoritesPanel() {
     const title = escapeHtml(p['titel_' + currentLang] || p.titel);
     const code = escapeHtml(p.code);
     return `
-      <div class="favorite-item-row">
+      <div class="favorite-item-row" style="display:flex !important;align-items:center !important;justify-content:space-between !important;gap:10px !important;padding:12px !important;margin-bottom:10px !important;border:1px solid #dbe7e2 !important;border-radius:12px !important;background:#ffffff !important;color:#1a2a3a !important;box-shadow:0 4px 10px rgba(15,23,42,0.04) !important;">
         <div style="flex:1 1 auto;min-width:0">
-          <strong style="display:block;color:#1a2a3a">${title}</strong>
-          <small style="display:block;color:#64748b">#${code}</small>
+          <strong style="display:block;color:#0f172a;font-size:0.98rem;line-height:1.25">${title}</strong>
+          <small style="display:block;color:#64748b;margin-top:2px">#${code}</small>
         </div>
-        <div class="favorite-item-actions">
-          <button type="button" class="favorite-open-button" data-favorite-open="${code}">${t('favoritesOpenItem')}</button>
-          <button type="button" class="favorite-remove-button" data-favorite-remove="${code}">✕</button>
+        <div class="favorite-item-actions" style="display:flex !important;align-items:center !important;gap:8px !important;flex:0 0 auto !important;">
+          <button type="button" class="favorite-open-button" data-favorite-open="${code}" style="background:#0f766e !important;color:#ffffff !important;border:none !important;border-radius:10px !important;padding:8px 12px !important;font-size:12px !important;font-weight:700 !important;white-space:nowrap !important;">${t('favoritesOpenItem')}</button>
+          <button type="button" class="favorite-remove-button" data-favorite-remove="${code}" style="background:#ef4444 !important;color:#ffffff !important;border:none !important;border-radius:10px !important;width:34px !important;height:34px !important;padding:0 !important;font-size:14px !important;font-weight:800 !important;line-height:1 !important;">✕</button>
         </div>
       </div>
     `;
@@ -2092,6 +2092,8 @@ function updateFavoritesUI() {
   if (btn) btn.setAttribute('aria-label', t('favoritesOpen'));
   const title = document.getElementById('favoritesTitle');
   if (title) title.textContent = '♡ ' + t('favoritesTitle');
+  const itemsDiv = document.getElementById('favorites-items');
+  if (itemsDiv) itemsDiv.style.background = '#ffffff';
   if (document.getElementById('favorites-sidebar')?.style.display === 'flex') {
     renderFavoritesPanel();
   }
