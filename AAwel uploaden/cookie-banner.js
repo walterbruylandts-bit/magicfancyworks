@@ -43,7 +43,10 @@
       '<div style="max-width:1200px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;gap:20px;flex-wrap:wrap;">' +
       '<div style="flex:1;min-width:260px;line-height:1.5;">' +
       '<strong style="color:#1e293b;">' + t('cookie_title') + ' 🍪</strong><br>' + t('cookie_text') +
-      ' <a href="cookies.html" style="color:#059669;text-decoration:underline;">' + t('cookie_more') + '</a></div>' +
+      ' <a href="cookies.html" style="color:#059669;text-decoration:underline;">' + t('cookie_more') + '</a><br>' +
+      '<a href="#" id="cookie-reset-link" style="display:inline-block;margin-top:6px;color:#475569;text-decoration:underline;font-size:12px;">' +
+      (lang === 'fr' ? 'Réinitialiser le choix' : lang === 'en' ? 'Reset choice' : 'Cookiekeuze herstellen') +
+      '</a></div>' +
       '<div style="display:flex;gap:10px;flex-wrap:wrap;">' +
       '<button id="cookie-decline" style="padding:8px 16px;border:1px solid #cbd5e1;background:#fff;color:#475569;border-radius:6px;cursor:pointer;font-size:13px;font-weight:500;">' + t('cookie_decline') + '</button>' +
       '<button id="cookie-accept" style="padding:8px 16px;border:none;background:#059669;color:#fff;border-radius:6px;cursor:pointer;font-size:13px;font-weight:500;">' + t('cookie_accept') + '</button>' +
@@ -51,6 +54,15 @@
     document.body.appendChild(div);
     document.getElementById('cookie-accept').addEventListener('click', function() { setConsent('all'); div.remove(); });
     document.getElementById('cookie-decline').addEventListener('click', function() { setConsent('necessary'); div.remove(); });
+    var resetLink = document.getElementById('cookie-reset-link');
+    if (resetLink) {
+      resetLink.addEventListener('click', function(e) {
+        e.preventDefault();
+        localStorage.removeItem(STORAGE_KEY);
+        div.remove();
+        showBanner();
+      });
+    }
   }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', showBanner);
   else showBanner();
