@@ -1276,6 +1276,63 @@ No JS logic changed.
     color: #1a2a3a !important;
 }
 
+@media (max-width: 850px) {
+    .header-wrapper {
+        flex-direction: column !important;
+        align-items: flex-start !important;
+        justify-content: flex-start !important;
+        padding: 0 16px !important;
+        gap: 12px !important;
+    }
+
+    .header-left {
+        width: 100% !important;
+        flex-direction: column !important;
+        align-items: flex-start !important;
+        gap: 8px !important;
+    }
+
+    .header-left img {
+        width: 88px !important;
+        height: 88px !important;
+        max-width: 88px !important;
+        max-height: 88px !important;
+    }
+
+    .header-left > div {
+        text-align: left !important;
+    }
+
+    .header-right {
+        width: 100% !important;
+        margin-left: 0 !important;
+        justify-content: flex-start !important;
+        flex-wrap: wrap !important;
+        gap: 10px !important;
+    }
+
+    #lang-switcher {
+        margin-left: 0 !important;
+    }
+
+    .shop-container {
+        max-width: 100% !important;
+        width: 100% !important;
+        padding: 0 12px !important;
+    }
+
+    .shop-intro,
+    .shop-search,
+    .shop-grid {
+        width: 100% !important;
+    }
+
+    .shop-grid {
+        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)) !important;
+        margin: 0 auto !important;
+    }
+}
+
 </style>
 
 </head>
