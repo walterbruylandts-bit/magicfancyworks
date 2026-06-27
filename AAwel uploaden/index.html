@@ -1943,6 +1943,8 @@ if (modal && modal.classList.contains('active')) {
     renderPopupDescription(activeProduct, activeProduct._popupDescription || activeProduct.beschrijving || '');
     renderRelatedProducts(activeProduct);
     renderReviewSection(activeProduct);
+    renderReviewOverview(activeProduct);
+    renderReviewList(activeProduct);
   }
 }
 }
@@ -2198,12 +2200,96 @@ function setStoredReviewName(value) {
 function renderReviewSection(product) {
   const box = document.getElementById('review-section');
   if (!box || !product) return;
-  box.style.display = 'none';
-  box.innerHTML = '';
+  const nameValue = escapeHtml(getStoredReviewName());
+
+  box.innerHTML = `
+    <span class="review-title">${escapeHtml(t('reviewTitle'))}</span>
+    <p class="review-intro">${escapeHtml(t('reviewIntro'))}</p>
+    <div id="review-summary"></div>
+    <form id="review-form" class="review-form">
+      <input id="review-name" type="text" maxlength="60" placeholder="${escapeHtml(t('reviewName'))}" value="${nameValue}">
+      <select id="review-rating" aria-label="${escapeHtml(t('reviewRating'))}">
+        <option value="">${escapeHtml(t('reviewRating'))}</option>
+        <option value="5">5 / 5</option>
+        <option value="4">4 / 5</option>
+        <option value="3">3 / 5</option>
+        <option value="2">2 / 5</option>
+        <option value="1">1 / 5</option>
+      </select>
+      <textarea id="review-message" maxlength="600" placeholder="${escapeHtml(t('reviewMessage'))}"></textarea>
+      <button id="review-submit" type="submit" class="review-submit">${escapeHtml(t('reviewSubmit'))}</button>
+      <div id="review-status" class="review-status" style="display:none"></div>
+    </form>
+    <div id="review-list" class="review-list"></div>
+  `;
+
+  const form = document.getElementById('review-form');
+  if (!form || form.dataset.bound === '1') return;
+  form.dataset.bound = '1';
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    await submitReview(product);
+  });
 }
 
 async function submitReview(product) {
-  return;
+  const name = String(document.getElementById('review-name')?.value || '').trim();
+  const rating = String(document.getElementById('review-rating')?.value || '').trim();
+  const message = String(document.getElementById('review-message')?.value || '').trim();
+  const status = document.getElementById('review-status');
+  const submit = document.getElementById('review-submit');
+
+  if (!name || !rating || !message) {
+    if (status) {
+      status.style.display = 'block';
+      status.style.color = '#991b1b';
+      status.textContent = t('reviewError');
+    }
+    return;
+  }
+
+  if (submit) submit.disabled = true;
+  if (status) {
+    status.style.display = 'block';
+    status.style.color = '#475569';
+    status.textContent = t('processing');
+  }
+
+  try {
+    const res = await fetch(`${WORKER_BASE_URL}/review-submit`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        productCode: product.code,
+        productTitle: product['titel_' + currentLang] || product.titel,
+        rating,
+        name,
+        message,
+        lang: currentLang
+      })
+    });
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok || data.error) {
+      throw new Error(data.error || 'Review kon niet worden verstuurd');
+    }
+    setStoredReviewName(name);
+    const messageBox = document.getElementById('review-message');
+    if (messageBox) messageBox.value = '';
+    await loadProductReviews(product);
+    renderReviewOverview(product);
+    renderReviewList(product);
+    if (status) {
+      status.style.color = '#065f46';
+      status.textContent = data.message || t('reviewSuccess');
+    }
+  } catch (e) {
+    if (status) {
+      status.style.color = '#991b1b';
+      status.textContent = e.message || t('reviewError');
+    }
+  } finally {
+    if (submit) submit.disabled = false;
+  }
 }
 
 function updateFavoritesUI() {
@@ -3652,12 +3738,18 @@ async function openPopup(code) {
         renderPopupDescription(product, product._popupDescription);
         renderRelatedProducts(product);
         renderReviewSection(product);
+        await loadProductReviews(product);
+        renderReviewOverview(product);
+        renderReviewList(product);
     } catch (error) {
         console.error('Fout bij laden beschrijving:', error);
         product._popupDescription = product.beschrijving || '';
         renderPopupDescription(product, product._popupDescription);
         renderRelatedProducts(product);
         renderReviewSection(product);
+        await loadProductReviews(product);
+        renderReviewOverview(product);
+        renderReviewList(product);
     }
 
 // Render PayPal buttons
