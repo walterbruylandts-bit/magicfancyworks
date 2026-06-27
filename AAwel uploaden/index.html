@@ -1581,6 +1581,12 @@ const translations = {
     cartTotal: 'Totaal',
     cartPay: 'Betaal',
     cartRemove: 'Verwijder',
+    promoCodeLabel: 'Kortingscode',
+    promoCodePlaceholder: 'Voer je code in',
+    promoApply: 'Toepassen',
+    promoApplied: 'Kortingscode toegepast',
+    promoInvalid: 'Deze kortingscode is niet geldig.',
+    promoDiscountLabel: 'Korting',
     kleurKeuze: 'Kleurkeuze (niet bij elk item van toepassing)',
     kleurVerplicht: 'Kies een kleur',
     toevoegen: '🛒 Toevoegen aan mandje',
@@ -1628,6 +1634,12 @@ const translations = {
     cartTotal: 'Total',
     cartPay: 'Payer',
     cartRemove: 'Supprimer',
+    promoCodeLabel: 'Code promo',
+    promoCodePlaceholder: 'Entrez votre code',
+    promoApply: 'Appliquer',
+    promoApplied: 'Code promo appliqué',
+    promoInvalid: 'Ce code promo n’est pas valide.',
+    promoDiscountLabel: 'Réduction',
     kleurKeuze: 'Choix de couleur (ne s\'applique pas à chaque article)',
     kleurVerplicht: 'Choisissez une couleur',
     toevoegen: '🛒 Ajouter au panier',
@@ -1675,6 +1687,12 @@ const translations = {
     cartTotal: 'Total',
     cartPay: 'Pay',
     cartRemove: 'Remove',
+    promoCodeLabel: 'Discount code',
+    promoCodePlaceholder: 'Enter your code',
+    promoApply: 'Apply',
+    promoApplied: 'Discount code applied',
+    promoInvalid: 'This discount code is not valid.',
+    promoDiscountLabel: 'Discount',
     kleurKeuze: 'Color choice (does not apply to every item)',
     kleurVerplicht: 'Choose a color',
     toevoegen: '🛒 Add to cart',
@@ -1984,6 +2002,12 @@ let shippingRates = {};
 let selectedShippingCountry = 'BE';
 let activeProductFilter = 'all';
 let activeSearchTerm = '';
+const PROMO_CODES = {
+  MAGIC10: { type: 'percent', value: 10 }
+};
+let activePromoCode = '';
+let activePromoInputValue = '';
+let activePromoMessage = '';
 
 async function laadVerzendkosten() {
   try {
@@ -1996,6 +2020,48 @@ function getEstimatedShipping(code) {
   if (!shippingRates.rates) return 0;
   return shippingRates.rates[code] ||
     (shippingRates.euCountries?.includes(code) ? shippingRates.rates['DEFAULT_EU'] : shippingRates.rates['NON_EU']);
+}
+
+function normalizePromoCode(value) {
+  return String(value || '').trim().toUpperCase();
+}
+
+function getPromoRule(code) {
+  return PROMO_CODES[normalizePromoCode(code)] || null;
+}
+
+function calculatePromoDiscount(amount, code) {
+  const rule = getPromoRule(code);
+  const baseAmount = Number(amount || 0);
+  if (!rule || !Number.isFinite(baseAmount) || baseAmount <= 0) return 0;
+  if (rule.type === 'percent') {
+    return Math.min(baseAmount, baseAmount * Number(rule.value || 0) / 100);
+  }
+  if (rule.type === 'fixed') {
+    return Math.min(baseAmount, Number(rule.value || 0));
+  }
+  return 0;
+}
+
+function applyPromoCodeFromInput() {
+  const input = document.getElementById('promo-code-input');
+  const code = normalizePromoCode(input ? input.value : '');
+  activePromoInputValue = code;
+  if (!code) {
+    activePromoCode = '';
+    activePromoMessage = '';
+    updateCartUI();
+    return;
+  }
+  if (!getPromoRule(code)) {
+    activePromoCode = '';
+    activePromoMessage = t('promoInvalid');
+    updateCartUI();
+    return;
+  }
+  activePromoCode = code;
+  activePromoMessage = t('promoApplied') + ': ' + code;
+  updateCartUI();
 }
 
 const landenNamen = {
@@ -2086,6 +2152,8 @@ function removeFromCart(code, keuzesKey){
 function checkoutCart(){
   if(cart.length===0)return;
   const productPrijs=cart.reduce((s,i)=>s+Number(i.prijs)*i.qty,0);
+  const promoDiscount = calculatePromoDiscount(productPrijs, activePromoCode);
+  const discountedProductPrijs = Math.max(0, productPrijs - promoDiscount);
   const productNamen=cart.map(i=>i.titel).join(", ");
   const ppc=document.getElementById('cart-paypal-container');
   const footer=document.getElementById('cart-footer');
@@ -2572,8 +2640,11 @@ createOrder:(data,actions)=>{
 
       body:JSON.stringify({
         title: productNamen,
-        price: productPrijs.toFixed(2),
+        price: discountedProductPrijs.toFixed(2),
         currency:'EUR',
+        discountCode: activePromoCode,
+        discountAmount: promoDiscount.toFixed(2),
+        originalPrice: productPrijs.toFixed(2),
         codes: cart.map(i=>i.code),
         items: cart.map(i => ({ code: i.code, qty: i.qty || 1 })),
         keuzes: cart.map(i=>i.keuzes),
@@ -2747,6 +2818,9 @@ function updateCartUI(){
   const footerDiv = document.getElementById('cart-footer');
 
   if(cart.length === 0){
+    activePromoCode = '';
+    activePromoInputValue = '';
+    activePromoMessage = '';
     itemsDiv.innerHTML = '<p style="text-align:center;color:#999">' + ct('cartEmpty') + '</p>';
     footerDiv.innerHTML = '';
     return;
@@ -2780,6 +2854,9 @@ return `<div style="display: flex !important; justify-content: space-between !im
   });
   const estimatedShip = hasPhysical ? getEstimatedShipping(selectedShippingCountry) : 0;
   const mixedOrder = hasPhysical && hasDigital;
+  const promoDiscount = calculatePromoDiscount(productTotal, activePromoCode);
+  const totalAfterDiscount = Math.max(0, productTotal - promoDiscount);
+  const promoInputValue = activePromoInputValue || activePromoCode || '';
 
   var html = '';
 
@@ -2806,12 +2883,25 @@ return `<div style="display: flex !important; justify-content: space-between !im
   }
 
     html += '<p style="font-size:1.0rem;color:#666;margin:2px 0;">'+t('productsLabel')+': € ' + productTotal.toFixed(2) + '</p>';
+  if (promoDiscount > 0) {
+    html += '<p style="font-size:1.0rem;color:#047857;margin:2px 0;">' + t('promoDiscountLabel') + ': - € ' + promoDiscount.toFixed(2) + '</p>';
+  }
+  html += '<div style="margin-top:10px;padding:10px;border:1px solid #e5e7eb;border-radius:8px;background:#f8fafc;text-align:left">';
+  html += '<label style="display:block;font-size:13px;color:#1a2a3a;font-weight:600;margin-bottom:6px;">' + t('promoCodeLabel') + '</label>';
+  html += '<div style="display:flex;gap:8px">';
+  html += '<input id="promo-code-input" type="text" value="' + escapeHtml(promoInputValue) + '" placeholder="' + escapeHtml(t('promoCodePlaceholder')) + '" style="flex:1;padding:8px;border:2px solid #ddd;border-radius:6px;font-size:13px;text-transform:uppercase">';
+  html += '<button type="button" onclick="applyPromoCodeFromInput()" style="background:#0f766e;color:white;border:none;padding:8px 12px;border-radius:6px;cursor:pointer;font-weight:700;font-size:13px;white-space:nowrap">' + t('promoApply') + '</button>';
+  html += '</div>';
+  if (activePromoMessage) {
+    html += '<p style="margin:6px 0 0;font-size:12px;color:#0f766e;font-weight:600">' + escapeHtml(activePromoMessage) + '</p>';
+  }
+  html += '</div>';
   if(hasPhysical){
     html += estimatedShip > 0
       ? '<p style="font-size:1.0rem;color:#666;margin:2px 0;">'+t('shippingCostLabel')+': € ' + estimatedShip.toFixed(2) + '</p>'
       : '<p style="font-size:1.0rem;color:#666;margin:2px 0;">'+t('shippingNote')+'</p>';
   }
-  html += '<p style="font-size:1.2rem;font-weight:bold;color:#1a2a3a;margin:6px 0;border-top:1px solid #eee;padding-top:6px;">'+t('totalLabel')+': € ' + (productTotal + estimatedShip).toFixed(2) + '</p>';
+  html += '<p style="font-size:1.2rem;font-weight:bold;color:#1a2a3a;margin:6px 0;border-top:1px solid #eee;padding-top:6px;">'+t('totalLabel')+': € ' + (totalAfterDiscount + estimatedShip).toFixed(2) + '</p>';
   if(mixedOrder){
     html += '<p style="font-size:0.95rem;color:#b91c1c;font-weight:600;margin:8px 0 0;">'+t('mixedOrderNotAllowed')+'</p>';
   } else {

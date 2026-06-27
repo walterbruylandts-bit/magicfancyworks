@@ -30,6 +30,9 @@ const PRODUCT_CATALOG = {
   mfw00002: { title: "Baby Girl", price: 8.87, type: "digital" },
   mfw00003: { title: "Schattig meisje", price: 9.87, type: "physical" }
 };
+const PROMO_CODES = {
+  MAGIC10: { type: "percent", value: 10 }
+};
 
 function escapeXml(value) {
   return String(value || "")
@@ -115,6 +118,29 @@ function summarizeOrderItems(items) {
     codes,
     productName
   };
+}
+
+function normalizePromoCodeInput(code) {
+  return String(code || "").trim().toUpperCase();
+}
+
+function getPromoRule(code) {
+  return PROMO_CODES[normalizePromoCodeInput(code)] || null;
+}
+
+function calculatePromoDiscount(amount, code) {
+  const rule = getPromoRule(code);
+  const baseAmount = Number(amount || 0);
+  if (!rule || !Number.isFinite(baseAmount) || baseAmount <= 0) {
+    return 0;
+  }
+  if (rule.type === "percent") {
+    return Math.min(baseAmount, baseAmount * Number(rule.value || 0) / 100);
+  }
+  if (rule.type === "fixed") {
+    return Math.min(baseAmount, Number(rule.value || 0));
+  }
+  return 0;
 }
 
 function normalizeVatNumberInput(vatNumber, countryHint = "") {
@@ -1203,6 +1229,7 @@ if (url.pathname === "/create-order" && request.method === "POST") {
 const {
   price,
   currency,
+  discountCode,
   invoiceRequested,
   invoiceType,
   companyName,
@@ -1233,7 +1260,20 @@ const {
     }
 
     const clientPrice = Number(price || 0);
-    if (Number.isFinite(clientPrice) && Math.abs(clientPrice - summary.basePrice) > 0.01) {
+    const promoCode = normalizePromoCodeInput(discountCode);
+    const promoRule = getPromoRule(promoCode);
+    if (promoCode && !promoRule) {
+      return new Response(JSON.stringify({ error: "Deze kortingscode is niet geldig" }), {
+        status: 400,
+        headers: { "Content-Type": "application/json", ...corsHeaders }
+      });
+    }
+
+    const discountAmount = calculatePromoDiscount(summary.basePrice, promoCode);
+    const originalBasePrice = summary.basePrice;
+    const basePrice = Math.max(0, originalBasePrice - discountAmount);
+
+    if (Number.isFinite(clientPrice) && Math.abs(clientPrice - basePrice) > 0.01) {
       return new Response(JSON.stringify({ error: "Prijs komt niet overeen met de productcatalogus" }), {
         status: 400,
         headers: { "Content-Type": "application/json", ...corsHeaders }
@@ -1297,7 +1337,6 @@ const {
             headers: { "Content-Type": "application/json", ...corsHeaders }
           });
         }
-        const basePrice = summary.basePrice;
         const estimatedShippingAmount = 0;
         const orderTotal = basePrice + estimatedShippingAmount;
         const orderResp = await fetch(paypalBase + "/v2/checkout/orders", {
@@ -1322,12 +1361,15 @@ const {
           })
         });
         const orderData = await orderResp.json();
-      await env.ORDERS.put("paypal:" + orderData.id, JSON.stringify({
+        await env.ORDERS.put("paypal:" + orderData.id, JSON.stringify({
         title: summary.productName,
         codes: summary.codes,
         items: items.map(({ code, qty }) => ({ code, qty })),
         type: orderType,
+        originalBasePrice: originalBasePrice.toFixed(2),
         basePrice: basePrice.toFixed(2),
+        discountCode: promoCode,
+        discountAmount: discountAmount.toFixed(2),
         estimatedShippingAmount: estimatedShippingAmount.toFixed(2),
         totalAmount: orderTotal.toFixed(2),
 
@@ -1782,8 +1824,11 @@ if (storedInvoiceRequested) {
             productName,
             amount,
             currency,
+            originalBasePrice: tempData.originalBasePrice || "",
             productAmount: productAmount.toFixed(2),
             paidAmount: paidAmount.toFixed(2),
+            discountCode: tempData.discountCode || "",
+            discountAmount: tempData.discountAmount || "",
             shippingAmount: capturedShippingAmount.toFixed(2),
             totalAmount: paidAmount.toFixed(2),
             payerName,
@@ -2904,6 +2949,9 @@ if (order.invoiceRequested) {
         }
       }
       let walterBody = `<h2>Nieuwe bestelling!</h2><p><strong>Product:</strong> ${escapeHtml(order.productName)}</p><p><strong>Bedrag:</strong> ${escapeHtml(order.currency)} ${escapeHtml(order.amount)}</p><p><strong>Klant:</strong> ${escapeHtml(order.payerName)}</p><p><strong>Email:</strong> ${escapeHtml(order.payerEmail)}</p><p><strong>Type:</strong> ${escapeHtml(orderType)}</p><p><strong>Order ID:</strong> ${escapeHtml(orderID)}</p>`;
+      if (order.discountCode) {
+        walterBody += `<p><strong>Korting:</strong> ${escapeHtml(order.discountCode)} (${escapeHtml(order.discountAmount || "0.00")})</p>`;
+      }
       if (order.invoiceRequested) {
         walterBody += `<p><strong>Factuur:</strong><br>
         Type: ${escapeHtml(order.invoiceType || "-")}<br>
