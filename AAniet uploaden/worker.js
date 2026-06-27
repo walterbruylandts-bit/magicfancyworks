@@ -195,6 +195,14 @@ function getReviewSuccessMessage(lang) {
   }[lang] || "Thanks. Your review has been received.";
 }
 
+function getReviewSummary(reviews) {
+  const list = Array.isArray(reviews) ? reviews : [];
+  const count = list.length;
+  const total = list.reduce((sum, review) => sum + (Number(review.rating) || 0), 0);
+  const average = count > 0 ? total / count : 0;
+  return { count, average };
+}
+
 function normalizeVatNumberInput(vatNumber, countryHint = "") {
   const raw = String(vatNumber || "")
     .trim()
@@ -1414,6 +1422,33 @@ const corsHeaders = {
           headers: { "Content-Type": "application/json", ...corsHeaders }
         });
       }
+    }
+
+    if (url.pathname === "/reviews" && request.method === "GET") {
+      const productCode = String(url.searchParams.get("productCode") || "").trim();
+      if (!productCode) {
+        return new Response(JSON.stringify({ error: "Productcode ontbreekt" }), {
+          status: 400,
+          headers: { "Content-Type": "application/json", ...corsHeaders }
+        });
+      }
+
+      const list = await env.ORDERS.list({ prefix: "review:" });
+      const reviews = [];
+      for (const key of list.keys) {
+        const data = await env.ORDERS.get(key.name);
+        if (!data) continue;
+        const review = JSON.parse(data);
+        if (review.productCode === productCode) {
+          reviews.push(review);
+        }
+      }
+      reviews.sort((a, b) => new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime());
+
+      const summary = getReviewSummary(reviews);
+      return new Response(JSON.stringify({ ok: true, summary, reviews }), {
+        headers: { "Content-Type": "application/json", ...corsHeaders }
+      });
     }
 
     if (url.pathname.startsWith("/newsletter-confirm/") && request.method === "GET") {
