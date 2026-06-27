@@ -478,7 +478,25 @@ footer .newsletter-box {
 }
 
 .card-review-stars {
-  letter-spacing: 1px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 2px !important;
+}
+
+.card-review-star {
+  width: 12px !important;
+  height: 12px !important;
+  display: block !important;
+}
+
+.card-review-star.filled {
+  fill: #f59e0b !important;
+  stroke: #f59e0b !important;
+}
+
+.card-review-star.empty {
+  fill: #d1d5db !important;
+  stroke: #d1d5db !important;
 }
 
 .card-review-count {

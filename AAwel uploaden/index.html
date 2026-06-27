@@ -2251,8 +2251,19 @@ function renderReviewSection(product) {
 
 function getStarDisplay(avg) {
   const rating = Math.max(0, Math.min(5, Number(avg || 0)));
-  const full = Math.round(rating);
-  return '★★★★★'.slice(0, full) + '☆☆☆☆☆'.slice(0, 5 - full);
+  return Math.round(rating);
+}
+
+function renderStarIcons(count) {
+  const full = Math.max(0, Math.min(5, Number(count || 0)));
+  return Array.from({ length: 5 }, (_, index) => {
+    const filled = index < full;
+    return `
+      <svg class="card-review-star ${filled ? 'filled' : 'empty'}" viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M12 2.5l2.95 6.3 6.55.58-4.96 4.31 1.49 6.42L12 16.9 6.97 20.1l1.49-6.42L3.5 9.38l6.55-.58L12 2.5z"></path>
+      </svg>
+    `;
+  }).join('');
 }
 
 async function updateCardReviewSummaries(products) {
@@ -2289,7 +2300,7 @@ async function updateCardReviewSummaries(products) {
       const stars = getStarDisplay(summary.avg);
       box.innerHTML = `
         <div class="card-review-badge">
-          <span class="card-review-stars">${escapeHtml(stars)}</span>
+          <span class="card-review-stars" aria-hidden="true">${renderStarIcons(stars)}</span>
           <span class="card-review-count">${escapeHtml(summary.avg.toFixed(1).replace('.', ','))} (${summary.count})</span>
         </div>
       `;
