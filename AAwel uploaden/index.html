@@ -601,10 +601,18 @@ No JS logic changed.
     }
 
     .modal-more-hint {
-        margin: 0;
+        display: inline-flex;
+        align-self: flex-start;
+        align-items: center;
+        gap: 6px;
+        margin: 2px 0 0;
+        padding: 7px 10px;
         font-size: 0.82rem;
-        color: #64748b;
-        font-weight: 600;
+        color: #0f766e;
+        font-weight: 700;
+        border: 1px dashed rgba(15,118,110,0.28);
+        border-radius: 999px;
+        background: rgba(15,118,110,0.06);
     }
 
     .modal-more {
@@ -834,7 +842,8 @@ No JS logic changed.
             font-size: 0.92rem;
         }
         .modal-more-hint {
-            font-size: 0.8rem;
+            font-size: 0.78rem;
+            padding: 6px 9px;
         }
 
         .shop-intro {
@@ -1894,6 +1903,7 @@ function renderPopupDescription(product, tekst) {
           ? `<p class="modal-brief">${escapeHtml(shortDescription)}</p>`
           : `<p class="modal-brief">${escapeHtml(descriptionText)}</p>`}
         ${statusNote ? `<p class="modal-brief" style="margin-top:2px;font-size:0.78rem;color:#64748b">${escapeHtml(statusNote)}</p>` : ''}
+        <div class="modal-more-hint">↓ ${escapeHtml(labels.moreHint)}</div>
       </div>
       <div class="modal-facts">
         <div class="modal-fact"><span>${escapeHtml(labels.format)}</span><strong>${escapeHtml(product.formaat || '-')}</strong></div>
@@ -1901,7 +1911,6 @@ function renderPopupDescription(product, tekst) {
         <div class="modal-fact"><span>${escapeHtml(labels.delivery)}</span><strong>${escapeHtml(getDeliverySummary(product.type))}</strong></div>
         ${choiceCount > 0 ? `<div class="modal-fact"><span>${escapeHtml(labels.choices)}</span><strong>${escapeHtml(choiceNames || '-')}</strong></div>` : ''}
       </div>
-      <p class="modal-more-hint">↓ ${escapeHtml(labels.moreHint)}</p>
       <details class="modal-more">
         <summary>${escapeHtml(getModalMoreLabel())}</summary>
         <div class="modal-more-body">${escapeHtml(descriptionText)}</div>
