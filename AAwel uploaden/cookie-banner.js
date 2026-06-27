@@ -37,6 +37,7 @@
   }
   function showBanner() {
     if (getConsent()) return;
+    var lang = localStorage.getItem('preferredLang') || document.documentElement.lang || 'nl';
     var div = document.createElement('div');
     div.id = 'cookie-banner';
     div.innerHTML = '<div style="position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1px solid #e2e8f0;box-shadow:0 -4px 20px rgba(0,0,0,0.08);z-index:9999;padding:16px 20px;font-family:system-ui,sans-serif;font-size:14px;color:#334155;">' +
