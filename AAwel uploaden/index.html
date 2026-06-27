@@ -1348,6 +1348,7 @@ No JS logic changed.
 
     <div id="modalDescription" class="scroll-area"></div>
     <div id="related-products" class="related-products"></div>
+    <div id="review-section" class="review-section"></div>
 
 </div>
 </div>
@@ -1406,6 +1407,17 @@ const translations = {
     relatedTitle: 'Gerelateerde producten',
     relatedEmpty: 'Nog geen gerelateerde producten gevonden.',
     relatedOpen: 'Open product',
+    reviewTitle: 'Schrijf een review',
+    reviewText: 'Laat kort weten wat je van dit product vindt.',
+    reviewName: 'Naam of bijnaam',
+    reviewNamePlaceholder: 'Bijvoorbeeld: Anoniem',
+    reviewRating: 'Beoordeling',
+    reviewMessage: 'Jouw review',
+    reviewMessagePlaceholder: 'Vertel wat je goed vond of wat beter kan.',
+    reviewSubmit: 'Review opslaan',
+    reviewSaving: 'Review wordt opgeslagen...',
+    reviewSuccess: 'Bedankt, je review is opgeslagen.',
+    reviewError: 'Vul een reviewbericht in en kies een beoordeling.',
     cartTitle: 'Winkelmandje',
     cartEmpty: 'Mandje is leeg',
     cartTotal: 'Totaal',
@@ -1475,6 +1487,17 @@ const translations = {
     relatedTitle: 'Produits liés',
     relatedEmpty: 'Aucun produit lié trouvé pour le moment.',
     relatedOpen: 'Ouvrir le produit',
+    reviewTitle: 'Écrire un avis',
+    reviewText: 'Dites brièvement ce que vous pensez de ce produit.',
+    reviewName: 'Nom ou pseudo',
+    reviewNamePlaceholder: 'Par exemple: Anonyme',
+    reviewRating: 'Évaluation',
+    reviewMessage: 'Votre avis',
+    reviewMessagePlaceholder: 'Dites ce que vous avez aimé ou ce qui peut être amélioré.',
+    reviewSubmit: 'Enregistrer l’avis',
+    reviewSaving: 'Enregistrement de l’avis...',
+    reviewSuccess: 'Merci, votre avis a été enregistré.',
+    reviewError: 'Veuillez écrire un avis et choisir une évaluation.',
     cartTitle: 'Panier',
     cartEmpty: 'Le panier est vide',
     cartTotal: 'Total',
@@ -1544,6 +1567,17 @@ const translations = {
     relatedTitle: 'Related products',
     relatedEmpty: 'No related products found yet.',
     relatedOpen: 'Open product',
+    reviewTitle: 'Write a review',
+    reviewText: 'Let us know what you think about this product.',
+    reviewName: 'Name or nickname',
+    reviewNamePlaceholder: 'For example: Anonymous',
+    reviewRating: 'Rating',
+    reviewMessage: 'Your review',
+    reviewMessagePlaceholder: 'Tell us what you liked or what could be better.',
+    reviewSubmit: 'Save review',
+    reviewSaving: 'Saving review...',
+    reviewSuccess: 'Thanks, your review has been saved.',
+    reviewError: 'Please write a review and choose a rating.',
     cartTitle: 'Shopping Cart',
     cartEmpty: 'Cart is empty',
     cartTotal: 'Total',
@@ -1739,6 +1773,22 @@ function getModalLabels() {
   };
 }
 
+function getReviewLabels() {
+  return {
+    title: t('reviewTitle'),
+    text: t('reviewText'),
+    name: t('reviewName'),
+    namePlaceholder: t('reviewNamePlaceholder'),
+    rating: t('reviewRating'),
+    message: t('reviewMessage'),
+    messagePlaceholder: t('reviewMessagePlaceholder'),
+    submit: t('reviewSubmit'),
+    saving: t('reviewSaving'),
+    success: t('reviewSuccess'),
+    error: t('reviewError')
+  };
+}
+
 function attachShopIntroFilters() {
   const intro = document.querySelector('.shop-intro-chips');
   if (!intro || intro.dataset.bound === '1') return;
@@ -1914,6 +1964,7 @@ if (modal && modal.classList.contains('active')) {
     document.getElementById('modalTitle').textContent = activeProduct['titel_' + currentLang] || activeProduct.titel;
     renderPopupDescription(activeProduct, activeProduct._popupDescription || activeProduct.beschrijving || '');
     renderRelatedProducts(activeProduct);
+    renderReviewSection(activeProduct);
   }
 }
 }
@@ -2078,6 +2129,97 @@ function renderRelatedProducts(product) {
 
   box.querySelectorAll('[data-related-code]').forEach((button) => {
     button.addEventListener('click', () => openPopup(button.dataset.relatedCode));
+  });
+}
+
+function renderReviewSection(product) {
+  const box = document.getElementById('review-section');
+  if (!box) return;
+  if (!product) {
+    box.innerHTML = '';
+    return;
+  }
+
+  const labels = getReviewLabels();
+  box.innerHTML = `
+    <div class="review-box">
+      <span class="review-title">${escapeHtml(labels.title)}</span>
+      <p class="review-text">${escapeHtml(labels.text)}</p>
+      <form class="review-form" data-review-form>
+        <label class="review-field">
+          <span>${escapeHtml(labels.name)}</span>
+          <input type="text" name="name" maxlength="60" placeholder="${escapeHtml(labels.namePlaceholder)}">
+        </label>
+        <label class="review-field">
+          <span>${escapeHtml(labels.rating)}</span>
+          <select name="rating" required>
+            <option value="">1 - 5</option>
+            <option value="5">5</option>
+            <option value="4">4</option>
+            <option value="3">3</option>
+            <option value="2">2</option>
+            <option value="1">1</option>
+          </select>
+        </label>
+        <label class="review-field">
+          <span>${escapeHtml(labels.message)}</span>
+          <textarea name="message" maxlength="1000" required placeholder="${escapeHtml(labels.messagePlaceholder)}"></textarea>
+        </label>
+        <button type="submit" class="review-submit">${escapeHtml(labels.submit)}</button>
+        <div class="review-status" aria-live="polite"></div>
+      </form>
+    </div>
+  `;
+
+  const form = box.querySelector('[data-review-form]');
+  const status = box.querySelector('.review-status');
+  if (!form || !status) return;
+
+  form.addEventListener('submit', async (event) => {
+    event.preventDefault();
+    const submitButton = form.querySelector('.review-submit');
+    const name = form.elements.name.value.trim();
+    const rating = form.elements.rating.value;
+    const message = form.elements.message.value.trim();
+
+    if (!rating || !message) {
+      status.textContent = labels.error;
+      status.style.color = '#b91c1c';
+      return;
+    }
+
+    submitButton.disabled = true;
+    status.textContent = labels.saving;
+    status.style.color = '#64748b';
+
+    try {
+      const response = await fetch(`${WORKER_BASE_URL}/review-submit`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          productCode: product.code,
+          productTitle: product['titel_' + currentLang] || product.titel,
+          lang: currentLang,
+          name,
+          rating,
+          message
+        })
+      });
+
+      const data = await response.json().catch(() => ({}));
+      if (!response.ok || !data.ok) {
+        throw new Error(data.error || labels.error);
+      }
+
+      form.reset();
+      status.textContent = data.message || labels.success;
+      status.style.color = '#0f766e';
+    } catch (error) {
+      status.textContent = error.message || labels.error;
+      status.style.color = '#b91c1c';
+    } finally {
+      submitButton.disabled = false;
+    }
   });
 }
 
@@ -3522,11 +3664,13 @@ async function openPopup(code) {
         product._popupDescription = tekst || product.beschrijving || '';
         renderPopupDescription(product, product._popupDescription);
         renderRelatedProducts(product);
+        renderReviewSection(product);
     } catch (error) {
         console.error('Fout bij laden beschrijving:', error);
         product._popupDescription = product.beschrijving || '';
         renderPopupDescription(product, product._popupDescription);
         renderRelatedProducts(product);
+        renderReviewSection(product);
     }
 
 // Render PayPal buttons

@@ -1291,6 +1291,58 @@ const corsHeaders = {
       });
     }
 
+    if (url.pathname === "/review-submit" && request.method === "POST") {
+      try {
+        const body = await request.json();
+        const productCode = String(body?.productCode || "").trim();
+        const productTitle = String(body?.productTitle || "").trim();
+        const lang = ["nl", "fr", "en"].includes(String(body?.lang || "").toLowerCase())
+          ? String(body.lang).toLowerCase()
+          : "nl";
+        const name = String(body?.name || "").trim().slice(0, 60);
+        const rating = Number(body?.rating || 0);
+        const message = String(body?.message || "").trim().slice(0, 1000);
+
+        if (!productCode || !productTitle || !Number.isInteger(rating) || rating < 1 || rating > 5 || !message) {
+          return new Response(JSON.stringify({ error: "Vul een geldige review in" }), {
+            status: 400,
+            headers: { "Content-Type": "application/json", ...corsHeaders }
+          });
+        }
+
+        const createdAt = new Date().toISOString();
+        const reviewID = createdAt + ":" + crypto.randomUUID().replace(/-/g, "");
+        const review = {
+          reviewID,
+          productCode,
+          productTitle,
+          lang,
+          name: name || "Anoniem",
+          rating,
+          message,
+          createdAt
+        };
+
+        await env.ORDERS.put("review:" + reviewID, JSON.stringify(review));
+
+        return new Response(JSON.stringify({
+          ok: true,
+          message: lang === "fr"
+            ? "Merci, votre avis a été enregistré."
+            : lang === "en"
+              ? "Thanks, your review has been saved."
+              : "Bedankt, je review is opgeslagen."
+        }), {
+          headers: { "Content-Type": "application/json", ...corsHeaders }
+        });
+      } catch (error) {
+        return new Response(JSON.stringify({ error: error.message }), {
+          status: 500,
+          headers: { "Content-Type": "application/json", ...corsHeaders }
+        });
+      }
+    }
+
     if (url.pathname === "/newsletter-signup" && request.method === "POST") {
       try {
         const body = await request.json();
@@ -2391,7 +2443,7 @@ const approvedOrders = orders.filter((o) => o.status === "approved").map(
   "</td></tr>"
 ).join("");
 
-const html = '<!DOCTYPE html><html><head><meta charset="utf-8"><title>Admin - MagicFancyworks</title><style>body{font-family:system-ui;max-width:1200px;margin:0 auto;padding:20px}h1{color:#1e293b}table{width:100%;border-collapse:collapse;margin:20px 0}th,td{padding:10px 12px;text-align:left;border-bottom:1px solid #e2e8f0;vertical-align:top}th{background:#f1f5f9;font-weight:600}.logout{float:right;margin-top:-40px}h2{color:#475569;margin-top:30px}</style></head><body><h1>Admin - MagicFancyworks</h1><a href="/admin/logout" class="logout" style="color:#ef4444;text-decoration:none;font-weight:600">Uitloggen</a><div style="margin:20px 0"><a href="/admin/boekhouding" style="display:inline-block;padding:12px 24px;border-radius:8px;text-decoration:none;font-weight:700;margin-right:10px;background:#5C2D6E;color:white">Boekhouding</a><a href="/admin/invoices" style="display:inline-block;padding:12px 24px;border-radius:8px;text-decoration:none;font-weight:700;margin-right:10px;background:#16a34a;color:white">Facturen</a><a href="/admin/newsletter" style="display:inline-block;padding:12px 24px;border-radius:8px;text-decoration:none;font-weight:700;margin-right:10px;background:#0f766e;color:white">Nieuwsbrief</a><a href="/admin/statistiek" style="display:inline-block;padding:12px 24px;border-radius:8px;text-decoration:none;font-weight:700;margin-right:10px;background:#3b82f6;color:white">Statistiek</a><form method="POST" action="/admin/purge-retention" style="display:inline-block;margin:0 10px 0 0"><button type="submit" style="padding:12px 24px;border:none;border-radius:8px;background:#ea580c;color:white;font-weight:700;cursor:pointer">Purge verlopen tijdelijke orders</button></form><form method="POST" action="/admin/purge-testdata" style="display:inline-block;margin:0 10px 0 0" onsubmit="return confirm(\'Testdata en gekoppelde factuurbestanden echt verwijderen?\')"><button type="submit" style="padding:12px 24px;border:none;border-radius:8px;background:#b91c1c;color:white;font-weight:700;cursor:pointer">Reset testdata</button></form><form method="POST" action="/admin/retention-selftest" style="display:inline-block;margin:0"><button type="submit" style="padding:12px 24px;border:none;border-radius:8px;background:#0f766e;color:white;font-weight:700;cursor:pointer">Retentie zelftest</button></form></div><h2>Nieuwe bestellingen (' + orders.filter((o) => o.status === "new").length + ")</h2>" + (newOrders ? "<table><tr><th>Order ID</th><th>Product</th><th>Bedrag</th><th>Klant</th><th>Email</th><th>Factuur</th><th>Bestand</th><th>Retentie</th><th>Tijd</th><th>Actie</th></tr>" + newOrders + "</table>" : "<p>Geen nieuwe bestellingen</p>") + "<h2>Goedgekeurd (" + orders.filter((o) => o.status === "approved").length + ")</h2>" + (approvedOrders ? "<table><tr><th>Order ID</th><th>Product</th><th>Bedrag</th><th>Klant</th><th>Email</th><th>Factuur</th><th>Retentie</th><th>Download</th></tr>" + approvedOrders + "</table>" : "<p>Nog geen goedgekeurde bestellingen</p>") + "</body></html>";
+const html = '<!DOCTYPE html><html><head><meta charset="utf-8"><title>Admin - MagicFancyworks</title><style>body{font-family:system-ui;max-width:1200px;margin:0 auto;padding:20px}h1{color:#1e293b}table{width:100%;border-collapse:collapse;margin:20px 0}th,td{padding:10px 12px;text-align:left;border-bottom:1px solid #e2e8f0;vertical-align:top}th{background:#f1f5f9;font-weight:600}.logout{float:right;margin-top:-40px}h2{color:#475569;margin-top:30px}</style></head><body><h1>Admin - MagicFancyworks</h1><a href="/admin/logout" class="logout" style="color:#ef4444;text-decoration:none;font-weight:600">Uitloggen</a><div style="margin:20px 0"><a href="/admin/boekhouding" style="display:inline-block;padding:12px 24px;border-radius:8px;text-decoration:none;font-weight:700;margin-right:10px;background:#5C2D6E;color:white">Boekhouding</a><a href="/admin/invoices" style="display:inline-block;padding:12px 24px;border-radius:8px;text-decoration:none;font-weight:700;margin-right:10px;background:#16a34a;color:white">Facturen</a><a href="/admin/newsletter" style="display:inline-block;padding:12px 24px;border-radius:8px;text-decoration:none;font-weight:700;margin-right:10px;background:#0f766e;color:white">Nieuwsbrief</a><a href="/admin/reviews" style="display:inline-block;padding:12px 24px;border-radius:8px;text-decoration:none;font-weight:700;margin-right:10px;background:#0f766e;color:white">Reviews</a><a href="/admin/statistiek" style="display:inline-block;padding:12px 24px;border-radius:8px;text-decoration:none;font-weight:700;margin-right:10px;background:#3b82f6;color:white">Statistiek</a><form method="POST" action="/admin/purge-retention" style="display:inline-block;margin:0 10px 0 0"><button type="submit" style="padding:12px 24px;border:none;border-radius:8px;background:#ea580c;color:white;font-weight:700;cursor:pointer">Purge verlopen tijdelijke orders</button></form><form method="POST" action="/admin/purge-testdata" style="display:inline-block;margin:0 10px 0 0" onsubmit="return confirm(\'Testdata en gekoppelde factuurbestanden echt verwijderen?\')"><button type="submit" style="padding:12px 24px;border:none;border-radius:8px;background:#b91c1c;color:white;font-weight:700;cursor:pointer">Reset testdata</button></form><form method="POST" action="/admin/retention-selftest" style="display:inline-block;margin:0"><button type="submit" style="padding:12px 24px;border:none;border-radius:8px;background:#0f766e;color:white;font-weight:700;cursor:pointer">Retentie zelftest</button></form></div><h2>Nieuwe bestellingen (' + orders.filter((o) => o.status === "new").length + ")</h2>" + (newOrders ? "<table><tr><th>Order ID</th><th>Product</th><th>Bedrag</th><th>Klant</th><th>Email</th><th>Factuur</th><th>Bestand</th><th>Retentie</th><th>Tijd</th><th>Actie</th></tr>" + newOrders + "</table>" : "<p>Geen nieuwe bestellingen</p>") + "<h2>Goedgekeurd (" + orders.filter((o) => o.status === "approved").length + ")</h2>" + (approvedOrders ? "<table><tr><th>Order ID</th><th>Product</th><th>Bedrag</th><th>Klant</th><th>Email</th><th>Factuur</th><th>Retentie</th><th>Download</th></tr>" + approvedOrders + "</table>" : "<p>Nog geen goedgekeurde bestellingen</p>") + "</body></html>";
       return new Response(html, { headers: { "Content-Type": "text/html; charset=utf-8" } });
     }
     if (url.pathname === "/admin/purge-retention" && request.method === "POST") {
@@ -2650,6 +2702,34 @@ const html = '<!DOCTYPE html><html><head><meta charset="utf-8"><title>Boekhoudin
       }
       statsHTML += "</body></html>";
       return new Response(statsHTML, { headers: { "Content-Type": "text/html; charset=utf-8" } });
+    }
+    if (url.pathname === "/admin/reviews") {
+      if (!await checkAuth(request, env)) {
+        return Response.redirect(publicWorkerUrl + "/admin/login", 302);
+      }
+
+      const list = await env.ORDERS.list({ prefix: "review:" });
+      const reviews = [];
+      for (const key of list.keys) {
+        const data = await env.ORDERS.get(key.name);
+        if (data) reviews.push(JSON.parse(data));
+      }
+      reviews.sort((a, b) => new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime());
+
+      const rows = reviews.map((r) =>
+        '<tr>' +
+        '<td>' + escapeHtml(r.createdAt ? new Date(r.createdAt).toLocaleString("nl-BE") : "-") + '</td>' +
+        '<td>' + escapeHtml(r.productTitle || r.productCode || "-") + '<br><small>' + escapeHtml(r.productCode || "-") + '</small></td>' +
+        '<td>' + escapeHtml(String(r.rating || "-")) + ' / 5</td>' +
+        '<td>' + escapeHtml(r.name || "Anoniem") + '</td>' +
+        '<td>' + escapeHtml(r.lang || "-") + '</td>' +
+        '<td style="white-space:pre-wrap">' + escapeHtml(r.message || "") + '</td>' +
+        '</tr>'
+      ).join("");
+
+      const html = '<!DOCTYPE html><html><head><meta charset="utf-8"><title>Reviews</title><style>body{font-family:system-ui;max-width:1200px;margin:0 auto;padding:20px}h1{color:#1e293b}table{width:100%;border-collapse:collapse;margin:20px 0}th,td{padding:10px 12px;text-align:left;border-bottom:1px solid #e2e8f0;vertical-align:top}th{background:#f1f5f9;font-weight:600}.back{display:inline-block;margin-bottom:20px;padding:8px 16px;background:#0f766e;color:white;text-decoration:none;border-radius:6px;font-weight:600}small{color:#64748b}</style></head><body><a href="/admin" class="back">&larr; Terug naar admin</a><h1>Reviews</h1><p>Totaal reviews: ' + reviews.length + '</p>' + (rows ? '<table><tr><th>Datum</th><th>Product</th><th>Beoordeling</th><th>Naam</th><th>Taal</th><th>Bericht</th></tr>' + rows + '</table>' : '<p>Nog geen reviews</p>') + '</body></html>';
+
+      return new Response(html, { headers: { "Content-Type": "text/html; charset=utf-8" } });
     }
     if (url.pathname.startsWith("/admin/preview/") && request.method === "GET") {
       if (!await checkAuth(request, env)) {
