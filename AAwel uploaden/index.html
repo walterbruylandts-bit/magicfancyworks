@@ -2084,6 +2084,9 @@ function setLang(lang) {
   updateNewsletterControls();
   updateSearchControls();
   updateFavoritesUI();
+  if (currentProduct) {
+    renderReviewSection(currentProduct);
+  }
 
   // Update footer link hrefs based on language
   const langSuffix = lang === 'nl' ? '' : '-' + lang;
