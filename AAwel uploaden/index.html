@@ -3601,6 +3601,8 @@ let popupDescriptionCache = {};
 const fallbackVertalingen = {
   "Samenvoeging": { "fr": "Fusion", "en": "Merge" },
   "Uitvoering": { "fr": "Exécution", "en": "Execution" },
+  "Formaten": { "fr": "Formats", "en": "Formats" },
+  "Aantallen": { "fr": "Quantités", "en": "Quantities" },
   "Kleur": { "fr": "Couleur", "en": "Color" },
   "Optie A": { "fr": "Option A", "en": "Option A" },
   "Optie B": { "fr": "Option B", "en": "Option B" },
@@ -3706,14 +3708,20 @@ const res = await fetchWithRetry(`producten.json?v=${Date.now()}`, {}, 3);
 
 alleProducten = await res.json();
 
-// Converteer samenvoegingen/uitvoeringen naar keuzes formaat
+// Converteer oude en nieuwe optievelden naar keuzes, zonder bestaande workflow te breken
 alleProducten.forEach(p => {
     p.keuzes = [];
-    if (p.samenvoegingen && p.samenvoegingen.length > 0) {
-        p.keuzes.push({ naam: 'Samenvoeging', opties: p.samenvoegingen });
+    const formaatOpties = Array.isArray(p.formaten) && p.formaten.length > 0
+        ? p.formaten
+        : Array.isArray(p.samenvoegingen) ? p.samenvoegingen : [];
+    const aantalOpties = Array.isArray(p.aantallen) && p.aantallen.length > 0
+        ? p.aantallen
+        : Array.isArray(p.uitvoeringen) ? p.uitvoeringen : [];
+    if (formaatOpties.length > 0) {
+        p.keuzes.push({ naam: 'Formaten', opties: formaatOpties });
     }
-    if (p.uitvoeringen && p.uitvoeringen.length > 0) {
-        p.keuzes.push({ naam: 'Uitvoering', opties: p.uitvoeringen });
+    if (aantalOpties.length > 0) {
+        p.keuzes.push({ naam: 'Aantallen', opties: aantalOpties });
     }
     if (p.kleuren && p.kleuren.length > 0) {
         p.keuzes.push({ naam: 'Kleur', opties: p.kleuren });
