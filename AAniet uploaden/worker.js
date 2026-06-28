@@ -131,11 +131,8 @@ function normalizePromoCodeInput(code) {
 
 function getPromoRule(code) {
   const normalized = normalizePromoCodeInput(code);
-  const match = normalized.match(/^MAGIC(\d{2})$/);
-  if (!match) return null;
-  const value = Number(match[1]);
-  if (!Number.isFinite(value) || value <= 0) return null;
-  return { type: "percent", value };
+  if (normalized !== "MAGIC10") return null;
+  return { type: "percent", value: 10 };
 }
 
 function calculatePromoDiscount(amount, code) {

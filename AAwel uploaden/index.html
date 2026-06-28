@@ -2220,6 +2220,7 @@ let selectedReviewProductCode = '';
 let activePromoCode = '';
 let activePromoInputValue = '';
 let activePromoMessage = '';
+let pendingInvoiceData = null;
 
 function isProductPromoEligible(product) {
   return Boolean(product && (product.promoEligible || String(product.promoCode || '').trim()));
@@ -2788,9 +2789,9 @@ function applyPromoCodeFromInput() {
     updateCartUI();
     return;
   }
-  if (!getPromoRule(code)) {
+  if (code !== 'MAGIC10') {
     activePromoCode = '';
-    activePromoMessage = t('promoInvalid');
+    activePromoMessage = t('promoInvalid') || 'Deze code is niet geldig.';
     updateCartUI();
     return;
   }
@@ -3323,7 +3324,7 @@ createOrder:(data,actions)=>{
   const invoicePostalCode =
     document.getElementById('invoicePostalCode')
       ?.value?.trim() || '';
-      window.invoiceData = JSON.parse(JSON.stringify({
+      pendingInvoiceData = {
         invoiceRequested,
         invoiceType,
         companyName,
@@ -3333,7 +3334,7 @@ createOrder:(data,actions)=>{
         buyerEndpointID,
         invoiceCity,
         invoicePostalCode
-      }));
+      };
 
   const errorBox =
     document.getElementById('invoice-error');
@@ -3453,7 +3454,7 @@ onApprove:async(data,actions)=>{
 
   try {
 
-    const invoiceData = window.invoiceData || {
+    const invoiceData = pendingInvoiceData || {
       invoiceRequested: false,
       invoiceType: 'private',
       companyName: '',
