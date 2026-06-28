@@ -2093,7 +2093,6 @@ function renderPopupDescription(product, tekst) {
 
   const labels = getModalLabels();
   const sourceText = sanitizePopupText(tekst || product.beschrijving || '');
-  const shortDescription = getShortDescription(sourceText);
   const typeClass = product.type === 'physical' ? 'physical' : 'digital';
   const choiceNames = Array.isArray(product.keuzes) && product.keuzes.length > 0
     ? product.keuzes.map(keuze => tk(keuze.naam)).join(', ')
@@ -2104,9 +2103,6 @@ function renderPopupDescription(product, tekst) {
     <div class="modal-summary">
       <div class="modal-summary-top">
         <span class="modal-pill ${typeClass}">${escapeHtml(getProductTypeLabel(product.type))}</span>
-        ${shortDescription
-          ? `<p class="modal-brief">${escapeHtml(shortDescription)}</p>`
-          : `<p class="modal-brief">${escapeHtml(descriptionText)}</p>`}
       </div>
       <div class="modal-facts">
         <div class="modal-fact"><span>${escapeHtml(labels.format)}</span><strong>${escapeHtml(product.formaat || '-')}</strong></div>
