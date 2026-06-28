@@ -466,12 +466,14 @@ footer .newsletter-box {
 
 .card-review-summary {
   min-height: 18px !important;
-  margin: -2px 0 8px !important;
+  margin: -2px 12px 8px !important;
+  width: calc(100% - 24px) !important;
 }
 
 .card-review-badge {
-  display: inline-flex !important;
+  display: flex !important;
   align-items: center !important;
+  justify-content: center !important;
   gap: 6px !important;
   padding: 5px 9px !important;
   border-radius: 999px !important;
@@ -481,6 +483,8 @@ footer .newsletter-box {
   font-size: 0.76rem !important;
   font-weight: 700 !important;
   box-shadow: 0 1px 3px rgba(15,23,42,0.04) !important;
+  box-sizing: border-box !important;
+  width: 100% !important;
 }
 
 .card-review-stars {
