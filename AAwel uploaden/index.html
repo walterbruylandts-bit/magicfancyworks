@@ -2220,6 +2220,7 @@ let selectedReviewProductCode = '';
 let activePromoCode = '';
 let activePromoInputValue = '';
 let activePromoMessage = '';
+let activePromoIsError = false;
 let pendingInvoiceData = null;
 
 function isProductPromoEligible(product) {
@@ -2786,6 +2787,7 @@ function applyPromoCodeFromInput() {
   if (!code) {
     activePromoCode = '';
     activePromoMessage = '';
+    activePromoIsError = false;
     updateCartUI();
     return;
   }
@@ -2793,11 +2795,13 @@ function applyPromoCodeFromInput() {
   if (!allowedCodes.includes(code)) {
     activePromoCode = '';
     activePromoMessage = t('promoInvalid') || 'Deze code is niet geldig.';
+    activePromoIsError = true;
     updateCartUI();
     return;
   }
   activePromoCode = code;
   activePromoMessage = t('promoApplied') + ': ' + code;
+  activePromoIsError = false;
   updateCartUI();
 }
 
@@ -3569,6 +3573,7 @@ function updateCartUI(){
     activePromoCode = '';
     activePromoInputValue = '';
     activePromoMessage = '';
+    activePromoIsError = false;
     itemsDiv.innerHTML = '<p style="text-align:center;color:#999">' + ct('cartEmpty') + '</p>';
     footerDiv.innerHTML = '';
     return;
@@ -3654,7 +3659,7 @@ itemsDiv.innerHTML = cart.map(function(i){
     html += '<button type="button" onclick="applyPromoCodeFromInput()" style="background:#0f766e;color:white;border:none;padding:8px 12px;border-radius:6px;cursor:pointer;font-weight:700;font-size:13px;white-space:nowrap">' + t('promoApply') + '</button>';
     html += '</div>';
     if (activePromoMessage) {
-      html += '<p style="margin:6px 0 0;font-size:12px;color:#0f766e;font-weight:600">' + escapeHtml(activePromoMessage) + '</p>';
+      html += '<p style="margin:6px 0 0;font-size:12px;color:' + (activePromoIsError ? '#b91c1c' : '#0f766e') + ';font-weight:600">' + escapeHtml(activePromoMessage) + '</p>';
     }
     html += '</div>';
   }
