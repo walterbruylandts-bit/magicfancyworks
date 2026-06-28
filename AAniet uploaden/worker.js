@@ -76,6 +76,7 @@ function normalizeOrderItems(body) {
     const qty = Number.parseInt(item?.qty, 10);
     const normalizedQty = Number.isFinite(qty) && qty > 0 ? qty : 1;
     const catalogItem = getProductCatalogItem(code);
+    const suppliedTitle = String(item?.title || item?.displayTitle || "").trim();
 
     if (!code) {
       throw new Error("Productcode ontbreekt");
@@ -87,7 +88,7 @@ function normalizeOrderItems(body) {
     return {
       code,
       qty: normalizedQty,
-      title: catalogItem.title,
+      title: suppliedTitle || catalogItem.title,
       price: catalogItem.price,
       type: catalogItem.type
     };
