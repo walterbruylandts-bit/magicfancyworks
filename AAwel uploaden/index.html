@@ -1797,6 +1797,44 @@ function normalizeSearchValue(value) {
   return String(value || '').toLowerCase().trim();
 }
 
+function parseMoneyValue(value) {
+  const normalized = String(value || '')
+    .trim()
+    .replace(/[^\d,.-]/g, '')
+    .replace(/\.(?=.*\.)/g, '')
+    .replace(',', '.');
+  const parsed = Number.parseFloat(normalized);
+  return Number.isFinite(parsed) ? parsed : 0;
+}
+
+function getProductCatalogFile() {
+  const params = new URLSearchParams(window.location.search);
+  const mode = String(params.get('catalog') || localStorage.getItem('catalogMode') || '').toLowerCase();
+  return mode === 'test' ? 'producten.test.json' : 'producten.json';
+}
+
+function getSelectedQuantity(keuzes) {
+  const value = keuzes?.Aantallen || keuzes?.Aantal || keuzes?.quantity || keuzes?.qty || '';
+  const parsed = Number.parseInt(String(value), 10);
+  return Number.isFinite(parsed) && parsed > 0 ? parsed : 1;
+}
+
+function getSelectedUnitPrice(product, keuzes) {
+  if (!product) return 0;
+
+  const selectedFormat = keuzes?.Formaten || keuzes?.Formaat || keuzes?.Samenvoeging || keuzes?.samenvoeging || '';
+  const variantPriceMap = product.variantPrijzen || product.prijzen || product.prijsOpties || null;
+
+  if (variantPriceMap && selectedFormat) {
+    const directValue = variantPriceMap[selectedFormat];
+    if (directValue !== undefined) {
+      return parseMoneyValue(directValue);
+    }
+  }
+
+  return parseMoneyValue(product.prijs);
+}
+
 function getSearchInputValue() {
   const input = document.getElementById('product-search-input');
   return input ? input.value.trim() : '';
@@ -2763,16 +2801,18 @@ function addToCart(code, keuzes){
     }
   }
 
+  const unitPrice = getSelectedUnitPrice(p, keuzes);
+  const selectedQty = getSelectedQuantity(keuzes);
   const keuzesKey = p.keuzes ? p.keuzes.map(k => keuzes[k.naam] || '').join('|') : '';
   const existing=cart.find(x=>x.code===code && x.keuzesKey===keuzesKey);
   if(existing){
-    existing.qty++;
+    existing.qty += selectedQty;
   }else{
     cart.push({
       code:p.code,
       titel:p['titel_'+currentLang]||p.titel,
-      prijs:Number(String(p.prijs).replace(",",".")),
-      qty:1,
+      prijs:unitPrice,
+      qty:selectedQty,
       keuzes: keuzes || {},
       keuzesKey: keuzesKey
     });
@@ -3704,7 +3744,8 @@ async function laadProducten() {
 
     try {
 
-const res = await fetchWithRetry(`producten.json?v=${Date.now()}`, {}, 3);
+const catalogFile = getProductCatalogFile();
+const res = await fetchWithRetry(`${catalogFile}?v=${Date.now()}`, {}, 3);
 
 alleProducten = await res.json();
 
