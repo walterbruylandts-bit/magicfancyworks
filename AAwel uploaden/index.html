@@ -1595,6 +1595,7 @@ const translations = {
     promoInvalid: 'Deze kortingscode is niet geldig.',
     promoDiscountLabel: 'Korting',
     kleurKeuze: 'Kleurkeuze (niet bij elk item van toepassing)',
+    cartQuantityHint: 'Aantal kies je in de winkelmand.',
     kleurVerplicht: 'Kies een kleur',
     toevoegen: '🛒 Toevoegen aan mandje',
     checkoutPaypal: 'Door naar PayPal...',
@@ -1683,6 +1684,7 @@ const translations = {
     promoInvalid: 'Ce code promo n’est pas valide.',
     promoDiscountLabel: 'Réduction',
     kleurKeuze: 'Choix de couleur (ne s\'applique pas à chaque article)',
+    cartQuantityHint: 'Le nombre se choisit dans le panier.',
     kleurVerplicht: 'Choisissez une couleur',
     toevoegen: '🛒 Ajouter au panier',
     checkoutPaypal: 'Vers PayPal...',
@@ -1771,6 +1773,7 @@ const translations = {
     promoInvalid: 'This discount code is not valid.',
     promoDiscountLabel: 'Discount',
     kleurKeuze: 'Color choice (does not apply to every item)',
+    cartQuantityHint: 'Choose the quantity in the cart.',
     kleurVerplicht: 'Choose a color',
     toevoegen: '🛒 Add to cart',
     checkoutPaypal: 'Proceeding to PayPal...',
@@ -4021,11 +4024,7 @@ async function openPopup(code) {
     const quantityHintBox = document.getElementById('popup-quantity-hint');
     if (quantityHintBox) {
       const quantityHintText = (product.variantPrijzen || product.formatPrijzen || String(product.prijs || '').includes('-') || product.winkelmandHint)
-        ? (product.winkelmandHint || (currentLang === 'fr'
-          ? 'Le nombre se choisit dans le panier.'
-          : currentLang === 'en'
-            ? 'Choose the quantity in the cart.'
-            : 'Aantal kies je in de winkelmand.'))
+        ? (product.winkelmandHint || t('cartQuantityHint'))
         : '';
       quantityHintBox.textContent = quantityHintText;
       quantityHintBox.style.display = quantityHintText ? 'block' : 'none';
