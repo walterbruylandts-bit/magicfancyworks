@@ -2196,23 +2196,10 @@ function setLang(lang) {
   // Save language preference
   localStorage.setItem('preferredLang', lang);
   localStorage.setItem('site_lang_v3', lang);
-    if (typeof renderProducten === 'function' && alleProducten.length > 0) {
+  if (typeof renderProducten === 'function' && alleProducten.length > 0) {
+    renderProducten();
+  }
 
-  // Update product titles without re-rendering entire grid
-  document.querySelectorAll('.card h3').forEach((h3, i) => {
-    if (alleProducten[i]) {
-      h3.textContent = alleProducten[i]['titel_' + currentLang] || alleProducten[i].titel;
-    }
-  });
-
-  document.querySelectorAll('.card .card-type').forEach((badge, i) => {
-    const product = alleProducten[i];
-    if (product) {
-      badge.textContent = getProductTypeLabel(product.type);
-      badge.classList.toggle('physical', product.type === 'physical');
-    }
-  });
-}
 // Update modal title if open
 if (modal && modal.classList.contains('active')) {
   const activeProduct = alleProducten.find(p => p.code === modal.dataset.productCode);
