@@ -31,10 +31,6 @@ const PRODUCT_CATALOG = {
   mfw00003: { title: "Schattig meisje", price: 9.87, type: "physical" },
   mfw00006: { title: "Big Boy Teddy Bear Iron-On Patch XXL", price: 14.95, type: "physical" }
 };
-const PROMO_CODES = {
-  MAGIC10: { type: "percent", value: 10 }
-};
-
 function escapeXml(value) {
   return String(value || "")
     .replace(/&/g, "&amp;")
@@ -134,7 +130,12 @@ function normalizePromoCodeInput(code) {
 }
 
 function getPromoRule(code) {
-  return PROMO_CODES[normalizePromoCodeInput(code)] || null;
+  const normalized = normalizePromoCodeInput(code);
+  const match = normalized.match(/^MAGIC(\d{2})$/);
+  if (!match) return null;
+  const value = Number(match[1]);
+  if (!Number.isFinite(value) || value <= 0) return null;
+  return { type: "percent", value };
 }
 
 function calculatePromoDiscount(amount, code) {

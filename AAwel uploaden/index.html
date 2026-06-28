@@ -2217,9 +2217,6 @@ let activeSearchTerm = '';
 const reviewSummaryCache = {};
 let reviewPanelOpen = false;
 let selectedReviewProductCode = '';
-const PROMO_CODES = {
-  MAGIC10: { type: 'percent', value: 10 }
-};
 let activePromoCode = '';
 let activePromoInputValue = '';
 let activePromoMessage = '';
@@ -2230,6 +2227,15 @@ function isProductPromoEligible(product) {
 
 function getProductPromoCode(product) {
   return String(product?.promoCode || '').trim().toUpperCase();
+}
+
+function getPromoRuleFromCode(code) {
+  const normalized = String(code || '').trim().toUpperCase();
+  const match = normalized.match(/^MAGIC(\d{2})$/);
+  if (!match) return null;
+  const value = Number(match[1]);
+  if (!Number.isFinite(value) || value <= 0) return null;
+  return { type: 'percent', value };
 }
 
 function getCartPromoCodes(items = cart) {
@@ -2756,7 +2762,7 @@ function normalizePromoCode(value) {
 }
 
 function getPromoRule(code) {
-  return PROMO_CODES[normalizePromoCode(code)] || null;
+  return getPromoRuleFromCode(code);
 }
 
 function calculatePromoDiscount(amount, code) {
