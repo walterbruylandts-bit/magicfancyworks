@@ -60,6 +60,8 @@
       "10x15 cm": "14,95",
       "16x20 cm": "24,95"
     },
-    "winkelmandHint": "Aantal kies je in de winkelmand."
+    "winkelmandHint": "Aantal kies je in de winkelmand.",
+    "winkelmandHint_fr": "Le nombre se choisit dans le panier.",
+    "winkelmandHint_en": "Choose the quantity in the cart."
   }
 ]

@@ -2103,7 +2103,11 @@ function renderPopupDescription(product, tekst) {
       ? labels.fallbackNote
       : '';
   const cartHintText = (product.variantPrijzen || product.formatPrijzen || String(product.prijs || '').includes('-') || product.winkelmandHint)
-    ? escapeHtml(product.winkelmandHint || labels.cartQuantityHint)
+    ? escapeHtml(
+        product['winkelmandHint_' + currentLang] ||
+        (currentLang === 'nl' ? product.winkelmandHint : '') ||
+        labels.cartQuantityHint
+      )
     : '';
 
   modalDescription.innerHTML = `
@@ -4024,7 +4028,7 @@ async function openPopup(code) {
     const quantityHintBox = document.getElementById('popup-quantity-hint');
     if (quantityHintBox) {
       const quantityHintText = (product.variantPrijzen || product.formatPrijzen || String(product.prijs || '').includes('-') || product.winkelmandHint)
-        ? (product.winkelmandHint || t('cartQuantityHint'))
+        ? (product['winkelmandHint_' + currentLang] || (currentLang === 'nl' ? product.winkelmandHint : '') || t('cartQuantityHint'))
         : '';
       quantityHintBox.textContent = quantityHintText;
       quantityHintBox.style.display = quantityHintText ? 'block' : 'none';
