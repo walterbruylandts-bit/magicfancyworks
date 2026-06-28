@@ -2789,7 +2789,8 @@ function applyPromoCodeFromInput() {
     updateCartUI();
     return;
   }
-  if (code !== 'MAGIC10') {
+  const allowedCodes = getCartPromoCodes(cart);
+  if (!allowedCodes.includes(code)) {
     activePromoCode = '';
     activePromoMessage = t('promoInvalid') || 'Deze code is niet geldig.';
     updateCartUI();

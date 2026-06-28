@@ -131,8 +131,22 @@ function normalizePromoCodeInput(code) {
 
 function getPromoRule(code) {
   const normalized = normalizePromoCodeInput(code);
-  if (normalized !== "MAGIC10") return null;
-  return { type: "percent", value: 10 };
+  const match = normalized.match(/^MAGIC(\d{2})$/);
+  if (!match) return null;
+  const value = Number(match[1]);
+  if (!Number.isFinite(value) || value <= 0) return null;
+  return { type: "percent", value };
+}
+
+function getItemPromoCodes(items) {
+  const codes = new Set();
+  for (const item of items || []) {
+    const promoCode = normalizePromoCodeInput(item?.promoCode || "");
+    if (promoCode && item?.promoEligible) {
+      codes.add(promoCode);
+    }
+  }
+  return Array.from(codes);
 }
 
 function calculatePromoDiscount(amount, code) {
@@ -1577,6 +1591,14 @@ const {
     const promoRule = getPromoRule(promoCode);
     if (promoCode && !promoRule) {
       return new Response(JSON.stringify({ error: "Deze kortingscode is niet geldig" }), {
+        status: 400,
+        headers: { "Content-Type": "application/json", ...corsHeaders }
+      });
+    }
+
+    const allowedPromoCodes = getItemPromoCodes(items);
+    if (promoCode && !allowedPromoCodes.includes(promoCode)) {
+      return new Response(JSON.stringify({ error: "Deze kortingscode is niet geldig voor deze producten" }), {
         status: 400,
         headers: { "Content-Type": "application/json", ...corsHeaders }
       });
