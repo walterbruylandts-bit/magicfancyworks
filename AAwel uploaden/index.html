@@ -1429,11 +1429,14 @@ No JS logic changed.
      <button id="shopIntroChip3" class="shop-chip shop-chip-button neutral" type="button" data-filter="all"></button>
     </div>
    </section>
-  <div class="shop-search" aria-label="Zoeken in shop">
+   <div class="shop-search" aria-label="Zoeken in shop">
     <input id="product-search-input" type="search" autocomplete="off" spellcheck="false">
     <button id="clear-search-button" type="button">Wissen</button>
    </div>
    <div id="shop-grid" class="shop-grid"></div>
+   <div class="review-launch-wrap">
+    <button id="review-launch-button" type="button" class="review-launch-button">Schrijf een review</button>
+   </div>
    <div id="review-section" class="review-section"></div>
   </main>
   <div id="cart-sidebar" style="display:none;position:fixed;top:0;right:0;width:350px;height:100%;background:#fff;color:#1a2a3a;z-index:99998;box-shadow:-5px 0 20px rgba(0,0,0,0.5);flex-direction:column">
@@ -1561,8 +1564,12 @@ const translations = {
     relatedEmpty: 'Nog geen gerelateerde producten gevonden.',
     relatedOpen: 'Open product',
     reviewTitle: 'Schrijf een review',
-    reviewText: 'Laat kort weten wat je van dit product vindt.',
+    reviewText: 'Kies een product en laat weten wat je ervan vindt.',
     reviewNote: 'Reviews worden eerst gecontroleerd voor ze zichtbaar worden.',
+    reviewLaunch: 'Schrijf een review',
+    reviewProductLabel: 'Product',
+    reviewProductPlaceholder: 'Kies een product',
+    reviewChooseProduct: 'Kies eerst een product om een review te schrijven.',
     reviewName: 'Naam of bijnaam',
     reviewNamePlaceholder: 'Bijvoorbeeld: Anoniem',
     reviewRating: 'Beoordeling',
@@ -1645,8 +1652,12 @@ const translations = {
     relatedEmpty: 'Aucun produit lié trouvé pour le moment.',
     relatedOpen: 'Ouvrir le produit',
     reviewTitle: 'Écrire un avis',
-    reviewText: 'Dites brièvement ce que vous pensez de ce produit.',
+    reviewText: 'Choisissez un produit et dites ce que vous en pensez.',
     reviewNote: 'Les avis sont d’abord vérifiés avant d’être affichés.',
+    reviewLaunch: 'Écrire un avis',
+    reviewProductLabel: 'Produit',
+    reviewProductPlaceholder: 'Choisissez un produit',
+    reviewChooseProduct: 'Choisissez d’abord un produit pour écrire un avis.',
     reviewName: 'Nom ou pseudo',
     reviewNamePlaceholder: 'Par exemple: Anonyme',
     reviewRating: 'Évaluation',
@@ -1729,8 +1740,12 @@ const translations = {
     relatedEmpty: 'No related products found yet.',
     relatedOpen: 'Open product',
     reviewTitle: 'Write a review',
-    reviewText: 'Let us know what you think about this product.',
+    reviewText: 'Choose a product and let us know what you think.',
     reviewNote: 'Reviews are checked before they become visible.',
+    reviewLaunch: 'Write a review',
+    reviewProductLabel: 'Product',
+    reviewProductPlaceholder: 'Choose a product',
+    reviewChooseProduct: 'Choose a product first to write a review.',
     reviewName: 'Name or nickname',
     reviewNamePlaceholder: 'For example: Anonymous',
     reviewRating: 'Rating',
@@ -2081,11 +2096,13 @@ function setLang(lang) {
   const footerPrivacy = document.getElementById('footerPrivacy'); if (footerPrivacy) footerPrivacy.textContent = t('footerPrivacy');
   const footerCookies = document.getElementById('footerCookies'); if (footerCookies) footerCookies.textContent = t('footerCookies');
   const footerBTW = document.getElementById('footerBTW'); if (footerBTW) footerBTW.textContent = t('footerBTW');
+  const reviewLaunchButton = document.getElementById('review-launch-button');
+  if (reviewLaunchButton) reviewLaunchButton.textContent = t('reviewLaunch');
   updateNewsletterControls();
   updateSearchControls();
   updateFavoritesUI();
-  if (currentProduct) {
-    renderReviewSection(currentProduct);
+  if (reviewPanelOpen) {
+    renderReviewSection();
   }
 
   // Update footer link hrefs based on language
@@ -2097,7 +2114,7 @@ function setLang(lang) {
 
   // Save language preference
   localStorage.setItem('preferredLang', lang);
-  if (typeof renderProducten === 'function' && alleProducten.length > 0) {
+    if (typeof renderProducten === 'function' && alleProducten.length > 0) {
 
   // Update product titles without re-rendering entire grid
   document.querySelectorAll('.card h3').forEach((h3, i) => {
@@ -2121,7 +2138,6 @@ if (modal && modal.classList.contains('active')) {
     document.getElementById('modalTitle').textContent = activeProduct['titel_' + currentLang] || activeProduct.titel;
     renderPopupDescription(activeProduct, activeProduct._popupDescription || activeProduct.beschrijving || '');
     renderRelatedProducts(activeProduct);
-    renderReviewSection(activeProduct);
   }
 }
 }
@@ -2137,6 +2153,8 @@ let selectedShippingCountry = 'BE';
 let activeProductFilter = 'all';
 let activeSearchTerm = '';
 const reviewSummaryCache = {};
+let reviewPanelOpen = false;
+let selectedReviewProductCode = '';
 const PROMO_CODES = {
   MAGIC10: { type: 'percent', value: 10 }
 };
@@ -2293,19 +2311,44 @@ function renderRelatedProducts(product) {
 function renderReviewSection(product) {
   const box = document.getElementById('review-section');
   if (!box) return;
-  if (!product) {
+  const labels = getReviewLabels();
+  const reviewLaunch = t('reviewLaunch');
+  const chooseProductText = t('reviewChooseProduct');
+
+  if (!reviewPanelOpen) {
     box.innerHTML = '';
+    box.hidden = true;
     return;
   }
 
-  const labels = getReviewLabels();
-  box.dataset.productCode = product.code;
+  box.hidden = false;
+
+  const selectedProduct = alleProducten.find((item) => item.code === selectedReviewProductCode) || null;
+  const productOptions = [
+    `<option value="">${escapeHtml(t('reviewProductPlaceholder'))}</option>`,
+    ...alleProducten.map((item) => {
+      const title = escapeHtml(item['titel_' + currentLang] || item.titel);
+      const code = escapeHtml(item.code);
+      return `<option value="${code}"${selectedReviewProductCode === item.code ? ' selected' : ''}>${title}</option>`;
+    })
+  ].join('');
+
   box.innerHTML = `
     <div class="review-box">
-      <span class="review-title">${escapeHtml(labels.title)}</span>
+      <div class="review-box-header">
+        <span class="review-title">${escapeHtml(reviewLaunch)}</span>
+        <button type="button" class="review-close-button" data-review-close aria-label="${escapeHtml(t('closePopup'))}">×</button>
+      </div>
       <p class="review-text">${escapeHtml(labels.text)}</p>
       <p class="review-note">${escapeHtml(labels.note)}</p>
-      <form class="review-form" data-review-form>
+      <label class="review-field">
+        <span>${escapeHtml(t('reviewProductLabel'))}</span>
+        <select name="reviewProduct" data-review-product required>
+          ${productOptions}
+        </select>
+      </label>
+      <p class="review-note" data-review-hint>${escapeHtml(chooseProductText)}</p>
+      <form class="review-form" data-review-form ${selectedProduct ? '' : 'style="opacity:0.55;pointer-events:none;"'}>
         <label class="review-field">
           <span>${escapeHtml(labels.name)}</span>
           <input type="text" name="name" maxlength="60" placeholder="${escapeHtml(labels.namePlaceholder)}">
@@ -2330,7 +2373,7 @@ function renderReviewSection(product) {
       </form>
       <div class="review-list">
         <span class="review-title">${escapeHtml(labels.listTitle)}</span>
-        <div class="review-list-items">${escapeHtml(labels.listLoading)}</div>
+        <div class="review-list-items">${escapeHtml(selectedProduct ? labels.listLoading : chooseProductText)}</div>
       </div>
     </div>
   `;
@@ -2338,7 +2381,41 @@ function renderReviewSection(product) {
   const form = box.querySelector('[data-review-form]');
   const status = box.querySelector('.review-status');
   const listItems = box.querySelector('.review-list-items');
-  if (!form || !status) return;
+  const productSelect = box.querySelector('[data-review-product]');
+  const closeButton = box.querySelector('[data-review-close]');
+
+  if (!form || !status || !productSelect) return;
+
+  const loadSelectedProductReviews = () => {
+    const selectedCode = productSelect.value.trim();
+    selectedReviewProductCode = selectedCode;
+    box.dataset.productCode = selectedCode;
+    const selectedItem = alleProducten.find((item) => item.code === selectedCode) || null;
+    if (!selectedItem) {
+      listItems.textContent = chooseProductText;
+      form.style.opacity = '0.55';
+      form.style.pointerEvents = 'none';
+      return;
+    }
+    form.style.opacity = '1';
+    form.style.pointerEvents = 'auto';
+    loadReviewsForProduct(selectedCode, listItems, labels, box);
+  };
+
+  productSelect.addEventListener('change', loadSelectedProductReviews);
+  if (selectedReviewProductCode) {
+    loadSelectedProductReviews();
+  } else {
+    form.style.opacity = '0.55';
+    form.style.pointerEvents = 'none';
+  }
+
+  if (closeButton) {
+    closeButton.addEventListener('click', () => {
+      reviewPanelOpen = false;
+      renderReviewSection();
+    });
+  }
 
   form.addEventListener('submit', async (event) => {
     event.preventDefault();
@@ -2346,8 +2423,10 @@ function renderReviewSection(product) {
     const name = form.elements.name.value.trim();
     const rating = form.elements.rating.value;
     const message = form.elements.message.value.trim();
+    const productCode = productSelect.value.trim();
+    const product = alleProducten.find((item) => item.code === productCode) || null;
 
-    if (!rating || !message) {
+    if (!product || !rating || !message) {
       status.textContent = labels.error;
       status.style.color = '#b91c1c';
       return;
@@ -2379,6 +2458,9 @@ function renderReviewSection(product) {
       form.reset();
       status.textContent = data.message || labels.success;
       status.style.color = '#0f766e';
+      if (productCode) {
+        loadReviewsForProduct(productCode, listItems, labels, box);
+      }
     } catch (error) {
       status.textContent = error.message || labels.error;
       status.style.color = '#b91c1c';
@@ -2386,8 +2468,25 @@ function renderReviewSection(product) {
       submitButton.disabled = false;
     }
   });
+}
 
-  loadReviewsForProduct(product.code, listItems, labels, box);
+function toggleReviewPanel(forceOpen) {
+  reviewPanelOpen = typeof forceOpen === 'boolean' ? forceOpen : !reviewPanelOpen;
+  renderReviewSection();
+  if (reviewPanelOpen) {
+    const box = document.getElementById('review-section');
+    if (box) {
+      box.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  }
+}
+
+function bindReviewControls() {
+  const button = document.getElementById('review-launch-button');
+  if (button && button.dataset.bound !== '1') {
+    button.dataset.bound = '1';
+    button.addEventListener('click', () => toggleReviewPanel());
+  }
 }
 
 function getStarDisplay(avg) {
@@ -2453,7 +2552,7 @@ async function loadReviewsForProduct(productCode, listItems, labels, box) {
     const response = await fetch(`${WORKER_BASE_URL}/reviews?productCode=${encodeURIComponent(productCode)}`);
     const data = await response.json().catch(() => ({ reviews: [] }));
     if (!response.ok) throw new Error('load failed');
-    if (box?.dataset?.productCode !== productCode) return;
+    if (box?.dataset?.productCode && box.dataset.productCode !== productCode) return;
 
     const reviews = Array.isArray(data.reviews) ? data.reviews : [];
     if (reviews.length === 0) {
@@ -3627,6 +3726,9 @@ alleProducten.forEach(p => {
         }
 
         renderProducten();
+        if (reviewPanelOpen) {
+          renderReviewSection();
+        }
 
     } catch (error) {
         console.error('Fout bij laden van producten:', error);
@@ -3691,6 +3793,9 @@ function renderProducten() {
     attachCardEventListeners();
     updateFavoritesUI();
     updateCardReviewSummaries(searchedProducten);
+    if (reviewPanelOpen) {
+      renderReviewSection();
+    }
 }
 
 // Event listeners voor product cards
@@ -3925,13 +4030,11 @@ async function openPopup(code) {
         product._popupDescription = tekst || product.beschrijving || '';
         renderPopupDescription(product, product._popupDescription);
         renderRelatedProducts(product);
-        renderReviewSection(product);
     } catch (error) {
         console.error('Fout bij laden beschrijving:', error);
         product._popupDescription = product.beschrijving || '';
         renderPopupDescription(product, product._popupDescription);
         renderRelatedProducts(product);
-        renderReviewSection(product);
     }
 
 // Render PayPal buttons
@@ -4206,6 +4309,8 @@ if (savedLang && translations[savedLang]) {
 attachShopIntroFilters();
 bindSearchControls();
 bindFavoriteControls();
+bindReviewControls();
+renderReviewSection();
 updateFavoritesUI();
 laadVerzendkosten();
 laadProducten();
