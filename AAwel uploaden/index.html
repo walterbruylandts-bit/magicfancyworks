@@ -1595,7 +1595,6 @@ const translations = {
     promoInvalid: 'Deze kortingscode is niet geldig.',
     promoDiscountLabel: 'Korting',
     kleurKeuze: 'Kleurkeuze (niet bij elk item van toepassing)',
-    cartQuantityHint: 'Aantal kies je in de winkelmand.',
     kleurVerplicht: 'Kies een kleur',
     toevoegen: '🛒 Toevoegen aan mandje',
     checkoutPaypal: 'Door naar PayPal...',
@@ -1684,7 +1683,6 @@ const translations = {
     promoInvalid: 'Ce code promo n’est pas valide.',
     promoDiscountLabel: 'Réduction',
     kleurKeuze: 'Choix de couleur (ne s\'applique pas à chaque article)',
-    cartQuantityHint: 'Le nombre se choisit dans le panier.',
     kleurVerplicht: 'Choisissez une couleur',
     toevoegen: '🛒 Ajouter au panier',
     checkoutPaypal: 'Vers PayPal...',
@@ -1773,7 +1771,6 @@ const translations = {
     promoInvalid: 'This discount code is not valid.',
     promoDiscountLabel: 'Discount',
     kleurKeuze: 'Color choice (does not apply to every item)',
-    cartQuantityHint: 'Choose the quantity in the cart.',
     kleurVerplicht: 'Choose a color',
     toevoegen: '🛒 Add to cart',
     checkoutPaypal: 'Proceeding to PayPal...',
@@ -1966,6 +1963,32 @@ function getShortDescription(text) {
   return cleaned.slice(0, 220).trim() + '…';
 }
 
+function sanitizePopupText(text) {
+  const blockedPhrases = [
+    'Texte source néerlandais utilisé',
+    'Dutch source text used',
+    'Nederlandse brontekst gebruikt',
+    'Le nombre se choisit dans le panier.',
+    'Choose the quantity in the cart.',
+    'Aantal kies je in de winkelmand.',
+    'Faites défiler pour plus de détails',
+    'Scroll for more details',
+    'Scroll verder voor meer details'
+  ];
+
+  let cleaned = String(text || '');
+  for (const phrase of blockedPhrases) {
+    cleaned = cleaned.replaceAll(phrase, '');
+  }
+
+  return cleaned
+    .replace(/\s{2,}/g, ' ')
+    .replace(/\s+([,.;:!?])/g, '$1')
+    .replace(/\(\s*\)/g, '')
+    .replace(/\n{3,}/g, '\n\n')
+    .trim();
+}
+
 function getPopupDescriptionCacheKey(productCode, lang) {
   return productCode + "::" + lang;
 }
@@ -1997,27 +2020,7 @@ function getModalLabels() {
     files: currentLang === 'fr' ? 'Fichiers' : currentLang === 'en' ? 'Files' : 'Bestanden',
     delivery: currentLang === 'fr' ? 'Livraison' : currentLang === 'en' ? 'Delivery' : 'Levering',
     choices: currentLang === 'fr' ? 'Options' : currentLang === 'en' ? 'Options' : 'Keuzes',
-    cartQuantityHint: currentLang === 'fr'
-      ? 'Le nombre se choisit dans le panier.'
-      : currentLang === 'en'
-        ? 'Choose the quantity in the cart.'
-        : 'Aantal kies je in de winkelmand.',
-    moreHint: currentLang === 'fr'
-      ? 'Faites défiler pour plus de détails'
-      : currentLang === 'en'
-        ? 'Scroll for more details'
-        : 'Scroll verder voor meer details',
     noDescription: currentLang === 'fr' ? 'Aucune description disponible.' : currentLang === 'en' ? 'No description available.' : 'Geen beschrijving beschikbaar.',
-    translatedNote: currentLang === 'fr'
-      ? 'Traduction automatique utilisée'
-      : currentLang === 'en'
-        ? 'Automatic translation used'
-        : 'Automatische vertaling gebruikt',
-    fallbackNote: currentLang === 'fr'
-      ? 'Texte source néerlandais utilisé'
-      : currentLang === 'en'
-        ? 'Dutch source text used'
-        : 'Nederlandse brontekst gebruikt'
   };
 }
 
@@ -2089,27 +2092,14 @@ function renderPopupDescription(product, tekst) {
   if (!modalDescription || !product) return;
 
   const labels = getModalLabels();
-  const shortDescription = getShortDescription(tekst || product.beschrijving || '');
+  const sourceText = sanitizePopupText(tekst || product.beschrijving || '');
+  const shortDescription = getShortDescription(sourceText);
   const typeClass = product.type === 'physical' ? 'physical' : 'digital';
   const choiceNames = Array.isArray(product.keuzes) && product.keuzes.length > 0
     ? product.keuzes.map(keuze => tk(keuze.naam)).join(', ')
     : '';
   const choiceCount = Array.isArray(product.keuzes) ? product.keuzes.length : 0;
-  const descriptionText = tekst || product.beschrijving || labels.noDescription;
-  const translationStatus = product._popupDescriptionStatus || 'direct';
-  const statusNote = translationStatus === 'auto-translated'
-    ? labels.translatedNote
-    : translationStatus === 'fallback-nl'
-      ? labels.fallbackNote
-      : '';
-  const cartHintText = (product.variantPrijzen || product.formatPrijzen || String(product.prijs || '').includes('-') || product.winkelmandHint)
-    ? escapeHtml(
-        product['winkelmandHint_' + currentLang] ||
-        (currentLang === 'nl' ? product.winkelmandHint : '') ||
-        labels.cartQuantityHint
-      )
-    : '';
-
+  const descriptionText = sourceText || labels.noDescription;
   modalDescription.innerHTML = `
     <div class="modal-summary">
       <div class="modal-summary-top">
@@ -2117,9 +2107,6 @@ function renderPopupDescription(product, tekst) {
         ${shortDescription
           ? `<p class="modal-brief">${escapeHtml(shortDescription)}</p>`
           : `<p class="modal-brief">${escapeHtml(descriptionText)}</p>`}
-        ${statusNote ? `<p class="modal-brief" style="margin-top:2px;font-size:0.78rem;color:#64748b">${escapeHtml(statusNote)}</p>` : ''}
-        ${cartHintText ? `<p class="modal-brief" style="margin-top:2px;font-size:0.82rem;color:#0f766e;font-weight:600">${cartHintText}</p>` : ''}
-        <div class="modal-more-hint">↓ ${escapeHtml(labels.moreHint)}</div>
       </div>
       <div class="modal-facts">
         <div class="modal-fact"><span>${escapeHtml(labels.format)}</span><strong>${escapeHtml(product.formaat || '-')}</strong></div>
@@ -4027,11 +4014,8 @@ async function openPopup(code) {
     document.getElementById('popup-add-to-cart').style.display = 'block';
     const quantityHintBox = document.getElementById('popup-quantity-hint');
     if (quantityHintBox) {
-      const quantityHintText = (product.variantPrijzen || product.formatPrijzen || String(product.prijs || '').includes('-') || product.winkelmandHint)
-        ? (product['winkelmandHint_' + currentLang] || (currentLang === 'nl' ? product.winkelmandHint : '') || t('cartQuantityHint'))
-        : '';
-      quantityHintBox.textContent = quantityHintText;
-      quantityHintBox.style.display = quantityHintText ? 'block' : 'none';
+      quantityHintBox.textContent = '';
+      quantityHintBox.style.display = 'none';
     }
     const deliveryNotice = document.getElementById('deliveryNotice');
     if (product.type === 'physical') {

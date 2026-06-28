@@ -46,22 +46,19 @@
   },
   {
     "code": "mfw00006",
-    "titel": "Big Boy Teddy Bear",
+    "titel": "Big Boy Teddy Bear strijkpatch XXL",
     "prijs": "14,95",
     "type": "physical",
-    "formaat": "10x15 cm - 16x20 cm",
+    "formaat": "10x15 cm - 16x24 cm",
     "bestanden": "",
-    "beschrijving": "Testproduct voor prijsvarianten en aantallen.",
-    "titel_fr": "Big Boy Teddy Bear",
-    "titel_en": "Big Boy Teddy Bear",
+    "beschrijving": "Schattige grote teddybeer strijkpatch in twee formaten. Perfect voor kleding, tassen, kussens en DIY-projecten.",
+    "titel_fr": "Écusson thermocollant ours en peluche Big Boy XXL",
+    "titel_en": "Big Boy Teddy Bear Iron-On Patch XXL",
     "video": "",
-    "formaten": ["10x15 cm", "16x20 cm"],
-    "winkelmandHint": "Aantal kies je in de winkelmand.",
-    "winkelmandHint_fr": "Le nombre se choisit dans le panier.",
-    "winkelmandHint_en": "Choose the quantity in the cart.",
+    "formaten": ["10x15 cm", "16x24 cm"],
     "formatPrijzen": {
       "10x15 cm": "14,95",
-      "16x20 cm": "24,95"
+      "16x24 cm": "24,95"
     }
   }
 ]
