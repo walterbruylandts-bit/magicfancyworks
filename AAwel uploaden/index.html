@@ -1838,10 +1838,16 @@ function getSelectedUnitPrice(product, keuzes) {
   const variantPriceMap = product.variantPrijzen || product.prijzen || product.prijsOpties || null;
 
   if (variantPriceMap && selectedFormat) {
-    const directValue = variantPriceMap[selectedFormat];
+    const normalizedMatchKey = Object.keys(variantPriceMap).find((key) => normalizeSearchValue(key) === normalizeSearchValue(selectedFormat));
+    const directValue = normalizedMatchKey ? variantPriceMap[normalizedMatchKey] : variantPriceMap[selectedFormat];
     if (directValue !== undefined) {
       return parseMoneyValue(directValue);
     }
+  }
+
+  const embeddedPriceMatch = String(selectedFormat || '').match(/(\d+[.,]\d{2})/);
+  if (embeddedPriceMatch) {
+    return parseMoneyValue(embeddedPriceMatch[1]);
   }
 
   return parseMoneyValue(product.prijs);
@@ -1981,6 +1987,11 @@ function getModalLabels() {
     files: currentLang === 'fr' ? 'Fichiers' : currentLang === 'en' ? 'Files' : 'Bestanden',
     delivery: currentLang === 'fr' ? 'Livraison' : currentLang === 'en' ? 'Delivery' : 'Levering',
     choices: currentLang === 'fr' ? 'Options' : currentLang === 'en' ? 'Options' : 'Keuzes',
+    cartQuantityHint: currentLang === 'fr'
+      ? 'Le nombre se choisit dans le panier.'
+      : currentLang === 'en'
+        ? 'Choose the quantity in the cart.'
+        : 'Aantal kies je in de winkelmand.',
     moreHint: currentLang === 'fr'
       ? 'Faites défiler pour plus de détails'
       : currentLang === 'en'
@@ -2074,6 +2085,9 @@ function renderPopupDescription(product, tekst) {
     ? product.keuzes.map(keuze => tk(keuze.naam)).join(', ')
     : '';
   const choiceCount = Array.isArray(product.keuzes) ? product.keuzes.length : 0;
+  const quantityChoicePresent = Array.isArray(product.keuzes)
+    ? product.keuzes.some((keuze) => isQuantityChoiceName(keuze.naam))
+    : false;
   const descriptionText = tekst || product.beschrijving || labels.noDescription;
   const translationStatus = product._popupDescriptionStatus || 'direct';
   const statusNote = translationStatus === 'auto-translated'
@@ -2081,6 +2095,9 @@ function renderPopupDescription(product, tekst) {
     : translationStatus === 'fallback-nl'
       ? labels.fallbackNote
       : '';
+  const cartHintHtml = !quantityChoicePresent && (product.variantPrijzen || String(product.prijs || '').includes('-') || product.winkelmandHint)
+    ? `<div class="modal-fact"><span>${escapeHtml(labels.cartQuantityHint)}</span><strong>${escapeHtml(product.winkelmandHint || labels.cartQuantityHint)}</strong></div>`
+    : '';
 
   modalDescription.innerHTML = `
     <div class="modal-summary">
@@ -2097,6 +2114,7 @@ function renderPopupDescription(product, tekst) {
         <div class="modal-fact"><span>${escapeHtml(labels.files)}</span><strong>${escapeHtml(product.bestanden || '-')}</strong></div>
         <div class="modal-fact"><span>${escapeHtml(labels.delivery)}</span><strong>${escapeHtml(getDeliverySummary(product.type))}</strong></div>
         ${choiceCount > 0 ? `<div class="modal-fact"><span>${escapeHtml(labels.choices)}</span><strong>${escapeHtml(choiceNames || '-')}</strong></div>` : ''}
+        ${cartHintHtml}
       </div>
       <div class="modal-more-body">${escapeHtml(descriptionText)}</div>
     </div>

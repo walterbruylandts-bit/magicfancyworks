@@ -56,7 +56,7 @@
     "titel_en": "Big Boy Teddy Bear",
     "video": "",
     "formaten": ["10x15 cm", "16x20 cm"],
-    "aantallen": ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10"],
+    "winkelmandHint": "Aantal kies je in de winkelmand.",
     "variantPrijzen": {
       "10x15 cm": "14,95",
       "16x20 cm": "24,95"
