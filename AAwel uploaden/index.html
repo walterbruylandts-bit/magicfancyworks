@@ -2098,8 +2098,8 @@ function renderPopupDescription(product, tekst) {
     : translationStatus === 'fallback-nl'
       ? labels.fallbackNote
       : '';
-  const cartHintHtml = (product.variantPrijzen || product.formatPrijzen || String(product.prijs || '').includes('-') || product.winkelmandHint)
-    ? `<div class="modal-fact"><span>${escapeHtml(labels.cartQuantityHint)}</span><strong>${escapeHtml(product.winkelmandHint || labels.cartQuantityHint)}</strong></div>`
+  const cartHintText = (product.variantPrijzen || product.formatPrijzen || String(product.prijs || '').includes('-') || product.winkelmandHint)
+    ? escapeHtml(product.winkelmandHint || labels.cartQuantityHint)
     : '';
 
   modalDescription.innerHTML = `
@@ -2110,6 +2110,7 @@ function renderPopupDescription(product, tekst) {
           ? `<p class="modal-brief">${escapeHtml(shortDescription)}</p>`
           : `<p class="modal-brief">${escapeHtml(descriptionText)}</p>`}
         ${statusNote ? `<p class="modal-brief" style="margin-top:2px;font-size:0.78rem;color:#64748b">${escapeHtml(statusNote)}</p>` : ''}
+        ${cartHintText ? `<p class="modal-brief" style="margin-top:2px;font-size:0.82rem;color:#0f766e;font-weight:600">${cartHintText}</p>` : ''}
         <div class="modal-more-hint">↓ ${escapeHtml(labels.moreHint)}</div>
       </div>
       <div class="modal-facts">
@@ -2117,7 +2118,6 @@ function renderPopupDescription(product, tekst) {
         <div class="modal-fact"><span>${escapeHtml(labels.files)}</span><strong>${escapeHtml(product.bestanden || '-')}</strong></div>
         <div class="modal-fact"><span>${escapeHtml(labels.delivery)}</span><strong>${escapeHtml(getDeliverySummary(product.type))}</strong></div>
         ${choiceCount > 0 ? `<div class="modal-fact"><span>${escapeHtml(labels.choices)}</span><strong>${escapeHtml(choiceNames || '-')}</strong></div>` : ''}
-        ${cartHintHtml}
       </div>
       <div class="modal-more-body">${escapeHtml(descriptionText)}</div>
     </div>
