@@ -1472,6 +1472,7 @@ No JS logic changed.
       </div>
 
       <div id="popup-add-to-cart" style="margin-top:8px;text-align:center;">
+        <div id="popup-quantity-hint" style="display:none;margin:0 0 8px;padding:8px 10px;border:1px solid #cdebdc;border-radius:8px;background:#f0fdf4;color:#047857;font-size:12px;font-weight:700;line-height:1.35;text-align:center;"></div>
         <button id="popup-add-btn"
                 onclick="addToCartFromPopup()"
                 style="background:#059669;color:white;border:none;padding:8px 16px;border-radius:8px;cursor:pointer;font-weight:700;font-size:13px;width:100%;">
@@ -4017,6 +4018,18 @@ async function openPopup(code) {
     document.getElementById('kleur-keuze-label').textContent = '';
     document.getElementById('popup-add-btn').textContent = t('toevoegen');
     document.getElementById('popup-add-to-cart').style.display = 'block';
+    const quantityHintBox = document.getElementById('popup-quantity-hint');
+    if (quantityHintBox) {
+      const quantityHintText = (product.variantPrijzen || product.formatPrijzen || String(product.prijs || '').includes('-') || product.winkelmandHint)
+        ? (product.winkelmandHint || (currentLang === 'fr'
+          ? 'Le nombre se choisit dans le panier.'
+          : currentLang === 'en'
+            ? 'Choose the quantity in the cart.'
+            : 'Aantal kies je in de winkelmand.'))
+        : '';
+      quantityHintBox.textContent = quantityHintText;
+      quantityHintBox.style.display = quantityHintText ? 'block' : 'none';
+    }
     const deliveryNotice = document.getElementById('deliveryNotice');
     if (product.type === 'physical') {
       deliveryNotice.textContent = t('physicalNotice');
