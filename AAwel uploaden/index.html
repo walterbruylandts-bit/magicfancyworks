@@ -3287,7 +3287,6 @@ if (invoiceCheckbox && invoiceWrapper) {
 },
 
 createOrder:(data,actions)=>{
-  console.log('STEP 1 CREATE ORDER ENTERED');
 
   const invoiceRequested =
     document.getElementById('invoiceRequested')?.checked || false;
@@ -3336,8 +3335,6 @@ createOrder:(data,actions)=>{
         invoicePostalCode
       }));
 
-  console.log('SAVED INVOICE DATA', window.invoiceData);
-
   const errorBox =
     document.getElementById('invoice-error');
 
@@ -3374,19 +3371,6 @@ createOrder:(data,actions)=>{
     }
     return actions.reject();
   }
-
-  console.log('STEP 2 DATA', {
-    invoiceRequested,
-    invoiceType,
-    companyName,
-    invoiceEmail,
-    invoiceCountry,
-    buyerEndpointID,
-    invoiceCity,
-    invoicePostalCode
-  });
-
-  console.log('STEP 6 FETCH START');
 
   return fetch(
     `${WORKER_BASE_URL}/create-order`,
@@ -3480,20 +3464,6 @@ onApprove:async(data,actions)=>{
       invoiceCity: '',
       invoicePostalCode: ''
     };
-
-    console.log('CAPTURE SEND DATA', {
-      orderID: data.orderID,
-      lang: currentLang,
-      invoiceRequested: invoiceData.invoiceRequested,
-      invoiceType: invoiceData.invoiceType,
-      companyName: invoiceData.companyName,
-      vatNumber: invoiceData.vatNumber,
-      invoiceEmail: invoiceData.invoiceEmail,
-      invoiceCountry: invoiceData.invoiceCountry,
-      buyerEndpointID: invoiceData.buyerEndpointID,
-      invoiceCity: invoiceData.invoiceCity,
-      invoicePostalCode: invoiceData.invoicePostalCode
-    });
 
     const res = await fetch(
       `${WORKER_BASE_URL}/capture`,
@@ -3773,7 +3743,6 @@ async function laadKeuzeVertalingen() {
       const data = await res.json();
       // R2 overschrijft fallback, maar fallback blijft als backup
       keuzeVertalingen = { ...fallbackVertalingen, ...data };
-      console.log('✅ Vertalingen geladen van R2');
     } else {
       console.warn('⚠️ R2 vertalingen niet gevonden, fallback gebruikt');
       keuzeVertalingen = fallbackVertalingen;
