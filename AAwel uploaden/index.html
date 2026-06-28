@@ -1515,7 +1515,7 @@ No JS logic changed.
 
 <script defer>
 // Translation system
-let currentLang = localStorage.getItem('preferredLang') || localStorage.getItem('site_lang_v3') || 'nl';
+let currentLang = localStorage.getItem('preferredLang') || 'nl';
 const translations = {
   nl: {
       subtitle: 'Handmade pieces for gifting, collecting and wearing',
@@ -4465,7 +4465,7 @@ function addToCartFromPopup(){
 }
 
 // Restore saved language preference
-const savedLang = localStorage.getItem('preferredLang') || localStorage.getItem('site_lang_v3');
+const savedLang = localStorage.getItem('preferredLang');
 if (savedLang && translations[savedLang]) {
   setLang(savedLang);
 }
@@ -4545,7 +4545,7 @@ function selectLang(lang){
 }
 
 (function(){
-  var pref=localStorage.getItem("preferredLang") || localStorage.getItem("site_lang_v3");
+  var pref=localStorage.getItem("preferredLang");
   if(pref){
     var ov=document.getElementById("lang-overlay");
     if(ov) ov.remove();
