@@ -507,20 +507,21 @@ footer .newsletter-box {
   min-height: 16px !important;
   margin: 0 !important;
   width: auto !important;
-  flex: 0 1 auto !important;
+  min-width: 0 !important;
+  flex: 1 1 auto !important;
 }
 
 .card-review-badge {
   display: flex !important;
   align-items: center !important;
   justify-content: center !important;
-  gap: 4px !important;
-  padding: 3px 7px !important;
+  gap: 3px !important;
+  padding: 2px 6px !important;
   border-radius: 999px !important;
   background: rgba(15,118,110,0.12) !important;
   border: 1px solid rgba(15,118,110,0.18) !important;
   color: #0f766e !important;
-  font-size: 0.66rem !important;
+  font-size: 0.62rem !important;
   font-weight: 700 !important;
   box-shadow: 0 1px 3px rgba(15,23,42,0.04) !important;
   box-sizing: border-box !important;
@@ -532,11 +533,12 @@ footer .newsletter-box {
   display: inline-flex !important;
   align-items: center !important;
   gap: 0 !important;
+  flex: 0 0 auto !important;
 }
 
 .card-review-star {
-  width: 11px !important;
-  height: 11px !important;
+  width: 10px !important;
+  height: 10px !important;
   display: block !important;
 }
 
@@ -553,16 +555,18 @@ footer .newsletter-box {
 .card-review-count {
   color: #0f766e !important;
   white-space: nowrap !important;
-  font-size: 0.68rem !important;
+  font-size: 0.62rem !important;
 }
 
 .card-meta-row {
   display: flex !important;
   align-items: center !important;
-  justify-content: space-between !important;
-  gap: 8px !important;
+  justify-content: flex-start !important;
+  gap: 6px !important;
+  width: calc(100% - 24px) !important;
   margin: 0 12px 8px !important;
   min-height: 22px !important;
+  box-sizing: border-box !important;
 }
 
 .card-shipping-badge {
