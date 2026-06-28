@@ -28,7 +28,8 @@ const COMPANY = {
 const PRODUCT_CATALOG = {
   mfw00001: { title: "Baby Boy", price: 7.87, type: "digital" },
   mfw00002: { title: "Baby Girl", price: 8.87, type: "digital" },
-  mfw00003: { title: "Schattig meisje", price: 9.87, type: "physical" }
+  mfw00003: { title: "Schattig meisje", price: 9.87, type: "physical" },
+  mfw00006: { title: "Big Boy Teddy Bear Iron-On Patch XXL", price: 14.95, type: "physical", promoEligible: true }
 };
 const PROMO_CODES = {
   MAGIC10: { type: "percent", value: 10 }
@@ -77,6 +78,7 @@ function normalizeOrderItems(body) {
     const normalizedQty = Number.isFinite(qty) && qty > 0 ? qty : 1;
     const catalogItem = getProductCatalogItem(code);
     const suppliedTitle = String(item?.title || item?.displayTitle || "").trim();
+    const suppliedPrice = Number(item?.price);
 
     if (!code) {
       throw new Error("Productcode ontbreekt");
@@ -89,8 +91,9 @@ function normalizeOrderItems(body) {
       code,
       qty: normalizedQty,
       title: suppliedTitle || catalogItem.title,
-      price: catalogItem.price,
-      type: catalogItem.type
+      price: Number.isFinite(suppliedPrice) && suppliedPrice >= 0 ? suppliedPrice : catalogItem.price,
+      type: catalogItem.type,
+      promoEligible: Boolean(catalogItem.promoEligible)
     };
   });
 
@@ -108,6 +111,7 @@ function summarizeOrderItems(items) {
 
   const orderType = items[0]?.type || "digital";
   const basePrice = items.reduce((sum, item) => sum + item.price * item.qty, 0);
+  const promoEligibleBasePrice = items.reduce((sum, item) => item.promoEligible ? sum + item.price * item.qty : sum, 0);
   const codes = items.flatMap((item) => Array.from({ length: item.qty }, () => item.code));
   const productName = items
     .map((item) => item.qty > 1 ? `${item.title} x${item.qty}` : item.title)
@@ -116,6 +120,7 @@ function summarizeOrderItems(items) {
   return {
     orderType,
     basePrice,
+    promoEligibleBasePrice,
     codes,
     productName
   };
@@ -1576,7 +1581,7 @@ const {
       });
     }
 
-    const discountAmount = calculatePromoDiscount(summary.basePrice, promoCode);
+    const discountAmount = calculatePromoDiscount(summary.promoEligibleBasePrice, promoCode);
     const originalBasePrice = summary.basePrice;
     const basePrice = Math.max(0, originalBasePrice - discountAmount);
 
