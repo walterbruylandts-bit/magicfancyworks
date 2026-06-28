@@ -1819,6 +1819,18 @@ function getSelectedQuantity(keuzes) {
   return Number.isFinite(parsed) && parsed > 0 ? parsed : 1;
 }
 
+function isQuantityChoiceName(name) {
+  return ['Aantallen', 'Aantal', 'quantity', 'qty'].includes(String(name || ''));
+}
+
+function buildCartKeuzesKey(product, keuzes) {
+  if (!product || !Array.isArray(product.keuzes)) return '';
+  return product.keuzes
+    .filter((keuze) => !isQuantityChoiceName(keuze.naam))
+    .map((keuze) => keuzes?.[keuze.naam] || '')
+    .join('|');
+}
+
 function getSelectedUnitPrice(product, keuzes) {
   if (!product) return 0;
 
@@ -2803,7 +2815,7 @@ function addToCart(code, keuzes){
 
   const unitPrice = getSelectedUnitPrice(p, keuzes);
   const selectedQty = getSelectedQuantity(keuzes);
-  const keuzesKey = p.keuzes ? p.keuzes.map(k => keuzes[k.naam] || '').join('|') : '';
+  const keuzesKey = buildCartKeuzesKey(p, keuzes);
   const existing=cart.find(x=>x.code===code && x.keuzesKey===keuzesKey);
   if(existing){
     existing.qty += selectedQty;
@@ -2814,6 +2826,7 @@ function addToCart(code, keuzes){
       prijs:unitPrice,
       qty:selectedQty,
       keuzes: keuzes || {},
+      keuzesLabel: keuzes || {},
       keuzesKey: keuzesKey
     });
   }
@@ -2823,6 +2836,23 @@ function addToCart(code, keuzes){
 
 function removeFromCart(code, keuzesKey){
   cart=cart.filter(x=>!(x.code===code && x.keuzesKey===keuzesKey));
+  updateCartUI();
+}
+
+function setCartItemQty(code, keuzesKey, value) {
+  const item = cart.find((x) => x.code === code && x.keuzesKey === keuzesKey);
+  if (!item) return;
+  const parsed = Number.parseInt(String(value), 10);
+  const qty = Number.isFinite(parsed) && parsed > 0 ? parsed : 1;
+  item.qty = qty;
+  updateCartUI();
+}
+
+function adjustCartItemQty(code, keuzesKey, delta) {
+  const item = cart.find((x) => x.code === code && x.keuzesKey === keuzesKey);
+  if (!item) return;
+  const next = Math.max(1, Number(item.qty || 1) + Number(delta || 0));
+  item.qty = next;
   updateCartUI();
 }
 
@@ -3510,7 +3540,10 @@ itemsDiv.innerHTML = cart.map(function(i){
     const titel = p ? (p['titel_'+currentLang] || p.titel) : i.titel;
     let keuzesText = '';
     if(i.keuzes && Object.keys(i.keuzes).length > 0){
-      const labels = Object.entries(i.keuzes).map(function(e){ return e[1]; }).filter(function(v){ return v; });
+      const labels = Object.entries(i.keuzes)
+        .filter(function(e){ return !isQuantityChoiceName(e[0]); })
+        .map(function(e){ return e[1]; })
+        .filter(function(v){ return v; });
       if(labels.length > 0) keuzesText = ' (' + labels.join(', ') + ')';
     }
 
@@ -3519,6 +3552,11 @@ itemsDiv.innerHTML = cart.map(function(i){
         <strong style="color:#1a2a3a;display:block">${titel}</strong>
         <span style="display:block;color:#666">${keuzesText}</span>
         <small style="color:#4b5563;display:block">€ ${i.prijs} x ${i.qty}</small>
+        <div style="display:flex;align-items:center;gap:6px;margin-top:6px;">
+          <button type="button" onclick="adjustCartItemQty(this.dataset.code, this.dataset.keuzesKey, -1)" data-code="${escapeHtml(i.code)}" data-keuzes-key="${escapeHtml(i.keuzesKey || '')}" style="background:#e5e7eb;color:#111827;border:none;border-radius:6px;width:28px;height:28px;cursor:pointer;font-weight:800;line-height:1;">−</button>
+          <input type="number" min="1" step="1" value="${escapeHtml(String(i.qty || 1))}" onchange="setCartItemQty(this.dataset.code, this.dataset.keuzesKey, this.value)" data-code="${escapeHtml(i.code)}" data-keuzes-key="${escapeHtml(i.keuzesKey || '')}" style="width:64px;padding:6px 8px;border:1px solid #d1d5db;border-radius:6px;text-align:center;font-size:13px;">
+          <button type="button" onclick="adjustCartItemQty(this.dataset.code, this.dataset.keuzesKey, 1)" data-code="${escapeHtml(i.code)}" data-keuzes-key="${escapeHtml(i.keuzesKey || '')}" style="background:#e5e7eb;color:#111827;border:none;border-radius:6px;width:28px;height:28px;cursor:pointer;font-weight:800;line-height:1;">+</button>
+        </div>
       </div>
       <button type="button" onclick="removeFromCart(this.dataset.code, this.dataset.keuzesKey)" data-code="${escapeHtml(i.code)}" data-keuzes-key="${escapeHtml(i.keuzesKey || '')}" style="background:#ef4444 !important;color:white !important;border:none !important;border-radius:6px !important;padding:6px 10px !important;cursor:pointer !important;font-size:12px !important;flex:0 0 auto !important;line-height:1 !important;">✕</button>
     </div>`;
