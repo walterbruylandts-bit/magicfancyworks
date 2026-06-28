@@ -3380,7 +3380,16 @@ createOrder:(data,actions)=>{
         discountAmount: promoDiscount.toFixed(2),
         originalPrice: productPrijs.toFixed(2),
         codes: cart.map(i=>i.code),
-        items: cart.map(i => ({ code: i.code, qty: i.qty || 1, title: i.titel, price: Number(i.prijs || 0) })),
+        items: cart.map(i => {
+          const product = alleProducten.find((p) => p.code === i.code);
+          return {
+            code: i.code,
+            qty: i.qty || 1,
+            title: i.titel,
+            price: Number(i.prijs || 0),
+            promoEligible: Boolean(product && product.promoEligible)
+          };
+        }),
         keuzes: cart.map(i=>i.keuzes),
         type: orderType,
 
@@ -3472,7 +3481,16 @@ onApprove:async(data,actions)=>{
           orderID: data.orderID,
           lang: currentLang,
           codes: cart.map(i => i.code),
-          items: cart.map(i => ({ code: i.code, qty: i.qty || 1, title: i.titel, price: Number(i.prijs || 0) })),
+          items: cart.map(i => {
+            const product = alleProducten.find((p) => p.code === i.code);
+            return {
+              code: i.code,
+              qty: i.qty || 1,
+              title: i.titel,
+              price: Number(i.prijs || 0),
+              promoEligible: Boolean(product && product.promoEligible)
+            };
+          }),
           keuzes: cart.map(i => i.keuzes),
           type: orderType,
 

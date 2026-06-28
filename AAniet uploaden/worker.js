@@ -29,7 +29,7 @@ const PRODUCT_CATALOG = {
   mfw00001: { title: "Baby Boy", price: 7.87, type: "digital" },
   mfw00002: { title: "Baby Girl", price: 8.87, type: "digital" },
   mfw00003: { title: "Schattig meisje", price: 9.87, type: "physical" },
-  mfw00006: { title: "Big Boy Teddy Bear Iron-On Patch XXL", price: 14.95, type: "physical", promoEligible: true }
+  mfw00006: { title: "Big Boy Teddy Bear Iron-On Patch XXL", price: 14.95, type: "physical" }
 };
 const PROMO_CODES = {
   MAGIC10: { type: "percent", value: 10 }
@@ -79,6 +79,7 @@ function normalizeOrderItems(body) {
     const catalogItem = getProductCatalogItem(code);
     const suppliedTitle = String(item?.title || item?.displayTitle || "").trim();
     const suppliedPrice = Number(item?.price);
+    const suppliedPromoEligible = item?.promoEligible;
 
     if (!code) {
       throw new Error("Productcode ontbreekt");
@@ -93,7 +94,7 @@ function normalizeOrderItems(body) {
       title: suppliedTitle || catalogItem.title,
       price: Number.isFinite(suppliedPrice) && suppliedPrice >= 0 ? suppliedPrice : catalogItem.price,
       type: catalogItem.type,
-      promoEligible: Boolean(catalogItem.promoEligible)
+      promoEligible: suppliedPromoEligible === undefined ? false : Boolean(suppliedPromoEligible)
     };
   });
 
