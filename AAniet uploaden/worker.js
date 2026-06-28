@@ -80,6 +80,7 @@ function normalizeOrderItems(body) {
     const suppliedTitle = String(item?.title || item?.displayTitle || "").trim();
     const suppliedPrice = Number(item?.price);
     const suppliedPromoEligible = item?.promoEligible;
+    const suppliedPromoCode = String(item?.promoCode || "").trim().toUpperCase();
 
     if (!code) {
       throw new Error("Productcode ontbreekt");
@@ -94,7 +95,8 @@ function normalizeOrderItems(body) {
       title: suppliedTitle || catalogItem.title,
       price: Number.isFinite(suppliedPrice) && suppliedPrice >= 0 ? suppliedPrice : catalogItem.price,
       type: catalogItem.type,
-      promoEligible: suppliedPromoEligible === undefined ? false : Boolean(suppliedPromoEligible)
+      promoCode: suppliedPromoCode,
+      promoEligible: suppliedPromoEligible === undefined ? Boolean(suppliedPromoCode) : Boolean(suppliedPromoEligible)
     };
   });
 

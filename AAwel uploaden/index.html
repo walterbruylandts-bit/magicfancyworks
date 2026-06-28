@@ -2225,7 +2225,23 @@ let activePromoInputValue = '';
 let activePromoMessage = '';
 
 function isProductPromoEligible(product) {
-  return Boolean(product && product.promoEligible);
+  return Boolean(product && (product.promoEligible || String(product.promoCode || '').trim()));
+}
+
+function getProductPromoCode(product) {
+  return String(product?.promoCode || '').trim().toUpperCase();
+}
+
+function getCartPromoCodes(items = cart) {
+  const codes = new Set();
+  items.forEach((item) => {
+    const product = alleProducten.find((x) => x.code === item.code);
+    const promoCode = getProductPromoCode(product);
+    if (promoCode && isProductPromoEligible(product)) {
+      codes.add(promoCode);
+    }
+  });
+  return Array.from(codes);
 }
 
 function getCartPromoEligibleSubtotal(items = cart) {
@@ -3387,7 +3403,8 @@ createOrder:(data,actions)=>{
             qty: i.qty || 1,
             title: i.titel,
             price: Number(i.prijs || 0),
-            promoEligible: Boolean(product && product.promoEligible)
+            promoEligible: Boolean(product && product.promoEligible),
+            promoCode: getProductPromoCode(product)
           };
         }),
         keuzes: cart.map(i=>i.keuzes),
@@ -3488,7 +3505,8 @@ onApprove:async(data,actions)=>{
               qty: i.qty || 1,
               title: i.titel,
               price: Number(i.prijs || 0),
-              promoEligible: Boolean(product && product.promoEligible)
+              promoEligible: Boolean(product && product.promoEligible),
+              promoCode: getProductPromoCode(product)
             };
           }),
           keuzes: cart.map(i => i.keuzes),
@@ -3648,6 +3666,10 @@ itemsDiv.innerHTML = cart.map(function(i){
   }
   if (promoEligibleSubtotal > 0) {
     html += '<div style="margin-top:10px;padding:10px;border:1px solid #e5e7eb;border-radius:8px;background:#f8fafc;text-align:left">';
+    const promoCodes = getCartPromoCodes(cart);
+    if (promoCodes.length > 0) {
+      html += '<p style="margin:0 0 8px;font-size:12px;color:#92400e;font-weight:700;">' + t('promoCodeLabel') + ': <span style="display:inline-block;padding:3px 8px;border-radius:999px;background:#fef3c7;color:#92400e;font-weight:800;letter-spacing:0.03em;">' + escapeHtml(promoCodes.join(', ')) + '</span></p>';
+    }
     html += '<label style="display:block;font-size:13px;color:#1a2a3a;font-weight:600;margin-bottom:6px;">' + t('promoCodeLabel') + '</label>';
     html += '<div style="display:flex;gap:8px">';
     html += '<input id="promo-code-input" type="text" value="' + escapeHtml(promoInputValue) + '" placeholder="' + escapeHtml(t('promoCodePlaceholder')) + '" style="flex:1;padding:8px;border:2px solid #ddd;border-radius:6px;font-size:13px;text-transform:uppercase">';
@@ -3895,7 +3917,7 @@ function renderProducten() {
         const favoriteActive = isFavorite(p.code) ? 'active' : '';
         const favoriteLabel = isFavorite(p.code) ? t('favoriteRemove') : t('favoriteAdd');
         const promoBadge = isProductPromoEligible(p)
-            ? '<span style="position:absolute;top:10px;left:10px;z-index:2;display:inline-flex;align-items:center;padding:4px 8px;border-radius:999px;background:#fef3c7;color:#92400e;font-size:11px;font-weight:800;letter-spacing:0.03em;box-shadow:0 2px 6px rgba(0,0,0,0.12);">PROMO</span>'
+            ? '<span style="position:absolute;top:10px;right:10px;z-index:2;display:inline-flex;align-items:center;padding:4px 8px;border-radius:999px;background:#fef3c7;color:#92400e;font-size:11px;font-weight:800;letter-spacing:0.03em;box-shadow:0 2px 6px rgba(0,0,0,0.12);">' + escapeHtml(getProductPromoCode(p) || 'PROMO') + '</span>'
             : '';
 
         return `
