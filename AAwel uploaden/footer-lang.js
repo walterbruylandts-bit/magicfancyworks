@@ -1,6 +1,6 @@
 (function() {
   function updateFooterLinks() {
-    var lang = localStorage.getItem('preferredLang') || 'nl';
+    var lang = localStorage.getItem('preferredLang') || localStorage.getItem('site_lang_v3') || 'nl';
     var suffix = lang === 'nl' ? '' : '-' + lang;
     
     var links = {

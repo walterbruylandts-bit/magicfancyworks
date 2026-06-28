@@ -1515,7 +1515,7 @@ No JS logic changed.
 
 <script defer>
 // Translation system
-let currentLang = 'nl';
+let currentLang = localStorage.getItem('preferredLang') || localStorage.getItem('site_lang_v3') || 'nl';
 const translations = {
   nl: {
       subtitle: 'Handmade pieces for gifting, collecting and wearing',
@@ -2182,6 +2182,7 @@ function setLang(lang) {
 
   // Save language preference
   localStorage.setItem('preferredLang', lang);
+  localStorage.setItem('site_lang_v3', lang);
     if (typeof renderProducten === 'function' && alleProducten.length > 0) {
 
   // Update product titles without re-rendering entire grid
@@ -4464,7 +4465,7 @@ function addToCartFromPopup(){
 }
 
 // Restore saved language preference
-const savedLang = localStorage.getItem('preferredLang');
+const savedLang = localStorage.getItem('preferredLang') || localStorage.getItem('site_lang_v3');
 if (savedLang && translations[savedLang]) {
   setLang(savedLang);
 }
@@ -4537,13 +4538,14 @@ function closeImageOverlay() {
 <script>
 function selectLang(lang){
   localStorage.setItem("preferredLang",lang);
+  localStorage.setItem("site_lang_v3",lang);
   if(typeof setLang==="function") setLang(lang);
   var ov=document.getElementById("lang-overlay");
   if(ov) ov.remove();
 }
 
 (function(){
-  var pref=localStorage.getItem("preferredLang");
+  var pref=localStorage.getItem("preferredLang") || localStorage.getItem("site_lang_v3");
   if(pref){
     var ov=document.getElementById("lang-overlay");
     if(ov) ov.remove();

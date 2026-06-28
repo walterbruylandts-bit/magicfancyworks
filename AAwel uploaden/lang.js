@@ -33,7 +33,7 @@
     }
   };
 
-  window.currentLang = localStorage.getItem(STORAGE_KEY) || null;
+  window.currentLang = localStorage.getItem(STORAGE_KEY) || localStorage.getItem("preferredLang") || null;
   window.I18N = I18N;
   window.t = function(k) {
     const lang = window.currentLang || 'nl';
@@ -43,6 +43,7 @@
   window.setLang = function(lang) {
     window.currentLang = lang;
     localStorage.setItem(STORAGE_KEY, lang);
+    localStorage.setItem("preferredLang", lang);
     location.reload();
   };
 
