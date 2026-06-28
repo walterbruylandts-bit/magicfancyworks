@@ -327,6 +327,10 @@ footer .newsletter-box {
   border-top: 1px solid #e2e8f0 !important;
 }
 
+.review-section:empty {
+  display: none !important;
+}
+
 .review-box {
   background: rgba(15,118,110,0.05) !important;
   border: 1px solid rgba(15,118,110,0.16) !important;
