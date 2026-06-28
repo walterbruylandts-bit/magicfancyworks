@@ -553,6 +553,33 @@ footer .newsletter-box {
   white-space: nowrap !important;
 }
 
+@media (max-width: 850px) {
+  .review-launch-wrap {
+    width: 95% !important;
+    justify-content: flex-start !important;
+  }
+
+  .review-launch-button {
+    width: 100% !important;
+    max-width: 320px !important;
+  }
+
+  .review-box-header {
+    align-items: flex-start !important;
+  }
+}
+
+@media (max-width: 500px) {
+  .review-launch-wrap {
+    width: 95% !important;
+  }
+
+  .review-launch-button {
+    width: 100% !important;
+    max-width: none !important;
+  }
+}
+
 #favorites-count {
   position: absolute !important;
   top: -8px !important;
