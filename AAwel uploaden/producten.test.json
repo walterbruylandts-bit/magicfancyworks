@@ -42,7 +42,9 @@
     "titel_en": "Cute girl",
     "video": "",
     "formaten": ["Optie A", "Optie B"],
-    "aantallen": ["Standaard", "Deluxe"]
+    "aantallen": ["Standaard", "Deluxe"],
+    "promoEligible": true,
+    "promoCode": "MAGIC03"
   },
   {
     "code": "mfw00006",
