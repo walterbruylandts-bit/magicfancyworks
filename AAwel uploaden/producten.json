@@ -63,6 +63,7 @@
       "16x24 cm": "24,95"
     },
     "promoEligible": true,
-    "promoCode": "MAGIC10"
+    "promoCode": "MAGIC10",
+    "freeShipping": true
   }
 ]

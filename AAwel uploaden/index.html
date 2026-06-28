@@ -1568,6 +1568,7 @@ const translations = {
     reviewText: 'Kies een product en laat weten wat je ervan vindt.',
     reviewNote: 'Reviews worden eerst gecontroleerd voor ze zichtbaar worden.',
     reviewLaunch: 'Schrijf een review',
+    freeShippingBadge: 'GRATIS verzending',
     reviewProductLabel: 'Product',
     reviewProductPlaceholder: 'Kies een product',
     reviewChooseProduct: 'Kies eerst een product om een review te schrijven.',
@@ -1656,6 +1657,7 @@ const translations = {
     reviewText: 'Choisissez un produit et dites ce que vous en pensez.',
     reviewNote: 'Les avis sont d’abord vérifiés avant d’être affichés.',
     reviewLaunch: 'Écrire un avis',
+    freeShippingBadge: 'Livraison gratuite',
     reviewProductLabel: 'Produit',
     reviewProductPlaceholder: 'Choisissez un produit',
     reviewChooseProduct: 'Choisissez d’abord un produit pour écrire un avis.',
@@ -1744,6 +1746,7 @@ const translations = {
     reviewText: 'Choose a product and let us know what you think.',
     reviewNote: 'Reviews are checked before they become visible.',
     reviewLaunch: 'Write a review',
+    freeShippingBadge: 'Free shipping',
     reviewProductLabel: 'Product',
     reviewProductPlaceholder: 'Choose a product',
     reviewChooseProduct: 'Choose a product first to write a review.',
@@ -2225,6 +2228,10 @@ let pendingInvoiceData = null;
 
 function isProductPromoEligible(product) {
   return Boolean(product && (product.promoEligible || String(product.promoCode || '').trim()));
+}
+
+function isFreeShippingProduct(product) {
+  return Boolean(product && product.freeShipping);
 }
 
 function getProductPromoCode(product) {
@@ -3901,6 +3908,9 @@ function renderProducten() {
         const promoBadge = isProductPromoEligible(p)
             ? '<span style="display:inline-flex;flex-direction:column;align-items:center;gap:2px;padding:4px 9px;border-radius:999px;background:#fef3c7;color:#92400e;box-shadow:0 2px 6px rgba(0,0,0,0.08);white-space:nowrap;line-height:1;"><span style="font-size:8px;font-weight:800;letter-spacing:0.08em;text-transform:uppercase;">Promocode</span><span style="font-size:12px;font-weight:900;letter-spacing:0.03em;">' + escapeHtml(getProductPromoCode(p) || 'PROMO') + '</span></span>'
             : '';
+        const freeShippingBadge = isFreeShippingProduct(p)
+            ? '<span class="card-shipping-badge">' + escapeHtml(t('freeShippingBadge')) + '</span>'
+            : '';
 
         return `
             <article class="card">
@@ -3917,7 +3927,10 @@ function renderProducten() {
                     <p class="price" style="margin:0;">€ ${escapedPrijs}</p>
                     ${promoBadge}
                 </div>
-                <div class="card-review-summary" data-review-summary="${escapedCode}"></div>
+                <div class="card-meta-row">
+                    <div class="card-review-summary" data-review-summary="${escapedCode}"></div>
+                    ${freeShippingBadge}
+                </div>
                 <button data-product-code="${escapedCode}" aria-label="Bekijk ${escapedTitel}">Info</button>
 
             </article>
