@@ -20,7 +20,14 @@ No JS logic changed.
 
   <script>
   (function() {
-    var lang = localStorage.getItem('preferredLang') || 'nl';
+    var storedPreferredLang = localStorage.getItem('preferredLang');
+    var storedLegacyLang = localStorage.getItem('site_lang_v3');
+    if (!storedPreferredLang && storedLegacyLang) {
+      localStorage.setItem('preferredLang', storedLegacyLang);
+      storedPreferredLang = storedLegacyLang;
+    }
+    var lang = ['nl', 'fr', 'en'].indexOf(storedPreferredLang) !== -1 ? storedPreferredLang : 'nl';
+    document.documentElement.lang = lang;
     var locales = { nl: 'nl_NL', fr: 'fr_FR', en: 'en_US' };
     var locale = locales[lang] || 'nl_NL';
     var script = document.createElement('script');
@@ -2128,6 +2135,7 @@ function renderPopupDescription(product, tekst) {
 
 function setLang(lang) {
   currentLang = lang;
+  document.documentElement.lang = lang;
   document.querySelectorAll('.lang-btn').forEach(btn => {
     if (btn.dataset.lang === lang) {
       btn.classList.add('active');

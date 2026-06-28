@@ -1,6 +1,11 @@
 (function() {
+  function getStoredLang() {
+    var lang = localStorage.getItem('preferredLang') || localStorage.getItem('site_lang_v3') || 'nl';
+    return ['nl', 'fr', 'en'].indexOf(lang) !== -1 ? lang : 'nl';
+  }
+
   function updateFooterLinks() {
-    var lang = localStorage.getItem('preferredLang') || 'nl';
+    var lang = getStoredLang();
     var suffix = lang === 'nl' ? '' : '-' + lang;
     
     var links = {
