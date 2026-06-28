@@ -1568,6 +1568,7 @@ const translations = {
     reviewText: 'Kies een product en laat weten wat je ervan vindt.',
     reviewNote: 'Reviews worden eerst gecontroleerd voor ze zichtbaar worden.',
     reviewLaunch: 'Schrijf een review',
+    promoBadgeLabel: 'Promocode',
     freeShippingBadge: 'GRATIS verzending',
     reviewProductLabel: 'Product',
     reviewProductPlaceholder: 'Kies een product',
@@ -1657,6 +1658,7 @@ const translations = {
     reviewText: 'Choisissez un produit et dites ce que vous en pensez.',
     reviewNote: 'Les avis sont d’abord vérifiés avant d’être affichés.',
     reviewLaunch: 'Écrire un avis',
+    promoBadgeLabel: 'Code promo',
     freeShippingBadge: 'Livraison gratuite',
     reviewProductLabel: 'Produit',
     reviewProductPlaceholder: 'Choisissez un produit',
@@ -1746,6 +1748,7 @@ const translations = {
     reviewText: 'Choose a product and let us know what you think.',
     reviewNote: 'Reviews are checked before they become visible.',
     reviewLaunch: 'Write a review',
+    promoBadgeLabel: 'Promo code',
     freeShippingBadge: 'Free shipping',
     reviewProductLabel: 'Product',
     reviewProductPlaceholder: 'Choose a product',
@@ -3906,7 +3909,7 @@ function renderProducten() {
         const favoriteActive = isFavorite(p.code) ? 'active' : '';
         const favoriteLabel = isFavorite(p.code) ? t('favoriteRemove') : t('favoriteAdd');
         const promoBadge = isProductPromoEligible(p)
-            ? '<span style="display:inline-flex;flex-direction:column;align-items:center;gap:2px;padding:4px 9px;border-radius:999px;background:#fef3c7;color:#92400e;box-shadow:0 2px 6px rgba(0,0,0,0.08);white-space:nowrap;line-height:1;"><span style="font-size:8px;font-weight:800;letter-spacing:0.08em;text-transform:uppercase;">Promocode</span><span style="font-size:12px;font-weight:900;letter-spacing:0.03em;">' + escapeHtml(getProductPromoCode(p) || 'PROMO') + '</span></span>'
+            ? '<span style="display:inline-flex;flex-direction:column;align-items:center;gap:2px;padding:4px 9px;border-radius:999px;background:#fef3c7;color:#92400e;box-shadow:0 2px 6px rgba(0,0,0,0.08);white-space:nowrap;line-height:1;"><span style="font-size:8px;font-weight:800;letter-spacing:0.08em;text-transform:uppercase;">' + escapeHtml(t('promoBadgeLabel')) + '</span><span style="font-size:12px;font-weight:900;letter-spacing:0.03em;">' + escapeHtml(getProductPromoCode(p) || 'PROMO') + '</span></span>'
             : '';
         const freeShippingBadge = isFreeShippingProduct(p)
             ? '<span class="card-shipping-badge">' + escapeHtml(t('freeShippingBadge')) + '</span>'
