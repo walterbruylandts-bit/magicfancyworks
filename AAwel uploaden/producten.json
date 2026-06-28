@@ -55,7 +55,11 @@
     "titel_fr": "Big Boy Teddy Bear",
     "titel_en": "Big Boy Teddy Bear",
     "video": "",
-    "formaten": ["10x15 (EUR 14,95)", "16x20 (EUR 24,95)"],
-    "aantallen": ["Standaard", "Deluxe"]
+    "formaten": ["10x15 cm", "16x20 cm"],
+    "formatPrijzen": {
+      "10x15 cm": "14,95",
+      "16x20 cm": "24,95"
+    },
+    "winkelmandHint": "Aantal kies je in de winkelmand."
   }
 ]

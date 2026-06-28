@@ -1835,7 +1835,7 @@ function getSelectedUnitPrice(product, keuzes) {
   if (!product) return 0;
 
   const selectedFormat = keuzes?.Formaten || keuzes?.Formaat || keuzes?.Samenvoeging || keuzes?.samenvoeging || '';
-  const variantPriceMap = product.variantPrijzen || product.prijzen || product.prijsOpties || null;
+  const variantPriceMap = product.variantPrijzen || product.formatPrijzen || product.prijzen || product.prijsOpties || null;
 
   if (variantPriceMap && selectedFormat) {
     const normalizedMatchKey = Object.keys(variantPriceMap).find((key) => normalizeSearchValue(key) === normalizeSearchValue(selectedFormat));
@@ -2095,7 +2095,7 @@ function renderPopupDescription(product, tekst) {
     : translationStatus === 'fallback-nl'
       ? labels.fallbackNote
       : '';
-  const cartHintHtml = !quantityChoicePresent && (product.variantPrijzen || String(product.prijs || '').includes('-') || product.winkelmandHint)
+  const cartHintHtml = !quantityChoicePresent && (product.variantPrijzen || product.formatPrijzen || String(product.prijs || '').includes('-') || product.winkelmandHint)
     ? `<div class="modal-fact"><span>${escapeHtml(labels.cartQuantityHint)}</span><strong>${escapeHtml(product.winkelmandHint || labels.cartQuantityHint)}</strong></div>`
     : '';
 
