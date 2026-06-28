@@ -308,7 +308,7 @@ const buyerPostalAddressXml = order.invoiceCountry || order.invoiceCity || order
   ? `    <cac:PostalAddress>\n${order.invoiceCity ? `      <cbc:CityName>${escapeXml(order.invoiceCity)}</cbc:CityName>\n` : ""}${order.invoicePostalCode ? `      <cbc:PostalZone>${escapeXml(order.invoicePostalCode)}</cbc:PostalZone>\n` : ""}${order.invoiceCountry ? `      <cac:Country>\n        <cbc:IdentificationCode>${escapeXml(order.invoiceCountry)}</cbc:IdentificationCode>\n      </cac:Country>\n` : ""}    </cac:PostalAddress>\n`
   : "";
 const allowanceChargeXml = discountAmount > 0.00001
-  ? `\n<cac:AllowanceCharge>\n  <cbc:ChargeIndicator>false</cbc:ChargeIndicator>\n  <cbc:AllowanceChargeReason>${escapeXml(order.lang === "fr" ? "Réduction" : order.lang === "en" ? "Discount" : "Korting")}</cbc:AllowanceChargeReason>\n  <cbc:Amount currencyID="${escapeXml(currency)}">${discountAmount.toFixed(2)}</cbc:Amount>\n</cac:AllowanceCharge>\n`
+  ? `\n<cac:AllowanceCharge>\n  <cbc:ChargeIndicator>false</cbc:ChargeIndicator>\n  <cbc:AllowanceChargeReason>${escapeXml(order.lang === "fr" ? "Réduction promo" : order.lang === "en" ? "Promo discount" : "Promokorting")}</cbc:AllowanceChargeReason>\n  <cbc:Amount currencyID="${escapeXml(currency)}">${discountAmount.toFixed(2)}</cbc:Amount>\n</cac:AllowanceCharge>\n`
   : "";
 
   return `<?xml version="1.0" encoding="UTF-8"?>
@@ -486,7 +486,7 @@ Klant: ${order.companyName || order.payerName || "-"}
 BTW nummer: ${order.vatNumber || "-"}
 
 Product: ${order.productName}
-${pricing.discountAmount > 0 ? `Korting: -€${formatMoneyDisplay(pricing.discountAmount, false)}` : ""}
+${pricing.discountAmount > 0 ? `Promokorting: -€${formatMoneyDisplay(pricing.discountAmount, false)}` : ""}
 Verzendkosten: €${formatMoneyDisplay(pricing.shippingAmount, false)}
 Totaal: €${formatMoneyDisplay(pricing.totalAmount, false)}
 
@@ -853,7 +853,7 @@ drawTextRight(
 
 if (showDiscount) {
   currentRowY -= 22;
-  page.drawText(order.lang === "fr" ? "Réduction" : order.lang === "en" ? "Discount" : "Korting", {
+  page.drawText(order.lang === "fr" ? "Réduction promo" : order.lang === "en" ? "Promo discount" : "Promokorting", {
     x: left + 12,
     y: currentRowY,
     size: 10.5,
@@ -2882,7 +2882,7 @@ const invoiceShippingAmount = pricing.shippingAmount;
 const invoiceDiscountAmount = pricing.discountAmount;
 const showShippingRow = invoiceShippingAmount > 0.00001;
 const showDiscountRow = invoiceDiscountAmount > 0.00001;
-const discountLabel = order.lang === "fr" ? "Réduction" : order.lang === "en" ? "Discount" : "Korting";
+const discountLabel = order.lang === "fr" ? "Réduction promo" : order.lang === "en" ? "Promo discount" : "Promokorting";
 const shippingRowHtml = showShippingRow
   ? '<tr><td>' + (order.lang === "fr" ? "Frais de livraison" : order.lang === "en" ? "Shipping" : "Verzendkosten") + '</td><td class="right">€ ' + formatMoneyDisplay(invoiceShippingAmount, useCommaAmounts) + '</td></tr>'
   : "";
@@ -3084,7 +3084,7 @@ if (url.pathname.startsWith("/admin/invoice-file/") && request.method === "GET")
   const invoiceDiscountAmount = pricing.discountAmount;
   const showShippingRow = invoiceShippingAmount > 0.00001;
   const showDiscountRow = invoiceDiscountAmount > 0.00001;
-  const discountLabel = order.lang === "fr" ? "Réduction" : order.lang === "en" ? "Discount" : "Korting";
+  const discountLabel = order.lang === "fr" ? "Réduction promo" : order.lang === "en" ? "Promo discount" : "Promokorting";
   const shippingRowHtml = showShippingRow
     ? '<tr><td>' + (order.lang === "fr" ? "Frais de livraison" : order.lang === "en" ? "Shipping" : "Verzendkosten") + '</td><td class="right">€ ' + formatMoneyDisplay(invoiceShippingAmount, useCommaAmounts) + '</td></tr>'
     : "";
@@ -3331,7 +3331,7 @@ if (order.invoiceRequested) {
       }
       let walterBody = `<h2>Nieuwe bestelling!</h2><p><strong>Product:</strong> ${escapeHtml(order.productName)}</p><p><strong>Bedrag:</strong> ${escapeHtml(order.currency)} ${escapeHtml(order.amount)}</p><p><strong>Klant:</strong> ${escapeHtml(order.payerName)}</p><p><strong>Email:</strong> ${escapeHtml(order.payerEmail)}</p><p><strong>Type:</strong> ${escapeHtml(orderType)}</p><p><strong>Order ID:</strong> ${escapeHtml(orderID)}</p>`;
       if (order.discountCode) {
-        walterBody += `<p><strong>Korting:</strong> ${escapeHtml(order.discountCode)} (${escapeHtml(order.discountAmount || "0.00")})</p>`;
+        walterBody += `<p><strong>Promocode:</strong> ${escapeHtml(order.discountCode)} (${escapeHtml(order.discountAmount || "0.00")})</p>`;
       }
       if (order.invoiceRequested) {
         walterBody += `<p><strong>Factuur:</strong><br>
