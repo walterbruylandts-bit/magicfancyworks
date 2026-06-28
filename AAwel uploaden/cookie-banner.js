@@ -24,20 +24,51 @@
     }
   };
 
+  function safeStorageGet(key) {
+    try {
+      return localStorage.getItem(key);
+    } catch (e) {
+      return null;
+    }
+  }
+
+  function safeStorageSet(key, value) {
+    try {
+      localStorage.setItem(key, value);
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  function safeStorageRemove(key) {
+    try {
+      localStorage.removeItem(key);
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+
   function getConsent() {
-    try { return JSON.parse(localStorage.getItem(STORAGE_KEY)); } catch(e) { return null; }
+    try {
+      var stored = safeStorageGet(STORAGE_KEY);
+      return stored ? JSON.parse(stored) : null;
+    } catch(e) {
+      return null;
+    }
   }
   function setConsent(choice) {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify({ choice: choice, date: new Date().toISOString() }));
+    safeStorageSet(STORAGE_KEY, JSON.stringify({ choice: choice, date: new Date().toISOString() }));
   }
   function t(k) {
-    var lang = localStorage.getItem('preferredLang') || document.documentElement.lang || 'nl';
+    var lang = safeStorageGet('preferredLang') || document.documentElement.lang || 'nl';
     var strings = STRINGS[lang] || STRINGS.nl;
     return strings[k] || STRINGS.nl[k] || k;
   }
   function showBanner() {
     if (getConsent()) return;
-    var lang = localStorage.getItem('preferredLang') || document.documentElement.lang || 'nl';
+    var lang = safeStorageGet('preferredLang') || document.documentElement.lang || 'nl';
     var div = document.createElement('div');
     div.id = 'cookie-banner';
     div.innerHTML = '<div style="position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1px solid #e2e8f0;box-shadow:0 -4px 20px rgba(0,0,0,0.08);z-index:9999;padding:16px 20px;font-family:system-ui,sans-serif;font-size:14px;color:#334155;">' +
@@ -59,7 +90,7 @@
     if (resetLink) {
       resetLink.addEventListener('click', function(e) {
         e.preventDefault();
-        localStorage.removeItem(STORAGE_KEY);
+        safeStorageRemove(STORAGE_KEY);
         div.remove();
         showBanner();
       });
