@@ -3568,7 +3568,13 @@ createOrder:(data,actions)=>{
   .then(async r => {
     const d = await r.json().catch(() => ({}));
     if (!r.ok || d.error) {
-      throw new Error(d.error || 'Kon bestelling niet aanmaken');
+      const extra = d && (d.paypal_status || d.paypal_response)
+        ? ` (${[
+            d.paypal_status ? `status ${d.paypal_status}` : '',
+            d.paypal_response ? `response ${typeof d.paypal_response === 'string' ? d.paypal_response : JSON.stringify(d.paypal_response)}` : ''
+          ].filter(Boolean).join(' | ')})`
+        : '';
+      throw new Error((d.error || 'Kon bestelling niet aanmaken') + extra);
     }
     return d.id;
   })
