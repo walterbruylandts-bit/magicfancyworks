@@ -1446,14 +1446,14 @@ No JS logic changed.
    </div>
    <div id="review-section" class="review-section"></div>
   </main>
-  <div id="cart-sidebar" style="display:none;position:fixed;top:0;right:0;width:350px;height:100%;background:#fff;color:#1a2a3a;z-index:99998;box-shadow:-5px 0 20px rgba(0,0,0,0.5);flex-direction:column">
-  <div style="padding:15px;background:#059669;color:#ffffff;display:flex;justify-content:space-between;align-items:center"><h3 style="margin:0">🛒 Winkelmandje</h3><button onclick="closeCart()" style="background:none;border:none;color:#ffffff;font-size:24px;cursor:pointer">✕</button></div>
-  <div id="cart-items" style="flex:1;overflow-y:auto;padding:15px;background:#ffffff;"></div>
-  <div id="cart-footer" style="padding:15px;border-top:2px solid #e4e4e7;text-align:center"></div><div id="cart-paypal-container" style="padding:0 15px 15px;background:#ffffff;"></div>
+  <div id="cart-sidebar" class="cart-sidebar">
+  <div class="cart-sidebar-header"><h3 style="margin:0">🛒 Winkelmandje</h3><button onclick="closeCart()" class="cart-sidebar-close">✕</button></div>
+  <div id="cart-items" class="cart-items"></div>
+  <div id="cart-footer" class="cart-footer"></div><div id="cart-paypal-container" class="cart-paypal-container"></div>
   </div>
-  <div id="favorites-sidebar" style="display:none;position:fixed;top:0;right:0;width:350px;height:100%;background:#fff;color:#1a2a3a;z-index:99998;box-shadow:-5px 0 20px rgba(0,0,0,0.5);flex-direction:column">
-  <div style="padding:15px;background:#059669;color:#ffffff;display:flex;justify-content:space-between;align-items:center"><h3 id="favoritesTitle" style="margin:0">♡ Favorieten</h3><button onclick="closeFavorites()" style="background:none;border:none;color:#ffffff;font-size:24px;cursor:pointer">✕</button></div>
-  <div id="favorites-items" style="flex:1;overflow-y:auto;padding:15px;background:#ffffff;"></div>
+  <div id="favorites-sidebar" class="favorites-sidebar">
+  <div class="favorites-sidebar-header"><h3 id="favoritesTitle" style="margin:0">♡ Favorieten</h3><button onclick="closeFavorites()" class="cart-sidebar-close">✕</button></div>
+  <div id="favorites-items" class="favorites-items"></div>
   </div>
   <div id="productModal" class="modal" role="dialog" aria-labelledby="modalTitle" aria-modal="true">
    <div class="modal-content">
@@ -1478,7 +1478,7 @@ No JS logic changed.
         </div>
       </div>
 
-      <div id="popup-add-to-cart" style="margin-top:8px;text-align:center;">
+      <div id="popup-add-to-cart" class="popup-add-to-cart">
         <div id="popup-quantity-hint" class="popup-quantity-hint"></div>
         <button id="popup-add-btn"
                 class="popup-add-btn"
@@ -1487,7 +1487,7 @@ No JS logic changed.
         <div id="popup-add-confirmation" class="popup-add-confirmation"></div>
       </div>
 
-      <div id="popup-video-container" style="display:none;margin-top:8px;">
+      <div id="popup-video-container" class="popup-video-container">
         <video id="popup-video"
                controls
                playsinline
@@ -1503,8 +1503,7 @@ No JS logic changed.
       </p>
     </div>
   </div>
-<div class="modal-details"
-       style="display:inline-block;vertical-align:top;width:calc(100% - 240px);overflow-y:auto;max-height:70vh">
+<div class="modal-details">
 
     <h2 id="modalTitle"></h2>
 
@@ -2960,8 +2959,8 @@ function checkoutCart(){
     return;
   }
 
-  footer.innerHTML='<p style="font-size:1.2rem;font-weight:bold;color:#1a2a3a">'+t('checkoutPaypal')+'</p>';
-  ppc.innerHTML='<div class="payment-loading" style="color:#1a2a3a;padding:10px"><span class="spinner"></span>'+t('loadingPaypal')+'</div>';
+  footer.innerHTML='<p class="checkout-paypal-title">'+t('checkoutPaypal')+'</p>';
+  ppc.innerHTML='<div class="checkout-loading"><span class="spinner"></span>'+t('loadingPaypal')+'</div>';
 
   const checkPayPal=setInterval(()=>{
     if(typeof paypal!=='undefined'){
@@ -3598,7 +3597,7 @@ function updateCartUI(){
     activePromoInputValue = '';
     activePromoMessage = '';
     activePromoIsError = false;
-    itemsDiv.innerHTML = '<p style="text-align:center;color:#999">' + ct('cartEmpty') + '</p>';
+    itemsDiv.innerHTML = '<p class="cart-empty-message">' + ct('cartEmpty') + '</p>';
     footerDiv.innerHTML = '';
     return;
   }
@@ -3615,18 +3614,18 @@ itemsDiv.innerHTML = cart.map(function(i){
       if(labels.length > 0) keuzesText = ' (' + labels.join(', ') + ')';
     }
 
-    return `<div class="cart-item-row" style="display:flex !important;justify-content:space-between !important;align-items:center !important;gap:12px !important;padding:10px !important;margin-bottom:8px !important;border:1px solid #e5e7eb !important;border-radius:10px !important;background:#ffffff !important;background-color:#ffffff !important;color:#1a2a3a !important;min-height:56px !important;width:100% !important;box-sizing:border-box !important;">
-      <div class="cart-item-details" style="flex:1 1 auto !important;min-width:0 !important;background:#ffffff !important;background-color:#ffffff !important;">
-        <strong style="color:#1a2a3a;display:block">${titel}</strong>
-        <span style="display:block;color:#666">${keuzesText}</span>
-        <small style="color:#4b5563;display:block">€ ${i.prijs} x ${i.qty}</small>
-        <div style="display:flex;align-items:center;gap:6px;margin-top:6px;">
-          <button type="button" onclick="adjustCartItemQty(this.dataset.code, this.dataset.keuzesKey, -1)" data-code="${escapeHtml(i.code)}" data-keuzes-key="${escapeHtml(i.keuzesKey || '')}" style="background:#e5e7eb;color:#111827;border:none;border-radius:6px;width:28px;height:28px;cursor:pointer;font-weight:800;line-height:1;">−</button>
-          <input type="number" min="1" step="1" value="${escapeHtml(String(i.qty || 1))}" onchange="setCartItemQty(this.dataset.code, this.dataset.keuzesKey, this.value)" data-code="${escapeHtml(i.code)}" data-keuzes-key="${escapeHtml(i.keuzesKey || '')}" style="width:64px;padding:6px 8px;border:1px solid #d1d5db;border-radius:6px;text-align:center;font-size:13px;">
-          <button type="button" onclick="adjustCartItemQty(this.dataset.code, this.dataset.keuzesKey, 1)" data-code="${escapeHtml(i.code)}" data-keuzes-key="${escapeHtml(i.keuzesKey || '')}" style="background:#e5e7eb;color:#111827;border:none;border-radius:6px;width:28px;height:28px;cursor:pointer;font-weight:800;line-height:1;">+</button>
+    return `<div class="cart-item-row">
+      <div class="cart-item-details">
+        <strong>${titel}</strong>
+        <span>${keuzesText}</span>
+        <small>€ ${i.prijs} x ${i.qty}</small>
+        <div class="cart-item-qty-row">
+          <button type="button" class="cart-item-qty-btn" onclick="adjustCartItemQty(this.dataset.code, this.dataset.keuzesKey, -1)" data-code="${escapeHtml(i.code)}" data-keuzes-key="${escapeHtml(i.keuzesKey || '')}">−</button>
+          <input type="number" min="1" step="1" class="cart-item-qty-input" value="${escapeHtml(String(i.qty || 1))}" onchange="setCartItemQty(this.dataset.code, this.dataset.keuzesKey, this.value)" data-code="${escapeHtml(i.code)}" data-keuzes-key="${escapeHtml(i.keuzesKey || '')}">
+          <button type="button" class="cart-item-qty-btn" onclick="adjustCartItemQty(this.dataset.code, this.dataset.keuzesKey, 1)" data-code="${escapeHtml(i.code)}" data-keuzes-key="${escapeHtml(i.keuzesKey || '')}">+</button>
         </div>
       </div>
-      <button type="button" onclick="removeFromCart(this.dataset.code, this.dataset.keuzesKey)" data-code="${escapeHtml(i.code)}" data-keuzes-key="${escapeHtml(i.keuzesKey || '')}" style="background:#ef4444 !important;color:white !important;border:none !important;border-radius:6px !important;padding:6px 10px !important;cursor:pointer !important;font-size:12px !important;flex:0 0 auto !important;line-height:1 !important;">✕</button>
+      <button type="button" class="cart-item-remove" onclick="removeFromCart(this.dataset.code, this.dataset.keuzesKey)" data-code="${escapeHtml(i.code)}" data-keuzes-key="${escapeHtml(i.keuzesKey || '')}">✕</button>
     </div>`;
 }).join('');
 
@@ -3647,9 +3646,9 @@ itemsDiv.innerHTML = cart.map(function(i){
   var html = '';
 
   if(hasPhysical && shippingRates.rates){
-    html += '<div style="margin-bottom:12px;padding:10px 10px 8px;border-radius:10px;background:#dcfce7;border:1px solid #86efac;color:#111827;">';
-    html += '<label style="display:block;font-size:13px;color:#ffffff !important;font-weight:700;margin-bottom:6px;">'+t('shippingCountry')+'</label>';
-    html += '<select id="cart-country" onchange="updateCartCountry(this.value)" style="width:100%;padding:8px;border:2px solid #ddd;border-radius:6px;font-size:13px;">';
+    html += '<div class="cart-shipping-box">';
+    html += '<label class="cart-shipping-label">'+t('shippingCountry')+'</label>';
+    html += '<select id="cart-country" class="cart-country-select" onchange="updateCartCountry(this.value)">';
 
     var euOpts = '';
     var nonEu = '<option value="NON_EU"' + (selectedShippingCountry==='NON_EU'?' selected':'') + '>' + (landenNamen['NON_EU']||'Overige landen') + ' (+ € ' + shippingRates.rates['NON_EU'].toFixed(2) + ')</option>';
@@ -3665,41 +3664,41 @@ itemsDiv.innerHTML = cart.map(function(i){
     html += euOpts + nonEu;
     html += '</select>';
     if (!hasFreeShipping) {
-      html += '<p style="font-size:12px;color:#111827;margin-top:6px;font-weight:700;">'+t('shippingNote')+'</p>';
+      html += '<p class="cart-shipping-note">'+t('shippingNote')+'</p>';
     }
     html += '</div>';
   }
 
-    html += '<p style="font-size:1.0rem;color:#111827;margin:8px 0 2px;font-weight:600;">'+t('productsLabel')+': € ' + productTotal.toFixed(2) + '</p>';
+    html += '<p class="cart-products-total">'+t('productsLabel')+': € ' + productTotal.toFixed(2) + '</p>';
   if (promoDiscount > 0) {
-    html += '<p style="font-size:1.0rem;color:#065f46;margin:2px 0;font-weight:700;">' + t('promoDiscountLabel') + ': - € ' + promoDiscount.toFixed(2) + '</p>';
+    html += '<p class="cart-promo-discount">' + t('promoDiscountLabel') + ': - € ' + promoDiscount.toFixed(2) + '</p>';
   }
   if (promoEligibleSubtotal > 0) {
-    html += '<div style="margin-top:10px;padding:10px;border:1px solid #86efac;border-radius:8px;background:#dcfce7;text-align:left;color:#111827">';
+    html += '<div class="cart-promo-box">';
     const promoCodes = getCartPromoCodes(cart);
     if (promoCodes.length > 0) {
-      html += '<p style="margin:0 0 8px;font-size:12px;color:#111827;font-weight:700;">' + t('promoCodeLabel') + ': <span style="display:inline-block;padding:3px 8px;border-radius:999px;background:#fef3c7;color:#92400e;font-weight:800;letter-spacing:0.03em;">' + escapeHtml(promoCodes.join(', ')) + '</span></p>';
+      html += '<p class="cart-promo-codes">' + t('promoCodeLabel') + ': <span class="cart-promo-code-pill">' + escapeHtml(promoCodes.join(', ')) + '</span></p>';
     }
-    html += '<label style="display:block;font-size:13px;color:#111827;font-weight:700;margin-bottom:6px;">' + t('promoCodeLabel') + '</label>';
-    html += '<div style="display:flex;gap:8px">';
-    html += '<input id="promo-code-input" type="text" value="' + escapeHtml(promoInputValue) + '" placeholder="' + escapeHtml(t('promoCodePlaceholder')) + '" style="flex:1;padding:8px;border:2px solid #bbf7d0;border-radius:6px;font-size:13px;text-transform:uppercase;background:#ffffff;color:#111827">';
-    html += '<button type="button" onclick="applyPromoCodeFromInput()" style="background:#0f766e;color:white;border:none;padding:8px 12px;border-radius:6px;cursor:pointer;font-weight:700;font-size:13px;white-space:nowrap">' + t('promoApply') + '</button>';
+    html += '<label class="cart-promo-label">' + t('promoCodeLabel') + '</label>';
+    html += '<div class="cart-promo-row">';
+    html += '<input id="promo-code-input" class="cart-promo-input" type="text" value="' + escapeHtml(promoInputValue) + '" placeholder="' + escapeHtml(t('promoCodePlaceholder')) + '">';
+    html += '<button type="button" class="cart-promo-button" onclick="applyPromoCodeFromInput()">' + t('promoApply') + '</button>';
     html += '</div>';
     if (activePromoMessage) {
-      html += '<p style="margin:6px 0 0;font-size:12px;color:' + (activePromoIsError ? '#b91c1c' : '#065f46') + ';font-weight:700">' + escapeHtml(activePromoMessage) + '</p>';
+      html += '<p class="cart-promo-message ' + (activePromoIsError ? 'error' : 'ok') + '">' + escapeHtml(activePromoMessage) + '</p>';
     }
     html += '</div>';
   }
   if(hasPhysical){
     html += hasFreeShipping
-      ? '<p style="font-size:1.0rem;color:#065f46;margin:6px 0 2px;font-weight:800;text-align:center;">'+t('freeShippingBadge')+'</p>'
+      ? '<p class="cart-free-shipping">'+t('freeShippingBadge')+'</p>'
       : estimatedShip > 0
-      ? '<p style="font-size:1.0rem;color:#111827;margin:2px 0;font-weight:600;">'+t('shippingCostLabel')+': € ' + estimatedShip.toFixed(2) + '</p>'
-      : '<p style="font-size:1.0rem;color:#111827;margin:2px 0;font-weight:600;">'+t('shippingNote')+'</p>';
+      ? '<p class="cart-shipping-cost">'+t('shippingCostLabel')+': € ' + estimatedShip.toFixed(2) + '</p>'
+      : '<p class="cart-shipping-note">'+t('shippingNote')+'</p>';
   }
-  html += '<p style="font-size:1.2rem;font-weight:800;color:#111827;margin:8px 0 8px;border-top:1px solid #d1fae5;padding-top:8px;">'+t('totalLabel')+': € ' + (totalAfterDiscount + estimatedShip).toFixed(2) + '</p>';
+  html += '<p class="cart-total">'+t('totalLabel')+': € ' + (totalAfterDiscount + estimatedShip).toFixed(2) + '</p>';
   if(mixedOrder){
-    html += '<p style="font-size:0.95rem;color:#b91c1c;font-weight:600;margin:8px 0 0;">'+t('mixedOrderNotAllowed')+'</p>';
+    html += '<p class="cart-mixed-warning">'+t('mixedOrderNotAllowed')+'</p>';
   } else {
     html += '<button class="cart-pay-button" onclick="checkoutCart()">' + ct('cartPay') + '</button>';
   }
