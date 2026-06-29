@@ -1461,7 +1461,9 @@ No JS logic changed.
   <div id="cart-sidebar" class="cart-sidebar">
   <div class="cart-sidebar-header"><h3 style="margin:0">🛒 Winkelmandje</h3><button onclick="closeCart()" class="cart-sidebar-close">✕</button></div>
   <div id="cart-items" class="cart-items"></div>
-  <div id="cart-footer" class="cart-footer"></div><div id="cart-paypal-container" class="cart-paypal-container"></div>
+  <div id="cart-footer" class="cart-footer"></div>
+  <div id="cart-paypal-container" class="cart-paypal-container"></div>
+  <div id="cart-checkout-status" class="cart-checkout-status"></div>
   </div>
   <div id="favorites-sidebar" class="favorites-sidebar">
   <div class="favorites-sidebar-header"><h3 id="favoritesTitle" style="margin:0">♡ Favorieten</h3><button onclick="closeFavorites()" class="cart-sidebar-close">✕</button></div>
@@ -2983,6 +2985,7 @@ function checkoutCart(){
   const productNamen=cart.map(i=>i.titel).join(", ");
   const ppc=document.getElementById('cart-paypal-container');
   const footer=document.getElementById('cart-footer');
+  const statusBox=document.getElementById('cart-checkout-status');
 
   const hasPhysical=hasPhysicalItems();
   const hasDigital=cart.some(function(item){
@@ -3185,6 +3188,9 @@ const ict = invoiceCheckoutText[checkoutLang] || invoiceCheckoutText.nl;
     </div>`;
 
   ppc.innerHTML='<div class="checkout-loading"><span class="spinner"></span>'+t('loadingPaypal')+'</div>';
+  if (statusBox) {
+    statusBox.innerHTML = '';
+  }
 
   const checkPayPal=setInterval(()=>{
     if(typeof paypal!=='undefined'){
@@ -3656,7 +3662,8 @@ onApprove:async(data,actions)=>{
       const name =
         details.payer?.name?.given_name || 'klant';
 
-      ppc.innerHTML =
+      if (statusBox) {
+        statusBox.innerHTML =
         '<div class="payment-success" style="padding:10px"><h3>✓ ' +
         t('thankYou') +
         ' ' +
@@ -3664,31 +3671,40 @@ onApprove:async(data,actions)=>{
         '!</h3><p>' +
         t('paymentSuccess') +
         '</p></div>';
+      }
 
       cart = [];
       updateCartUI();
 
     } else {
 
-      ppc.innerHTML =
-        '<div class="payment-error" style="padding:10px">' +
-        t('paymentFailed') +
-        '</div>';
+      if (statusBox) {
+        statusBox.innerHTML =
+          '<div class="payment-error" style="padding:10px">' +
+          t('paymentFailed') +
+          '</div>';
+      }
     }
 
   } catch (e) {
 
-    ppc.innerHTML =
-      '<div class="payment-error" style="padding:10px">' +
-      t('paymentError') +
-      '</div>';
+    if (statusBox) {
+      statusBox.innerHTML =
+        '<div class="payment-error" style="padding:10px">' +
+        t('paymentError') +
+        '</div>';
+    }
   }
 },
         onCancel:()=>{
-          ppc.innerHTML='<div class="payment-error" style="padding:10px">'+t('paymentCancelled')+'</div>';
+          if (statusBox) {
+            statusBox.innerHTML='<div class="payment-error" style="padding:10px">'+t('paymentCancelled')+'</div>';
+          }
         },
         onError:(err)=>{
-          ppc.innerHTML='<div class="payment-error" style="padding:10px">'+t('paymentMislukt')+'</div>';
+          if (statusBox) {
+            statusBox.innerHTML='<div class="payment-error" style="padding:10px">'+t('paymentMislukt')+'</div>';
+          }
         }
         }).render('#paypal-buttons-cart');
     }

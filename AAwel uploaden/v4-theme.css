@@ -793,6 +793,10 @@ footer a:hover {
   padding: 0 15px 15px;
 }
 
+.cart-checkout-status {
+  padding: 0 15px 15px;
+}
+
 .cart-item-row {
   display: flex !important;
   justify-content: space-between !important;
