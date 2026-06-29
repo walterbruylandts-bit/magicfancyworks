@@ -29,7 +29,16 @@ const PRODUCT_CATALOG = {
   mfw00001: { title: "Baby Boy", price: 7.87, type: "digital" },
   mfw00002: { title: "Baby Girl", price: 8.87, type: "digital" },
   mfw00003: { title: "Schattig meisje", price: 9.87, type: "physical" },
-  mfw00006: { title: "Big Boy Teddy Bear Iron-On Patch XXL", price: 14.95, type: "physical", freeShipping: true }
+  mfw00006: {
+    title: "Big Boy Teddy Bear Iron-On Patch XXL",
+    price: 14.95,
+    type: "physical",
+    freeShipping: true,
+    formatPrijzen: {
+      "10x15 cm": 14.95,
+      "16x24 cm": 24.95
+    }
+  }
 };
 function escapeXml(value) {
   return String(value || "")
@@ -60,6 +69,37 @@ function formatMoneyDisplay(value, useComma = false) {
 function getProductCatalogItem(code) {
   const normalizedCode = String(code || "").trim();
   return PRODUCT_CATALOG[normalizedCode] || null;
+}
+function getCatalogVariantPrice(catalogItem, item) {
+  if (!catalogItem) return null;
+  const variantPriceMap = catalogItem.variantPrijzen || catalogItem.formatPrijzen || catalogItem.prijzen || catalogItem.prijsOpties || null;
+  if (!variantPriceMap) return null;
+
+  const candidateValues = [];
+  const suppliedTitle = String(item?.title || item?.displayTitle || "").trim();
+  const suppliedPatternFile = normalizePatternFilePath(item?.patternFile);
+
+  if (suppliedTitle) {
+    candidateValues.push(suppliedTitle);
+  }
+  if (suppliedPatternFile) {
+    const fileName = suppliedPatternFile.split("/").pop() || "";
+    candidateValues.push(fileName.replace(/\.zip$/i, ""));
+    candidateValues.push(fileName);
+  }
+
+  for (const candidate of candidateValues) {
+    const normalizedCandidate = normalizeSearchValue(candidate);
+    const matchKey = Object.keys(variantPriceMap).find((key) => normalizeSearchValue(key) === normalizedCandidate);
+    if (matchKey !== undefined) {
+      const matchedPrice = Number(variantPriceMap[matchKey]);
+      if (Number.isFinite(matchedPrice) && matchedPrice >= 0) {
+        return matchedPrice;
+      }
+    }
+  }
+
+  return null;
 }
 function normalizePatternFilePath(value) {
   const file = String(value || "").trim().replace(/^\/+/, "");
@@ -94,11 +134,14 @@ function normalizeOrderItems(body) {
       throw new Error(`Onbekende productcode: ${code}`);
     }
 
+    const catalogVariantPrice = getCatalogVariantPrice(catalogItem, item);
+    const expectedPrice = catalogVariantPrice !== null ? catalogVariantPrice : Number(catalogItem.price);
+
     return {
       code,
       qty: normalizedQty,
       title: suppliedTitle || catalogItem.title,
-      price: Number.isFinite(suppliedPrice) && suppliedPrice >= 0 ? suppliedPrice : catalogItem.price,
+      price: Number.isFinite(suppliedPrice) && suppliedPrice >= 0 ? suppliedPrice : expectedPrice,
       type: catalogItem.type,
       promoCode: suppliedPromoCode,
       promoEligible: suppliedPromoEligible === undefined ? Boolean(suppliedPromoCode) : Boolean(suppliedPromoEligible),
