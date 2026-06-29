@@ -70,6 +70,13 @@ function getProductCatalogItem(code) {
   const normalizedCode = String(code || "").trim();
   return PRODUCT_CATALOG[normalizedCode] || null;
 }
+function normalizeSearchValue(value) {
+  return String(value || "")
+    .toLowerCase()
+    .normalize("NFKD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/[^a-z0-9]+/g, "");
+}
 function getCatalogVariantPrice(catalogItem, item) {
   if (!catalogItem) return null;
   const variantPriceMap = catalogItem.variantPrijzen || catalogItem.formatPrijzen || catalogItem.prijzen || catalogItem.prijsOpties || null;
