@@ -173,6 +173,25 @@ async function updateOrderInvoiceNumber(env, orderID, invoiceNumber) {
   await env.ORDERS.put(orderKey, JSON.stringify(order));
   return order;
 }
+async function getNextInvoiceNumber(env) {
+  const list = await env.ORDERS.list({ prefix: "order:" });
+  const currentYear = new Date().getFullYear();
+  let highestInvoiceNumber = 0;
+
+  for (const key of list.keys) {
+    const data = await env.ORDERS.get(key.name);
+    if (!data) continue;
+    const order = JSON.parse(data);
+    if (order.invoiceNumber && order.invoiceNumber.startsWith(currentYear + "-")) {
+      const numberPart = Number(order.invoiceNumber.split("-")[1]);
+      if (!Number.isNaN(numberPart) && numberPart > highestInvoiceNumber) {
+        highestInvoiceNumber = numberPart;
+      }
+    }
+  }
+
+  return currentYear + "-" + String(highestInvoiceNumber + 1).padStart(3, "0");
+}
 function summarizeOrderItems(items) {
   const orderTypes = new Set(items.map((item) => item.type));
   if (orderTypes.size > 1) {
@@ -3497,10 +3516,10 @@ let order = JSON.parse(data);
       const formData = await request.formData();
       const invoiceNumber = formData.get("invoiceNumber") || "";
 
-     const normalizedInvoiceNumber = String(invoiceNumber || "").trim() || String(order.invoiceNumber || "").trim();
+     let normalizedInvoiceNumber = String(invoiceNumber || "").trim() || String(order.invoiceNumber || "").trim();
 
 if (order.invoiceRequested && !normalizedInvoiceNumber) {
-  return new Response("Factuurnummer is verplicht", { status: 400 });
+  normalizedInvoiceNumber = await getNextInvoiceNumber(env);
 }
 
 if (order.invoiceRequested) {
