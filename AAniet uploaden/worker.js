@@ -3613,6 +3613,7 @@ let order = JSON.parse(data);
       const orderType = order.orderType || "digital";
       const orderLang = order.lang || "nl";
       const payerFirstName = String(order.payerName || "Klant").trim().split(/\s+/)[0] || "Klant";
+      const customerEmail = String(order.payerEmail || order.invoiceEmail || "").trim();
       const formData = await request.formData();
       const invoiceNumber = formData.get("invoiceNumber") || "";
 
@@ -3667,12 +3668,12 @@ if (order.invoiceRequested) {
         const mailSubject = subjects[orderLang] || subjects["nl"];
         const mailBody = bodies[orderLang] || bodies["nl"];
         const mailResults = await Promise.allSettled([
-          sendResendEmail(env, {
+          customerEmail ? sendResendEmail(env, {
             from: shopFromEmail,
-            to: order.payerEmail,
+            to: customerEmail,
             subject: mailSubject,
             html: mailBody
-          }),
+          }) : Promise.resolve(null),
           sendResendEmail(env, {
             from: shopFromEmail,
             to: orderNotificationEmail,
@@ -3700,12 +3701,12 @@ if (order.invoiceRequested) {
         const mailSubject = subjects[orderLang] || subjects["nl"];
         const mailBody = bodies[orderLang] || bodies["nl"];
         const mailResults = await Promise.allSettled([
-          sendResendEmail(env, {
+          customerEmail ? sendResendEmail(env, {
             from: shopFromEmail,
-            to: order.payerEmail,
+            to: customerEmail,
             subject: mailSubject,
             html: mailBody
-          }),
+          }) : Promise.resolve(null),
           sendResendEmail(env, {
             from: shopFromEmail,
             to: orderNotificationEmail,
