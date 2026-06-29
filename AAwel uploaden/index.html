@@ -3649,7 +3649,7 @@ itemsDiv.innerHTML = cart.map(function(i){
 
   if(hasPhysical && shippingRates.rates){
     html += '<div style="margin-bottom:12px;padding:10px 10px 8px;border-radius:10px;background:#dcfce7;border:1px solid #86efac;color:#111827;">';
-    html += '<label style="display:block;font-size:13px;color:#ffffff;font-weight:700;margin-bottom:6px;">'+t('shippingCountry')+'</label>';
+    html += '<label style="display:block;font-size:13px;color:#ffffff !important;font-weight:700;margin-bottom:6px;">'+t('shippingCountry')+'</label>';
     html += '<select id="cart-country" onchange="updateCartCountry(this.value)" style="width:100%;padding:8px;border:2px solid #ddd;border-radius:6px;font-size:13px;">';
 
     var euOpts = '';
@@ -3665,7 +3665,7 @@ itemsDiv.innerHTML = cart.map(function(i){
     }
     html += euOpts + nonEu;
     html += '</select>';
-    html += '<p style="font-size:12px;color:#111827;margin-top:6px;font-weight:700;">'+(hasFreeShipping ? t('freeShippingBadge') : t('shippingNote'))+'</p>';
+    html += '<p style="font-size:12px;color:#b91c1c !important;margin-top:6px;font-weight:800;">'+(hasFreeShipping ? t('freeShippingBadge') : t('shippingNote'))+'</p>';
     html += '</div>';
   }
 
