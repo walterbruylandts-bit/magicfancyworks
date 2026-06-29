@@ -1915,7 +1915,7 @@ const {
           body: JSON.stringify({
             intent: "CAPTURE",
             application_context: orderType === "physical"
-              ? { shipping_preference: "SET_PROVIDED_ADDRESS" }
+              ? { shipping_preference: "GET_FROM_FILE" }
               : { shipping_preference: "NO_SHIPPING" },
             purchase_units: [{
               description: summary.productName,
