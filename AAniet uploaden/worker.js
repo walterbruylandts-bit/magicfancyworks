@@ -1931,6 +1931,16 @@ const {
           })
         });
         const orderData = await orderResp.json();
+        if (!orderResp.ok || !orderData?.id) {
+          return new Response(JSON.stringify({
+            error: "PayPal order aanmaken mislukt",
+            paypal_status: orderResp.status,
+            paypal_response: orderData
+          }), {
+            status: 500,
+            headers: { "Content-Type": "application/json", ...corsHeaders }
+          });
+        }
         await env.ORDERS.put("paypal:" + orderData.id, JSON.stringify({
         title: summary.productName,
         codes: summary.codes,
