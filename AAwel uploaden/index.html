@@ -2243,6 +2243,13 @@ function isFreeShippingProduct(product) {
   return Boolean(product && product.freeShipping);
 }
 
+function hasFreeShippingCartItem() {
+  return cart.some((item) => {
+    const product = alleProducten.find((x) => x.code === item.code);
+    return product && product.type === 'physical' && isFreeShippingProduct(product);
+  });
+}
+
 function getProductPromoCode(product) {
   return String(product?.promoCode || '').trim().toUpperCase();
 }
@@ -3416,7 +3423,8 @@ createOrder:(data,actions)=>{
             title: i.titel,
             price: Number(i.prijs || 0),
             promoEligible: Boolean(product && product.promoEligible),
-            promoCode: getProductPromoCode(product)
+            promoCode: getProductPromoCode(product),
+            freeShipping: Boolean(product && product.type === 'physical' && product.freeShipping)
           };
         }),
         keuzes: cart.map(i=>i.keuzes),
@@ -3504,7 +3512,8 @@ onApprove:async(data,actions)=>{
               title: i.titel,
               price: Number(i.prijs || 0),
               promoEligible: Boolean(product && product.promoEligible),
-              promoCode: getProductPromoCode(product)
+              promoCode: getProductPromoCode(product),
+              freeShipping: Boolean(product && product.type === 'physical' && product.freeShipping)
             };
           }),
           keuzes: cart.map(i => i.keuzes),
@@ -3625,11 +3634,12 @@ itemsDiv.innerHTML = cart.map(function(i){
   const productTotal = cart.reduce(function(s,i){ return s + Number(i.prijs) * i.qty; }, 0);
   const promoEligibleSubtotal = getCartPromoEligibleSubtotal(cart);
   const hasPhysical = hasPhysicalItems();
+  const hasFreeShipping = hasFreeShippingCartItem();
   const hasDigital = cart.some(function(item){
     var p = alleProducten.find(function(x){ return x.code === item.code; });
     return p && p.type==='digital';
   });
-  const estimatedShip = hasPhysical ? getEstimatedShipping(selectedShippingCountry) : 0;
+  const estimatedShip = hasPhysical ? (hasFreeShipping ? 0 : getEstimatedShipping(selectedShippingCountry)) : 0;
   const mixedOrder = hasPhysical && hasDigital;
   const promoDiscount = calculatePromoDiscount(promoEligibleSubtotal, activePromoCode);
   const totalAfterDiscount = Math.max(0, productTotal - promoDiscount);
@@ -3655,7 +3665,7 @@ itemsDiv.innerHTML = cart.map(function(i){
     }
     html += euOpts + nonEu;
     html += '</select>';
-    html += '<p style="font-size:12px;color:#666;margin-top:4px;">'+t('shippingNote')+'</p>';
+    html += '<p style="font-size:12px;color:#666;margin-top:4px;">'+(hasFreeShipping ? t('freeShippingBadge') : t('shippingNote'))+'</p>';
     html += '</div>';
   }
 
@@ -3680,7 +3690,9 @@ itemsDiv.innerHTML = cart.map(function(i){
     html += '</div>';
   }
   if(hasPhysical){
-    html += estimatedShip > 0
+    html += hasFreeShipping
+      ? '<p style="font-size:1.0rem;color:#047857;margin:2px 0;font-weight:700;">'+t('freeShippingBadge')+'</p>'
+      : estimatedShip > 0
       ? '<p style="font-size:1.0rem;color:#666;margin:2px 0;">'+t('shippingCostLabel')+': € ' + estimatedShip.toFixed(2) + '</p>'
       : '<p style="font-size:1.0rem;color:#666;margin:2px 0;">'+t('shippingNote')+'</p>';
   }

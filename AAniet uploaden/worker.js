@@ -29,7 +29,7 @@ const PRODUCT_CATALOG = {
   mfw00001: { title: "Baby Boy", price: 7.87, type: "digital" },
   mfw00002: { title: "Baby Girl", price: 8.87, type: "digital" },
   mfw00003: { title: "Schattig meisje", price: 9.87, type: "physical" },
-  mfw00006: { title: "Big Boy Teddy Bear Iron-On Patch XXL", price: 14.95, type: "physical" }
+  mfw00006: { title: "Big Boy Teddy Bear Iron-On Patch XXL", price: 14.95, type: "physical", freeShipping: true }
 };
 function escapeXml(value) {
   return String(value || "")
@@ -77,6 +77,7 @@ function normalizeOrderItems(body) {
     const suppliedPrice = Number(item?.price);
     const suppliedPromoEligible = item?.promoEligible;
     const suppliedPromoCode = String(item?.promoCode || "").trim().toUpperCase();
+    const suppliedFreeShipping = item?.freeShipping;
 
     if (!code) {
       throw new Error("Productcode ontbreekt");
@@ -92,7 +93,8 @@ function normalizeOrderItems(body) {
       price: Number.isFinite(suppliedPrice) && suppliedPrice >= 0 ? suppliedPrice : catalogItem.price,
       type: catalogItem.type,
       promoCode: suppliedPromoCode,
-      promoEligible: suppliedPromoEligible === undefined ? Boolean(suppliedPromoCode) : Boolean(suppliedPromoEligible)
+      promoEligible: suppliedPromoEligible === undefined ? Boolean(suppliedPromoCode) : Boolean(suppliedPromoEligible),
+      freeShipping: suppliedFreeShipping === undefined ? Boolean(catalogItem.freeShipping) : Boolean(suppliedFreeShipping)
     };
   });
 
@@ -115,14 +117,23 @@ function summarizeOrderItems(items) {
   const productName = items
     .map((item) => item.qty > 1 ? `${item.title} x${item.qty}` : item.title)
     .join(", ");
+  const hasFreeShipping = items.some((item) => item.type === "physical" && item.freeShipping);
 
   return {
     orderType,
     basePrice,
     promoEligibleBasePrice,
+    hasFreeShipping,
     codes,
     productName
   };
+}
+
+function orderHasFreeShipping(order) {
+  if (order?.hasFreeShipping) {
+    return true;
+  }
+  return Array.isArray(order?.items) && order.items.some((item) => item && item.freeShipping);
 }
 
 function normalizePromoCodeInput(code) {
@@ -1224,6 +1235,10 @@ async function getShippingAmount(order, env) {
     return 0;
   }
 
+  if (orderHasFreeShipping(order)) {
+    return 0;
+  }
+
   const country =
     order.shippingCountry ||
     order.shippingAddress?.address?.country ||
@@ -1699,7 +1714,7 @@ const {
         await env.ORDERS.put("paypal:" + orderData.id, JSON.stringify({
         title: summary.productName,
         codes: summary.codes,
-        items: items.map(({ code, qty }) => ({ code, qty })),
+        items: items.map(({ code, qty, freeShipping }) => ({ code, qty, freeShipping })),
         type: orderType,
         originalBasePrice: originalBasePrice.toFixed(2),
         basePrice: basePrice.toFixed(2),
@@ -1707,6 +1722,7 @@ const {
         discountAmount: discountAmount.toFixed(2),
         estimatedShippingAmount: estimatedShippingAmount.toFixed(2),
         totalAmount: orderTotal.toFixed(2),
+        hasFreeShipping: summary.hasFreeShipping,
 
         invoiceRequested,
         invoiceType,
@@ -3542,12 +3558,15 @@ const rates = await ratesFile.json();
 
 const country = String(countryCode || "").toUpperCase();
 
-const shipping =
-  rates[country] !== undefined
-    ? Number(rates[country])
-    : Number(rates.default || 0);
         const tempOrder = await env.ORDERS.get("paypal:" + orderID);
         const tempData = tempOrder ? JSON.parse(tempOrder) : {};
+const freeShippingApplied = orderHasFreeShipping(tempData);
+const shipping =
+  freeShippingApplied
+    ? 0
+    : rates[country] !== undefined
+      ? Number(rates[country])
+      : Number(rates.default || 0);
         const basePrice = Number(tempData.basePrice || 0);
         const total = basePrice + shipping;
         const auth = btoa(env.PAYPAL_CLIENT_ID + ":" + env.PAYPAL_SECRET);
@@ -3583,7 +3602,8 @@ const shipping =
             ...tempData,
             shippingCountry: country,
             estimatedShippingAmount: shipping.toFixed(2),
-            totalAmount: total.toFixed(2)
+            totalAmount: total.toFixed(2),
+            hasFreeShipping: freeShippingApplied || Boolean(tempData.hasFreeShipping)
           };
           await env.ORDERS.put("paypal:" + orderID, JSON.stringify(updatedTempOrder), { expirationTtl: 3600 });
           return new Response(JSON.stringify({ success: true, shipping, total }), {
