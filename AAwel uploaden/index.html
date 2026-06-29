@@ -1853,6 +1853,10 @@ function getSelectedQuantity(keuzes) {
   return Number.isFinite(parsed) && parsed > 0 ? parsed : 1;
 }
 
+function getSelectedFormatValue(keuzes) {
+  return String(keuzes?.Formaten || keuzes?.Formaat || keuzes?.Samenvoeging || keuzes?.samenvoeging || '').trim();
+}
+
 function isQuantityChoiceName(name) {
   return ['Aantallen', 'Aantal', 'quantity', 'qty'].includes(String(name || ''));
 }
@@ -1868,7 +1872,7 @@ function buildCartKeuzesKey(product, keuzes) {
 function getSelectedUnitPrice(product, keuzes) {
   if (!product) return 0;
 
-  const selectedFormat = keuzes?.Formaten || keuzes?.Formaat || keuzes?.Samenvoeging || keuzes?.samenvoeging || '';
+  const selectedFormat = getSelectedFormatValue(keuzes);
   const variantPriceMap = product.variantPrijzen || product.formatPrijzen || product.prijzen || product.prijsOpties || null;
 
   if (variantPriceMap && selectedFormat) {
@@ -1889,8 +1893,31 @@ function getSelectedUnitPrice(product, keuzes) {
 
 function getCartItemTitle(product, keuzes) {
   const baseTitle = product?.['titel_' + currentLang] || product?.titel || '';
-  const selectedFormat = keuzes?.Formaten || keuzes?.Formaat || keuzes?.Samenvoeging || keuzes?.samenvoeging || '';
+  const selectedFormat = getSelectedFormatValue(keuzes);
   return selectedFormat ? `${baseTitle} - ${selectedFormat}` : baseTitle;
+}
+
+function normalizePatternFileValue(value) {
+  const file = String(value || '').trim().replace(/^\/+/, '');
+  if (!file) return '';
+  return file.startsWith('downloads/') ? file : `downloads/${file}`;
+}
+
+function getProductPatternFile(product, keuzes) {
+  if (!product) return '';
+  const selectedFormat = getSelectedFormatValue(keuzes);
+  const patternMap = product.bestandenPerFormaat || product.bestandPerFormaat || product.patternFiles || null;
+
+  if (patternMap && selectedFormat) {
+    const normalizedMatchKey = Object.keys(patternMap).find((key) => normalizeSearchValue(key) === normalizeSearchValue(selectedFormat));
+    const directValue = normalizedMatchKey ? patternMap[normalizedMatchKey] : patternMap[selectedFormat];
+    const resolvedFile = normalizePatternFileValue(directValue);
+    if (resolvedFile) {
+      return resolvedFile;
+    }
+  }
+
+  return '';
 }
 
 function getSearchInputValue() {
@@ -2904,6 +2931,9 @@ function addToCart(code, keuzes){
   const existing=cart.find(x=>x.code===code && x.keuzesKey===keuzesKey);
   if(existing){
     existing.qty += selectedQty;
+    if (!existing.patternFile) {
+      existing.patternFile = getProductPatternFile(p, keuzes);
+    }
   }else{
     cart.push({
       code:p.code,
@@ -2912,7 +2942,8 @@ function addToCart(code, keuzes){
       qty:selectedQty,
       keuzes: keuzes || {},
       keuzesLabel: keuzes || {},
-      keuzesKey: keuzesKey
+      keuzesKey: keuzesKey,
+      patternFile: getProductPatternFile(p, keuzes)
     });
   }
   showAddToCartNotice(`${p['titel_' + currentLang] || p.titel} ${t('addedToCart')}`);
@@ -3513,7 +3544,8 @@ createOrder:(data,actions)=>{
             price: Number(i.prijs || 0),
             promoEligible: Boolean(product && product.promoEligible),
             promoCode: getProductPromoCode(product),
-            freeShipping: Boolean(product && product.type === 'physical' && product.freeShipping)
+            freeShipping: Boolean(product && product.type === 'physical' && product.freeShipping),
+            patternFile: i.patternFile || ''
           };
         }),
         keuzes: cart.map(i=>i.keuzes),
@@ -3602,7 +3634,8 @@ onApprove:async(data,actions)=>{
               price: Number(i.prijs || 0),
               promoEligible: Boolean(product && product.promoEligible),
               promoCode: getProductPromoCode(product),
-              freeShipping: Boolean(product && product.type === 'physical' && product.freeShipping)
+              freeShipping: Boolean(product && product.type === 'physical' && product.freeShipping),
+              patternFile: i.patternFile || ''
             };
           }),
           keuzes: cart.map(i => i.keuzes),

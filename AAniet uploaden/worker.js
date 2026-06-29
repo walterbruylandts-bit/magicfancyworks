@@ -61,6 +61,13 @@ function getProductCatalogItem(code) {
   const normalizedCode = String(code || "").trim();
   return PRODUCT_CATALOG[normalizedCode] || null;
 }
+function normalizePatternFilePath(value) {
+  const file = String(value || "").trim().replace(/^\/+/, "");
+  if (!/^downloads\/[A-Za-z0-9._-]+\.zip$/.test(file)) {
+    return "";
+  }
+  return file;
+}
 function normalizeOrderItems(body) {
   const rawItems = Array.isArray(body?.items) && body.items.length > 0
     ? body.items
@@ -78,6 +85,7 @@ function normalizeOrderItems(body) {
     const suppliedPromoEligible = item?.promoEligible;
     const suppliedPromoCode = String(item?.promoCode || "").trim().toUpperCase();
     const suppliedFreeShipping = item?.freeShipping;
+    const suppliedPatternFile = normalizePatternFilePath(item?.patternFile);
 
     if (!code) {
       throw new Error("Productcode ontbreekt");
@@ -94,7 +102,8 @@ function normalizeOrderItems(body) {
       type: catalogItem.type,
       promoCode: suppliedPromoCode,
       promoEligible: suppliedPromoEligible === undefined ? Boolean(suppliedPromoCode) : Boolean(suppliedPromoEligible),
-      freeShipping: suppliedFreeShipping === undefined ? Boolean(catalogItem.freeShipping) : Boolean(suppliedFreeShipping)
+      freeShipping: suppliedFreeShipping === undefined ? Boolean(catalogItem.freeShipping) : Boolean(suppliedFreeShipping),
+      patternFile: suppliedPatternFile
     };
   });
 
@@ -103,6 +112,16 @@ function normalizeOrderItems(body) {
   }
 
   return items;
+}
+function getOrderPatternFile(items, codes) {
+  const directPatternFile = items
+    .map((item) => normalizePatternFilePath(item?.patternFile))
+    .find(Boolean);
+  if (directPatternFile) {
+    return directPatternFile;
+  }
+  const firstCode = Array.isArray(codes) && codes.length > 0 ? String(codes[0] || "").trim() : "";
+  return firstCode ? `downloads/${firstCode}.zip` : "downloads/unknown.zip";
 }
 function summarizeOrderItems(items) {
   const orderTypes = new Set(items.map((item) => item.type));
@@ -1763,7 +1782,7 @@ const {
         await env.ORDERS.put("paypal:" + orderData.id, JSON.stringify({
         title: summary.productName,
         codes: summary.codes,
-        items: items.map(({ code, qty, freeShipping }) => ({ code, qty, freeShipping })),
+        items: items.map(({ code, qty, freeShipping, patternFile }) => ({ code, qty, freeShipping, patternFile })),
         type: orderType,
         originalBasePrice: originalBasePrice.toFixed(2),
         basePrice: basePrice.toFixed(2),
@@ -2282,7 +2301,7 @@ if (storedInvoiceRequested) {
             payerEmail,
             transactionID: payment.id,
             createdAt: (/* @__PURE__ */ new Date()).toISOString(),
-            patternFile: codes && codes.length > 0 ? "downloads/" + codes[0] + ".zip" : "downloads/unknown.zip",
+            patternFile: getOrderPatternFile(items, codes),
             lang: orderLang,
             shippingAddress: orderType === "physical" ? shippingAddress : null,
             orderType,

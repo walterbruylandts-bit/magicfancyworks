@@ -62,8 +62,29 @@
       "10x15 cm": "14,95",
       "16x24 cm": "24,95"
     },
+    "bestandenPerFormaat": {
+      "10x15 cm": "downloads/mfw00006_10x15.zip",
+      "16x24 cm": "downloads/mfw00006_16x24.zip"
+    },
     "promoEligible": true,
     "promoCode": "MAGIC10",
     "freeShipping": true
+  },
+  {
+    "code": "mfw00007",
+    "titel": "Productnaam NL",
+    "prijs": "0,00",
+    "type": "physical",
+    "formaat": "Formaatomschrijving",
+    "bestanden": "",
+    "beschrijving": "Korte NL-omschrijving voor de popup.",
+    "titel_fr": "Nom du produit FR",
+    "titel_en": "Product name EN",
+    "video": "",
+    "formaten": ["Optie 1", "Optie 2"],
+    "aantallen": ["Standaard", "Deluxe"],
+    "promoEligible": false,
+    "promoCode": "",
+    "freeShipping": false
   }
 ]
