@@ -3665,7 +3665,9 @@ itemsDiv.innerHTML = cart.map(function(i){
     }
     html += euOpts + nonEu;
     html += '</select>';
-    html += '<p style="font-size:12px;color:#b91c1c !important;margin-top:6px;font-weight:800;">'+(hasFreeShipping ? t('freeShippingBadge') : t('shippingNote'))+'</p>';
+    if (!hasFreeShipping) {
+      html += '<p style="font-size:12px;color:#111827;margin-top:6px;font-weight:700;">'+t('shippingNote')+'</p>';
+    }
     html += '</div>';
   }
 
