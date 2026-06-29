@@ -1479,12 +1479,12 @@ No JS logic changed.
       </div>
 
       <div id="popup-add-to-cart" style="margin-top:8px;text-align:center;">
-        <div id="popup-quantity-hint" style="display:none;margin:0 0 8px;padding:8px 10px;border:1px solid #9bd8c9;border-radius:8px;background:#eefbf7;color:#0f766e;font-size:12px;font-weight:700;line-height:1.35;text-align:center;"></div>
+        <div id="popup-quantity-hint" class="popup-quantity-hint"></div>
         <button id="popup-add-btn"
-                onclick="addToCartFromPopup()"
-                style="background:#0f766e;color:white;border:none;padding:8px 16px;border-radius:8px;cursor:pointer;font-weight:700;font-size:13px;width:100%;">
+                class="popup-add-btn"
+                onclick="addToCartFromPopup()">
         </button>
-        <div id="popup-add-confirmation" style="display:none;margin-top:6px;font-size:12px;font-weight:700;color:#0f766e;"></div>
+        <div id="popup-add-confirmation" class="popup-add-confirmation"></div>
       </div>
 
       <div id="popup-video-container" style="display:none;margin-top:8px;">
@@ -1498,8 +1498,7 @@ No JS logic changed.
 
       <div id="paypal-button-container" style="display:none"></div>
 
-      <p id="deliveryNotice"
-         style="font-size:12px;color:#0f766e;margin-top:8px;text-align:center;font-weight:600">
+      <p id="deliveryNotice" class="popup-delivery-notice">
         ⏳ Digitale bestanden worden binnen 24 uur per email bezorgd na goedkeuring.
       </p>
     </div>
@@ -3702,7 +3701,7 @@ itemsDiv.innerHTML = cart.map(function(i){
   if(mixedOrder){
     html += '<p style="font-size:0.95rem;color:#b91c1c;font-weight:600;margin:8px 0 0;">'+t('mixedOrderNotAllowed')+'</p>';
   } else {
-    html += '<button onclick="checkoutCart()" style="background:linear-gradient(180deg,#0f766e 0%,#0b5f58 100%);color:white;border:none;padding:12px 24px;border-radius:8px;cursor:pointer;font-weight:800;font-size:1rem;width:100%;box-shadow:0 8px 16px rgba(15,118,110,0.22)">' + ct('cartPay') + '</button>';
+    html += '<button class="cart-pay-button" onclick="checkoutCart()">' + ct('cartPay') + '</button>';
   }
   footerDiv.innerHTML = html;
 }

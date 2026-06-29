@@ -677,6 +677,61 @@ footer a:hover {
   border-radius: 8px !important;
 }
 
+.popup-quantity-hint {
+  display: none;
+  margin: 0 0 8px;
+  padding: 8px 10px;
+  border: 1px solid #9bd8c9;
+  border-radius: 8px;
+  background: #eefbf7;
+  color: #0f766e;
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1.35;
+  text-align: center;
+}
+
+.popup-add-btn {
+  background: #0f766e;
+  color: #ffffff;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 700;
+  font-size: 13px;
+  width: 100%;
+}
+
+.popup-add-confirmation {
+  display: none;
+  margin-top: 6px;
+  font-size: 12px;
+  font-weight: 700;
+  color: #0f766e;
+}
+
+.popup-delivery-notice {
+  font-size: 12px;
+  color: #0f766e;
+  margin-top: 8px;
+  text-align: center;
+  font-weight: 600;
+}
+
+.cart-pay-button {
+  background: linear-gradient(180deg, #0f766e 0%, #0b5f58 100%);
+  color: #ffffff;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 800;
+  font-size: 1rem;
+  width: 100%;
+  box-shadow: 0 8px 16px rgba(15,118,110,0.22);
+}
+
 .kleur-btn.active {
   background: #0f766e !important;
   border-color: #0f766e !important;
