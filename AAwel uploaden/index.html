@@ -3683,9 +3683,13 @@ onApprove:async(data,actions)=>{
       ppc.innerHTML = '';
 
       if (statusBox) {
+        const errorText = details && (details.error || details.message || details.status)
+          ? String(details.error || details.message || details.status)
+          : '';
         statusBox.innerHTML =
           '<div class="payment-error" style="padding:10px">' +
           t('paymentFailed') +
+          (errorText ? '<br><small style="display:block;margin-top:6px;color:#b91c1c">' + escapeHtml(errorText) + '</small>' : '') +
           '</div>';
       }
     }
