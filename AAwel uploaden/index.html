@@ -1181,6 +1181,8 @@ No JS logic changed.
     min-height: 56px !important;
     width: 100% !important;
     box-sizing: border-box !important;
+    box-shadow: none !important;
+    background-image: none !important;
   }
 
   #cart-items .cart-item-details {
@@ -1195,6 +1197,10 @@ No JS logic changed.
   #cart-items .cart-item-row span {
     color: #1a2a3a !important;
     background: #ffffff !important;
+  }
+
+  #cart-items .cart-item-row * {
+    background-color: #ffffff !important;
   }
 
   #cart-items .cart-item-row button {
@@ -1245,7 +1251,7 @@ No JS logic changed.
     color: #1a2a3a !important;
 }
 
-#cart-items .cart-item-row {
+  #cart-items .cart-item-row {
     display: flex !important;
     justify-content: space-between !important;
     align-items: center !important;
@@ -1259,20 +1265,26 @@ No JS logic changed.
     min-height: 56px !important;
     width: 100% !important;
     box-sizing: border-box !important;
-}
+    box-shadow: none !important;
+    background-image: none !important;
+  }
 
-#cart-items .cart-item-details {
+  #cart-items .cart-item-details {
     flex: 1 1 auto !important;
     min-width: 0 !important;
     background: #ffffff !important;
-}
+  }
 
-#cart-items .cart-item-row strong,
-#cart-items .cart-item-row small,
-#cart-items .cart-item-row span {
+  #cart-items .cart-item-row strong,
+  #cart-items .cart-item-row small,
+  #cart-items .cart-item-row span {
     color: #1a2a3a !important;
     background: #ffffff !important;
-}
+  }
+
+  #cart-items .cart-item-row * {
+    background-color: #ffffff !important;
+  }
 
 #cart-paypal-container,
 #cart-paypal-container div,
@@ -3754,10 +3766,6 @@ itemsDiv.innerHTML = cart.map(function(i){
   }
   if (promoEligibleSubtotal > 0) {
     html += '<div class="cart-promo-box">';
-    const promoCodes = getCartPromoCodes(cart);
-    if (promoCodes.length > 0) {
-      html += '<p class="cart-promo-codes">' + t('promoCodeLabel') + ': <span class="cart-promo-code-pill">' + escapeHtml(promoCodes.join(', ')) + '</span></p>';
-    }
     html += '<label class="cart-promo-label">' + t('promoCodeLabel') + '</label>';
     html += '<div class="cart-promo-row">';
     html += '<input id="promo-code-input" class="cart-promo-input" type="text" value="' + escapeHtml(promoInputValue) + '" placeholder="' + escapeHtml(t('promoCodePlaceholder')) + '">';
