@@ -3002,14 +3002,6 @@ function checkoutCart(){
     return;
   }
 
-  footer.innerHTML='<p class="checkout-paypal-title">'+t('checkoutPaypal')+'</p>';
-  ppc.innerHTML='<div class="checkout-loading"><span class="spinner"></span>'+t('loadingPaypal')+'</div>';
-
-  const checkPayPal=setInterval(()=>{
-    if(typeof paypal!=='undefined'){
-      clearInterval(checkPayPal);
-
-
 const invoiceCheckoutText = {
   nl: {
     invoiceWanted: "Ik wens een factuur",
@@ -3084,6 +3076,120 @@ const invoiceValidationText = {
 
 const checkoutLang = localStorage.getItem("preferredLang") || currentLang || "nl";
 const ict = invoiceCheckoutText[checkoutLang] || invoiceCheckoutText.nl;
+
+  footer.innerHTML = `
+    <p class="checkout-paypal-title">${t('checkoutPaypal')}</p>
+    <div id="invoice-section"
+         style="margin-bottom:12px;
+                padding:12px;
+                background:#f8fafc;
+                border:1px solid #e2e8f0;
+                border-radius:8px;
+                color:#1a2a3a">
+
+      <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-weight:600">
+        <input type="checkbox" id="invoiceRequested">
+        ${ict.invoiceWanted}
+      </label>
+
+      <div id="invoiceTypeWrapper"
+           style="display:none;margin-top:12px">
+
+        <label style="margin-right:16px;cursor:pointer">
+          <input type="radio"
+                 name="invoiceType"
+                 value="private"
+                 checked>
+          ${ict.privateInvoice}
+        </label>
+
+        <label style="cursor:pointer">
+          <input type="radio"
+                 name="invoiceType"
+                 value="business">
+          ${ict.businessInvoice}
+        </label>
+
+        <div id="businessFields"
+             style="display:none;margin-top:14px">
+
+          <input
+            type="text"
+            id="companyName"
+            placeholder="${ict.companyName}"
+            style="width:100%;padding:10px;margin-bottom:8px;border:1px solid #ccc;border-radius:6px;"
+          >
+
+          <input
+            type="text"
+            id="vatNumber"
+            placeholder="${ict.vatNumber}"
+            style="width:100%;padding:10px;margin-bottom:8px;border:1px solid #ccc;border-radius:6px;"
+          >
+
+          <input
+            type="email"
+            id="invoiceEmail"
+            placeholder="${ict.invoiceEmail}"
+            style="width:100%;padding:10px;border:1px solid #ccc;border-radius:6px;"
+          >
+
+          <input
+            type="text"
+            id="invoiceCountry"
+            placeholder="${ict.invoiceCountry}"
+            maxlength="2"
+            style="width:100%;padding:10px;margin-top:8px;border:1px solid #ccc;border-radius:6px;"
+          >
+
+          <input
+            type="text"
+            id="buyerEndpointID"
+            placeholder="${ict.buyerEndpointID}"
+            style="width:100%;padding:10px;margin-top:8px;border:1px solid #ccc;border-radius:6px;"
+          >
+
+          <div style="font-size:12px;color:#64748b;margin:6px 0 0 2px;line-height:1.4">
+            Voor Belgische zakelijke facturatie is dit veld verplicht.
+          </div>
+
+          <input
+            type="text"
+            id="invoiceCity"
+            placeholder="${ict.invoiceCity}"
+            style="width:100%;padding:10px;margin-top:8px;border:1px solid #ccc;border-radius:6px;"
+          >
+
+          <input
+            type="text"
+            id="invoicePostalCode"
+            placeholder="${ict.invoicePostalCode}"
+            style="width:100%;padding:10px;margin-top:8px;border:1px solid #ccc;border-radius:6px;"
+          >
+
+        </div>
+
+      </div>
+    </div>
+    <div id="invoice-error"
+         style="
+           display:none;
+           margin-bottom:12px;
+           padding:12px;
+           background:#fee2e2;
+           border:1px solid #ef4444;
+           border-radius:8px;
+           color:#991b1b;
+           font-weight:600;
+         ">
+    </div>`;
+
+  ppc.innerHTML='<div class="checkout-loading"><span class="spinner"></span>'+t('loadingPaypal')+'</div>';
+
+  const checkPayPal=setInterval(()=>{
+    if(typeof paypal!=='undefined'){
+      clearInterval(checkPayPal);
+      ppc.innerHTML='<div id="paypal-buttons-cart"></div>';
 function getInvoiceValidationLang() {
   return ['nl', 'fr', 'en'].includes(currentLang) ? currentLang : (checkoutLang || 'nl');
 }
@@ -3143,116 +3249,6 @@ function getInvoiceValidationError(fields) {
 
   return '';
 }
-
-ppc.innerHTML = `
-  <div id="invoice-section"
-       style="margin-bottom:12px;
-              padding:12px;
-              background:#f8fafc;
-              border:1px solid #e2e8f0;
-              border-radius:8px;
-              color:#1a2a3a">
-
-    <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-weight:600">
-      <input type="checkbox" id="invoiceRequested">
-       ${ict.invoiceWanted}
-    </label>
-
-    <div id="invoiceTypeWrapper"
-         style="display:none;margin-top:12px">
-
-      <label style="margin-right:16px;cursor:pointer">
-        <input type="radio"
-               name="invoiceType"
-               value="private"
-               checked>
-        ${ict.privateInvoice}
-      </label>
-
-      <label style="cursor:pointer">
-        <input type="radio"
-               name="invoiceType"
-               value="business">
-        ${ict.businessInvoice}
-      </label>
-
-      <div id="businessFields"
-           style="display:none;margin-top:14px">
-
-        <input
-          type="text"
-          id="companyName"
-          placeholder="${ict.companyName}"
-          style="width:100%;padding:10px;margin-bottom:8px;border:1px solid #ccc;border-radius:6px;"
-        >
-
-        <input
-          type="text"
-          id="vatNumber"
-          placeholder="${ict.vatNumber}"
-          style="width:100%;padding:10px;margin-bottom:8px;border:1px solid #ccc;border-radius:6px;"
-        >
-
-        <input
-          type="email"
-          id="invoiceEmail"
-          placeholder="${ict.invoiceEmail}"
-          style="width:100%;padding:10px;border:1px solid #ccc;border-radius:6px;"
-        >
-
-        <input
-          type="text"
-          id="invoiceCountry"
-          placeholder="${ict.invoiceCountry}"
-          maxlength="2"
-          style="width:100%;padding:10px;margin-top:8px;border:1px solid #ccc;border-radius:6px;"
-        >
-
-        <input
-          type="text"
-          id="buyerEndpointID"
-          placeholder="${ict.buyerEndpointID}"
-          style="width:100%;padding:10px;margin-top:8px;border:1px solid #ccc;border-radius:6px;"
-        >
-
-        <div style="font-size:12px;color:#64748b;margin:6px 0 0 2px;line-height:1.4">
-          Voor Belgische zakelijke facturatie is dit veld verplicht.
-        </div>
-
-        <input
-          type="text"
-          id="invoiceCity"
-          placeholder="${ict.invoiceCity}"
-          style="width:100%;padding:10px;margin-top:8px;border:1px solid #ccc;border-radius:6px;"
-        >
-
-        <input
-          type="text"
-          id="invoicePostalCode"
-          placeholder="${ict.invoicePostalCode}"
-          style="width:100%;padding:10px;margin-top:8px;border:1px solid #ccc;border-radius:6px;"
-        >
-
-      </div>
-
-    </div>
-<div id="invoice-error"
-     style="
-       display:none;
-       margin-bottom:12px;
-       padding:12px;
-       background:#fee2e2;
-       border:1px solid #ef4444;
-       border-radius:8px;
-       color:#991b1b;
-       font-weight:600;
-     ">
-</div>
-    <div id="paypal-buttons-cart"></div>
-
-  </div>
-`;
-
 
 const invoiceCheckbox =
   document.getElementById('invoiceRequested');
