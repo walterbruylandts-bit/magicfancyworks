@@ -2387,6 +2387,7 @@ const capturedShippingAmount = Math.max(0, paidAmount - productAmount);
             });
           }
           const codes = tempData.codes || [];
+          const orderItems = Array.isArray(tempData.items) ? tempData.items : [];
           const shippingInfo = captureData.purchase_units?.[0]?.shipping;
           const shippingAddress = shippingInfo ? {
             name: shippingInfo.name?.full_name || "",
@@ -2474,7 +2475,7 @@ if (storedInvoiceRequested) {
             payerEmail,
             transactionID: payment.id,
             createdAt: (/* @__PURE__ */ new Date()).toISOString(),
-            patternFile: getOrderPatternFile(items, codes),
+            patternFile: getOrderPatternFile(orderItems, codes),
             lang: orderLang,
             shippingAddress: orderType === "physical" ? shippingAddress : null,
             orderType,
