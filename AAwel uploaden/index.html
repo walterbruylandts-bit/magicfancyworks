@@ -3673,10 +3673,14 @@ onApprove:async(data,actions)=>{
         '</p></div>';
       }
 
+      ppc.innerHTML = '';
+
       cart = [];
       updateCartUI();
 
     } else {
+
+      ppc.innerHTML = '';
 
       if (statusBox) {
         statusBox.innerHTML =
@@ -3688,6 +3692,8 @@ onApprove:async(data,actions)=>{
 
   } catch (e) {
 
+    ppc.innerHTML = '';
+
     if (statusBox) {
       statusBox.innerHTML =
         '<div class="payment-error" style="padding:10px">' +
@@ -3697,11 +3703,13 @@ onApprove:async(data,actions)=>{
   }
 },
         onCancel:()=>{
+          ppc.innerHTML = '';
           if (statusBox) {
             statusBox.innerHTML='<div class="payment-error" style="padding:10px">'+t('paymentCancelled')+'</div>';
           }
         },
         onError:(err)=>{
+          ppc.innerHTML = '';
           if (statusBox) {
             statusBox.innerHTML='<div class="payment-error" style="padding:10px">'+t('paymentMislukt')+'</div>';
           }
