@@ -3006,8 +3006,100 @@ const invoiceCheckoutText = {
   }
 };
 
+const invoiceValidationText = {
+  nl: {
+    companyRequired: '⚠ Gelieve de bedrijfsnaam in te vullen.',
+    emailRequired: '⚠ Gelieve het facturatie e-mailadres in te vullen.',
+    emailInvalid: '⚠ Gelieve een geldig facturatie e-mailadres in te vullen.',
+    countryRequired: '⚠ Gelieve de landcode in te vullen.',
+    cityRequired: '⚠ Gelieve de stad in te vullen.',
+    postalRequired: '⚠ Gelieve de postcode in te vullen.',
+    vatRequired: '⚠ Gelieve je BTW-nummer in te vullen.',
+    endpointRequired: '⚠ Gelieve je Peppol Endpoint ID in te vullen voor Belgische zakelijke facturatie.'
+  },
+  fr: {
+    companyRequired: '⚠ Veuillez indiquer le nom de l\'entreprise.',
+    emailRequired: '⚠ Veuillez indiquer l\'e-mail de facturation.',
+    emailInvalid: '⚠ Veuillez indiquer une adresse e-mail de facturation valide.',
+    countryRequired: '⚠ Veuillez indiquer le code pays.',
+    cityRequired: '⚠ Veuillez indiquer la ville.',
+    postalRequired: '⚠ Veuillez indiquer le code postal.',
+    vatRequired: '⚠ Veuillez indiquer votre numéro de TVA.',
+    endpointRequired: '⚠ Veuillez indiquer votre ID Endpoint Peppol pour la facturation belge des entreprises.'
+  },
+  en: {
+    companyRequired: '⚠ Please enter the company name.',
+    emailRequired: '⚠ Please enter the billing email address.',
+    emailInvalid: '⚠ Please enter a valid billing email address.',
+    countryRequired: '⚠ Please enter the country code.',
+    cityRequired: '⚠ Please enter the city.',
+    postalRequired: '⚠ Please enter the postal code.',
+    vatRequired: '⚠ Please enter your VAT number.',
+    endpointRequired: '⚠ Please enter your Peppol Endpoint ID for Belgian business invoicing.'
+  }
+};
+
 const checkoutLang = localStorage.getItem("preferredLang") || currentLang || "nl";
 const ict = invoiceCheckoutText[checkoutLang] || invoiceCheckoutText.nl;
+function getInvoiceValidationLang() {
+  return ['nl', 'fr', 'en'].includes(currentLang) ? currentLang : (checkoutLang || 'nl');
+}
+function invoiceValidationCopy(key) {
+  const lang = getInvoiceValidationLang();
+  const texts = invoiceValidationText[lang] || invoiceValidationText.nl;
+  return texts[key] || invoiceValidationText.nl[key] || key;
+}
+function isValidInvoiceEmail(email) {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(email || '').trim());
+}
+function isValidInvoiceCountryCode(value) {
+  return /^[A-Z]{2}$/.test(String(value || '').trim().toUpperCase());
+}
+function isMeaningfulInvoiceText(value, minLength) {
+  return String(value || '').trim().length >= minLength;
+}
+function getInvoiceValidationError(fields) {
+  const invoiceRequested = !!fields.invoiceRequested;
+  const invoiceType = fields.invoiceType || 'private';
+  if (!invoiceRequested || invoiceType !== 'business') {
+    return '';
+  }
+
+  const companyName = String(fields.companyName || '').trim();
+  const invoiceEmail = String(fields.invoiceEmail || '').trim();
+  const invoiceCountry = String(fields.invoiceCountry || '').trim().toUpperCase();
+  const invoiceCity = String(fields.invoiceCity || '').trim();
+  const invoicePostalCode = String(fields.invoicePostalCode || '').trim();
+  const buyerEndpointID = String(fields.buyerEndpointID || '').trim();
+  const vatNumber = String(fields.vatNumber || '').trim();
+
+  if (!isMeaningfulInvoiceText(companyName, 2)) {
+    return invoiceValidationCopy('companyRequired');
+  }
+  if (!invoiceEmail) {
+    return invoiceValidationCopy('emailRequired');
+  }
+  if (!isValidInvoiceEmail(invoiceEmail)) {
+    return invoiceValidationCopy('emailInvalid');
+  }
+  if (!isValidInvoiceCountryCode(invoiceCountry)) {
+    return invoiceValidationCopy('countryRequired');
+  }
+  if (!isMeaningfulInvoiceText(invoiceCity, 2)) {
+    return invoiceValidationCopy('cityRequired');
+  }
+  if (!isMeaningfulInvoiceText(invoicePostalCode, 2)) {
+    return invoiceValidationCopy('postalRequired');
+  }
+  if (!isMeaningfulInvoiceText(vatNumber, 2)) {
+    return invoiceValidationCopy('vatRequired');
+  }
+  if (invoiceCountry === 'BE' && !buyerEndpointID) {
+    return invoiceValidationCopy('endpointRequired');
+  }
+
+  return '';
+}
 
 ppc.innerHTML = `
   <div id="invoice-section"
@@ -3145,13 +3237,25 @@ function validateInvoiceFields() {
     document.getElementById('companyName')
       ?.value?.trim();
 
-const invoiceEmail =
+  const invoiceEmail =
     document.getElementById('invoiceEmail')
       ?.value?.trim();
 
   const invoiceCountry =
     document.getElementById('invoiceCountry')
       ?.value?.trim().toUpperCase();
+  const invoiceCity =
+    document.getElementById('invoiceCity')
+      ?.value?.trim();
+  const invoicePostalCode =
+    document.getElementById('invoicePostalCode')
+      ?.value?.trim();
+  const buyerEndpointID =
+    document.getElementById('buyerEndpointID')
+      ?.value?.trim();
+  const vatNumber =
+    document.getElementById('vatNumber')
+      ?.value?.trim();
 
   if (errorBox) {
     errorBox.style.display = 'none';
@@ -3162,18 +3266,20 @@ const invoiceEmail =
     invoiceRequested &&
     invoiceType === 'business'
   ) {
-    if (!companyName || !invoiceEmail) {
+    const error = getInvoiceValidationError({
+      invoiceRequested,
+      invoiceType,
+      companyName,
+      invoiceEmail,
+      invoiceCountry,
+      invoiceCity,
+      invoicePostalCode,
+      buyerEndpointID,
+      vatNumber
+    });
+    if (error) {
       if (errorBox) {
-        errorBox.innerText = '⚠ Gelieve bedrijfsnaam en facturatie e-mailadres in te vullen.';
-        errorBox.style.display = 'block';
-      }
-      if (paypalContainer) paypalContainer.style.opacity = '0.5';
-      return;
-    }
-
-    if (!invoiceCountry || invoiceCountry.length !== 2) {
-      if (errorBox) {
-        errorBox.innerText = '⚠ Gelieve de landcode in te vullen.';
+        errorBox.innerText = error;
         errorBox.style.display = 'block';
       }
       if (paypalContainer) paypalContainer.style.opacity = '0.5';
@@ -3250,6 +3356,12 @@ if (invoiceCheckbox && invoiceWrapper) {
   const buyerEndpointID =
     document.getElementById('buyerEndpointID')
       ?.value?.trim() || '';
+  const invoiceCity =
+    document.getElementById('invoiceCity')
+      ?.value?.trim() || '';
+  const invoicePostalCode =
+    document.getElementById('invoicePostalCode')
+      ?.value?.trim() || '';
 
   const errorBox =
     document.getElementById('invoice-error');
@@ -3260,48 +3372,20 @@ if (invoiceCheckbox && invoiceWrapper) {
   }
 
   if (invoiceRequested) {
-    if (invoiceType === 'business' && !companyName) {
+    const error = getInvoiceValidationError({
+      invoiceRequested,
+      invoiceType,
+      companyName,
+      invoiceEmail,
+      invoiceCountry,
+      invoiceCity,
+      invoicePostalCode,
+      buyerEndpointID,
+      vatNumber
+    });
+    if (error) {
       if (errorBox) {
-        errorBox.innerText =
-          '⚠ Gelieve de bedrijfsnaam in te vullen.';
-        errorBox.style.display =
-          'block';
-      }
-
-      return actions.reject();
-    }
-
-    if (invoiceType === 'business' && !invoiceEmail) {
-
-      if (errorBox) {
-        errorBox.innerText =
-          '⚠ Gelieve het facturatie e-mailadres in te vullen.';
-        errorBox.style.display =
-          'block';
-      }
-
-      return actions.reject();
-    }
-
-    if (invoiceType === 'business' && (!invoiceCountry || invoiceCountry.length !== 2)) {
-      if (errorBox) {
-        errorBox.innerText =
-          '⚠ Gelieve de landcode in te vullen.';
-        errorBox.style.display =
-          'block';
-      }
-
-      return actions.reject();
-    }
-
-    if (
-      invoiceType === 'business' &&
-      invoiceCountry === 'BE' &&
-      !buyerEndpointID
-    ) {
-      if (errorBox) {
-        errorBox.innerText =
-          '⚠ Gelieve je Peppol Endpoint ID in te vullen voor Belgische zakelijke facturatie.';
+        errorBox.innerText = error;
         errorBox.style.display =
           'block';
       }
@@ -3370,33 +3454,25 @@ createOrder:(data,actions)=>{
     errorBox.innerText = '';
   }
 
-  if (invoiceRequested && invoiceType === 'business' && (!invoiceCountry || invoiceCountry.length !== 2)) {
-    if (errorBox) {
-      errorBox.innerText = '⚠ Gelieve de landcode in te vullen.';
-      errorBox.style.display = 'block';
+  if (invoiceRequested) {
+    const error = getInvoiceValidationError({
+      invoiceRequested,
+      invoiceType,
+      companyName,
+      invoiceEmail,
+      invoiceCountry,
+      invoiceCity,
+      invoicePostalCode,
+      buyerEndpointID,
+      vatNumber
+    });
+    if (error) {
+      if (errorBox) {
+        errorBox.innerText = error;
+        errorBox.style.display = 'block';
+      }
+      return actions.reject();
     }
-    return actions.reject();
-  }
-
-  if (invoiceRequested && invoiceType === 'business' && !vatNumber) {
-    if (errorBox) {
-      errorBox.innerText = '⚠ Gelieve je BTW-nummer in te vullen.';
-      errorBox.style.display = 'block';
-    }
-    return actions.reject();
-  }
-
-  if (
-    invoiceRequested &&
-    invoiceType === 'business' &&
-    invoiceCountry === 'BE' &&
-    !buyerEndpointID
-  ) {
-    if (errorBox) {
-      errorBox.innerText = '⚠ Gelieve je Peppol Endpoint ID in te vullen voor Belgische zakelijke facturatie.';
-      errorBox.style.display = 'block';
-    }
-    return actions.reject();
   }
 
   return fetch(

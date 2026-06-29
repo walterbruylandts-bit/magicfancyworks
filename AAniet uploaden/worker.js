@@ -250,6 +250,18 @@ function normalizeVatNumberInput(vatNumber, countryHint = "") {
   return null;
 }
 
+function isValidEmailAddress(email) {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(email || "").trim());
+}
+
+function isValidCountryCode(value) {
+  return /^[A-Z]{2}$/.test(String(value || "").trim().toUpperCase());
+}
+
+function hasMeaningfulText(value, minLength = 2) {
+  return String(value || "").trim().length >= minLength;
+}
+
 async function checkVatNumberViaVies(countryCode, vatNumber) {
   const envelope = `<?xml version="1.0" encoding="UTF-8"?>
 <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:tns="urn:ec.europa.eu:taxud:vies:services:checkVat:types">
@@ -1637,6 +1649,43 @@ const {
     const normalizedInvoiceCountry = String(invoiceCountry || "").trim().toUpperCase();
     const isSandboxMode = String(env.PAYPAL_ENV || "").toLowerCase() !== "live";
 
+    if (invoiceRequested === true && invoiceType === "business") {
+      if (!hasMeaningfulText(companyName)) {
+        return new Response(JSON.stringify({ error: "Bedrijfsnaam ontbreekt" }), {
+          status: 400,
+          headers: { "Content-Type": "application/json", ...corsHeaders }
+        });
+      }
+
+      if (!isValidEmailAddress(invoiceEmail)) {
+        return new Response(JSON.stringify({ error: "Facturatie e-mail ontbreekt of is ongeldig" }), {
+          status: 400,
+          headers: { "Content-Type": "application/json", ...corsHeaders }
+        });
+      }
+
+      if (!isValidCountryCode(invoiceCountry)) {
+        return new Response(JSON.stringify({ error: "Landcode ontbreekt" }), {
+          status: 400,
+          headers: { "Content-Type": "application/json", ...corsHeaders }
+        });
+      }
+
+      if (!hasMeaningfulText(invoiceCity)) {
+        return new Response(JSON.stringify({ error: "Stad ontbreekt" }), {
+          status: 400,
+          headers: { "Content-Type": "application/json", ...corsHeaders }
+        });
+      }
+
+      if (!hasMeaningfulText(invoicePostalCode)) {
+        return new Response(JSON.stringify({ error: "Postcode ontbreekt" }), {
+          status: 400,
+          headers: { "Content-Type": "application/json", ...corsHeaders }
+        });
+      }
+    }
+
     if (invoiceRequested === true && invoiceType === "business" && !isSandboxMode) {
       if (!normalizedVat) {
         return new Response(JSON.stringify({ error: "BTW-nummer ontbreekt of heeft een ongeldig formaat" }), {
@@ -1939,7 +1988,7 @@ const isBusinessInvoice =
 
   if (isBusinessInvoice) {
 
-  if (!companyName?.trim()) {
+  if (!hasMeaningfulText(companyName)) {
     return new Response(
       JSON.stringify({
         error: "Bedrijfsnaam ontbreekt"
@@ -1953,10 +2002,10 @@ const isBusinessInvoice =
     );
   }
 
-  if (!invoiceEmail?.trim()) {
+  if (!isValidEmailAddress(invoiceEmail)) {
     return new Response(
       JSON.stringify({
-        error: "Facturatie e-mail ontbreekt"
+        error: "Facturatie e-mail ontbreekt of is ongeldig"
       }),
       {
         status: 400,
@@ -1967,7 +2016,7 @@ const isBusinessInvoice =
     );
   }
 
-  if (!buyerInvoiceCountry?.trim() || buyerInvoiceCountry.trim().length !== 2) {
+  if (!isValidCountryCode(buyerInvoiceCountry)) {
     return new Response(
       JSON.stringify({
         error: "Landcode ontbreekt"
@@ -1987,7 +2036,7 @@ const isBelgianBusiness =
   isBusinessInvoice &&
   vatNumber?.toUpperCase().startsWith('BE');
 const isSandboxMode = String(env.PAYPAL_ENV || "").toLowerCase() !== "live";
-const normalizedBuyerCountry =
+  const normalizedBuyerCountry =
   String(buyerInvoiceCountry || "").trim().toUpperCase();
 let peppolRequired = false;
 
@@ -1996,6 +2045,45 @@ if (isBelgianBusiness && !isSandboxMode) {
 
   if (!String(buyerEndpointID || "").trim() && normalizedBuyerCountry === "BE") {
     return new Response(JSON.stringify({ error: "Voor Belgische zakelijke facturatie is een Peppol Endpoint ID verplicht" }), {
+      status: 400,
+      headers: { "Content-Type": "application/json", ...corsHeaders }
+    });
+  }
+}
+
+if (invoiceRequested === true && invoiceType === "business") {
+  if (!hasMeaningfulText(companyName)) {
+    return new Response(JSON.stringify({ error: "Bedrijfsnaam ontbreekt" }), {
+      status: 400,
+      headers: { "Content-Type": "application/json", ...corsHeaders }
+    });
+  }
+  if (!isValidEmailAddress(invoiceEmail)) {
+    return new Response(JSON.stringify({ error: "Facturatie e-mail ontbreekt of is ongeldig" }), {
+      status: 400,
+      headers: { "Content-Type": "application/json", ...corsHeaders }
+    });
+  }
+  if (!isValidCountryCode(buyerInvoiceCountry)) {
+    return new Response(JSON.stringify({ error: "Landcode ontbreekt" }), {
+      status: 400,
+      headers: { "Content-Type": "application/json", ...corsHeaders }
+    });
+  }
+  if (!hasMeaningfulText(invoiceCity)) {
+    return new Response(JSON.stringify({ error: "Stad ontbreekt" }), {
+      status: 400,
+      headers: { "Content-Type": "application/json", ...corsHeaders }
+    });
+  }
+  if (!hasMeaningfulText(invoicePostalCode)) {
+    return new Response(JSON.stringify({ error: "Postcode ontbreekt" }), {
+      status: 400,
+      headers: { "Content-Type": "application/json", ...corsHeaders }
+    });
+  }
+  if (!hasMeaningfulText(vatNumber)) {
+    return new Response(JSON.stringify({ error: "BTW-nummer ontbreekt" }), {
       status: 400,
       headers: { "Content-Type": "application/json", ...corsHeaders }
     });
