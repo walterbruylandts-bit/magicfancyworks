@@ -2337,7 +2337,12 @@ const invoiceMailData = {
           {};
         let captureStatus = captureData.status || payment.status || "UNKNOWN";
         if (captureStatus === "COMPLETED") {
-          const payerEmail = captureData.payer?.email_address || "";
+          const payerEmail =
+            captureData.payer?.email_address ||
+            captureData.payment_source?.paypal?.email_address ||
+            captureData.payment_source?.card?.email_address ||
+            tempData.invoiceEmail ||
+            "";
           const payerName = [
             captureData.payer?.name?.given_name || "",
             captureData.payer?.name?.surname || ""
@@ -3641,7 +3646,6 @@ let order = JSON.parse(data);
       const payerFirstName = String(order.payerName || "Klant").trim().split(/\s+/)[0] || "Klant";
       const customerEmail = String(
         order.customerEmail ||
-        (order.invoiceRequested && order.invoiceEmail) ||
         order.payerEmail ||
         order.invoiceEmail ||
         ""
