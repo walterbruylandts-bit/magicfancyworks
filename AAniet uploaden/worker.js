@@ -3613,7 +3613,11 @@ let order = JSON.parse(data);
       const orderType = order.orderType || "digital";
       const orderLang = order.lang || "nl";
       const payerFirstName = String(order.payerName || "Klant").trim().split(/\s+/)[0] || "Klant";
-      const customerEmail = String(order.invoiceEmail || order.payerEmail || "").trim();
+      const customerEmail = String(
+        order.invoiceRequested && order.invoiceEmail
+          ? order.invoiceEmail
+          : order.payerEmail || order.invoiceEmail || ""
+      ).trim();
       const formData = await request.formData();
       const invoiceNumber = formData.get("invoiceNumber") || "";
 
@@ -3871,8 +3875,12 @@ return Response.redirect(publicWorkerUrl + "/admin", 302);
           });
         }
 
-        if (body.event_type === "PAYMENT.CAPTURE.COMPLETED") {
-          const payment = body.resource;
+        const webhookEventType = String(body.event_type || "");
+        if (
+          webhookEventType === "PAYMENT.CAPTURE.COMPLETED" ||
+          webhookEventType === "CHECKOUT.ORDER.APPROVED"
+        ) {
+          const payment = body.resource || {};
           const totalAmount = Number(payment.amount?.value || 0);
           const shippingAmount = Number(payment.amount?.breakdown?.shipping?.value || 0);
           const itemTotal = Number(payment.amount?.breakdown?.item_total?.value || (totalAmount - shippingAmount));
@@ -3883,8 +3891,8 @@ return Response.redirect(publicWorkerUrl + "/admin", 302);
             await sendResendEmail(env, {
               from: shopFromEmail,
               to: orderNotificationEmail,
-              subject: "Webhook: betaling EUR " + totalDisplay,
-              html: "<h2>PayPal Webhook!</h2><p><strong>Totaal:</strong> €" + escapeHtml(totalDisplay) + "</p><p><strong>Product:</strong> €" + escapeHtml(itemDisplay) + "</p><p><strong>Verzendkosten:</strong> €" + escapeHtml(shippingDisplay) + "</p><p><strong>ID:</strong> " + escapeHtml(payment.id) + "</p>"
+              subject: "Webhook: " + webhookEventType + " EUR " + totalDisplay,
+              html: "<h2>PayPal Webhook!</h2><p><strong>Event:</strong> " + escapeHtml(webhookEventType) + "</p><p><strong>Totaal:</strong> €" + escapeHtml(totalDisplay) + "</p><p><strong>Product:</strong> €" + escapeHtml(itemDisplay) + "</p><p><strong>Verzendkosten:</strong> €" + escapeHtml(shippingDisplay) + "</p><p><strong>ID:</strong> " + escapeHtml(payment.id || body.id || "-") + "</p>"
             });
           } catch (e) {
             console.error("Email fout:", e);
