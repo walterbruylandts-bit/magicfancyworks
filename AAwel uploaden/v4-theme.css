@@ -807,12 +807,16 @@ footer a:hover {
   min-height: 56px !important;
   width: 100% !important;
   box-sizing: border-box !important;
+  background-color: #ffffff !important;
+  background-image: none !important;
+  background-clip: padding-box !important;
 }
 
 .cart-item-details {
   flex: 1 1 auto !important;
   min-width: 0 !important;
   background: #ffffff !important;
+  background-color: #ffffff !important;
 }
 
 .cart-item-details strong {
