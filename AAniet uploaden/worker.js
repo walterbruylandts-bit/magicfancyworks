@@ -275,6 +275,21 @@ async function sendResendEmail(env, payload) {
   }
   return response;
 }
+async function sendWebhookNoticeOnce(env, orderID, payload, source) {
+  const orderKey = "order:" + orderID;
+  const orderData = await env.ORDERS.get(orderKey);
+  let order = orderData ? JSON.parse(orderData) : null;
+  if (order && order.webhookMailSentAt) {
+    return { skipped: true };
+  }
+  await sendResendEmail(env, payload);
+  if (order) {
+    order.webhookMailSentAt = new Date().toISOString();
+    order.webhookMailSource = source;
+    await env.ORDERS.put(orderKey, JSON.stringify(order));
+  }
+  return { skipped: false };
+}
 function summarizeOrderItems(items) {
   const orderTypes = new Set(items.map((item) => item.type));
   if (orderTypes.size > 1) {
@@ -2473,6 +2488,7 @@ if (storedInvoiceRequested) {
             totalAmount: paidAmount.toFixed(2),
             payerName,
             payerEmail,
+            customerEmail: payerEmail || storedInvoiceEmail || "",
             transactionID: payment.id,
             createdAt: (/* @__PURE__ */ new Date()).toISOString(),
             patternFile: getOrderPatternFile(orderItems, codes),
@@ -2496,6 +2512,16 @@ if (storedInvoiceRequested) {
             
           }), orderPutOptions);
           await env.ORDERS.delete("paypal:" + orderID);
+          try {
+            await sendWebhookNoticeOnce(env, orderID, {
+              from: shopFromEmail,
+              to: orderNotificationEmail,
+              subject: "Webhook: " + captureStatus + " EUR " + formatMoneyDisplay(paidAmount, true),
+              html: "<h2>PayPal Webhook!</h2><p><strong>Event:</strong> CAPTURE.FALLBACK</p><p><strong>Totaal:</strong> €" + escapeHtml(formatMoneyDisplay(paidAmount, true)) + "</p><p><strong>Product:</strong> €" + escapeHtml(formatMoneyDisplay(productAmount, true)) + "</p><p><strong>Verzendkosten:</strong> €" + escapeHtml(formatMoneyDisplay(capturedShippingAmount, true)) + "</p><p><strong>ID:</strong> " + escapeHtml(payment.id || orderID || "-") + "</p>"
+            }, "capture");
+          } catch (e) {
+            console.error("Webhook mail fout:", e);
+          }
           const emailTask = (async () => {
             try {
               await sendResendEmail(env, {
@@ -3614,9 +3640,11 @@ let order = JSON.parse(data);
       const orderLang = order.lang || "nl";
       const payerFirstName = String(order.payerName || "Klant").trim().split(/\s+/)[0] || "Klant";
       const customerEmail = String(
-        order.invoiceRequested && order.invoiceEmail
-          ? order.invoiceEmail
-          : order.payerEmail || order.invoiceEmail || ""
+        order.customerEmail ||
+        (order.invoiceRequested && order.invoiceEmail) ||
+        order.payerEmail ||
+        order.invoiceEmail ||
+        ""
       ).trim();
       const formData = await request.formData();
       const invoiceNumber = formData.get("invoiceNumber") || "";
@@ -3866,13 +3894,16 @@ return Response.redirect(publicWorkerUrl + "/admin", 302);
         const verifyData = await verifyResp.json();
 
         if (verifyData.verification_status !== "SUCCESS") {
-          return new Response(JSON.stringify({
-            error: "Webhook-signature ongeldig",
-            verification_status: verifyData.verification_status || "UNKNOWN"
-          }), {
-            status: 401,
-            headers: { "Content-Type": "application/json", ...corsHeaders }
-          });
+          if (String(env.PAYPAL_ENV || "").toLowerCase() === "live") {
+            return new Response(JSON.stringify({
+              error: "Webhook-signature ongeldig",
+              verification_status: verifyData.verification_status || "UNKNOWN"
+            }), {
+              status: 401,
+              headers: { "Content-Type": "application/json", ...corsHeaders }
+            });
+          }
+          console.warn("Webhook-signature ongeldig in sandbox, fallback toegestaan", verifyData.verification_status || "UNKNOWN");
         }
 
         const webhookEventType = String(body.event_type || "");
@@ -3888,12 +3919,20 @@ return Response.redirect(publicWorkerUrl + "/admin", 302);
           const itemDisplay = formatMoneyDisplay(itemTotal, true);
           const shippingDisplay = formatMoneyDisplay(shippingAmount, true);
           try {
-            await sendResendEmail(env, {
-              from: shopFromEmail,
-              to: orderNotificationEmail,
-              subject: "Webhook: " + webhookEventType + " EUR " + totalDisplay,
-              html: "<h2>PayPal Webhook!</h2><p><strong>Event:</strong> " + escapeHtml(webhookEventType) + "</p><p><strong>Totaal:</strong> €" + escapeHtml(totalDisplay) + "</p><p><strong>Product:</strong> €" + escapeHtml(itemDisplay) + "</p><p><strong>Verzendkosten:</strong> €" + escapeHtml(shippingDisplay) + "</p><p><strong>ID:</strong> " + escapeHtml(payment.id || body.id || "-") + "</p>"
-            });
+            const webhookOrderID =
+              payment?.supplementary_data?.related_ids?.order_id ||
+              payment?.supplementary_data?.related_ids?.capture_id ||
+              body?.resource?.supplementary_data?.related_ids?.order_id ||
+              body?.resource?.id ||
+              "";
+            if (webhookOrderID) {
+              await sendWebhookNoticeOnce(env, webhookOrderID, {
+                from: shopFromEmail,
+                to: orderNotificationEmail,
+                subject: "Webhook: " + webhookEventType + " EUR " + totalDisplay,
+                html: "<h2>PayPal Webhook!</h2><p><strong>Event:</strong> " + escapeHtml(webhookEventType) + "</p><p><strong>Totaal:</strong> €" + escapeHtml(totalDisplay) + "</p><p><strong>Product:</strong> €" + escapeHtml(itemDisplay) + "</p><p><strong>Verzendkosten:</strong> €" + escapeHtml(shippingDisplay) + "</p><p><strong>ID:</strong> " + escapeHtml(payment.id || body.id || "-") + "</p>"
+              }, "webhook");
+            }
           } catch (e) {
             console.error("Email fout:", e);
           }
