@@ -3648,8 +3648,8 @@ itemsDiv.innerHTML = cart.map(function(i){
   var html = '';
 
   if(hasPhysical && shippingRates.rates){
-    html += '<div style="margin-bottom:12px;">';
-    html += '<label style="display:block;font-size:13px;color:#1a2a3a;font-weight:600;margin-bottom:6px;">'+t('shippingCountry')+'</label>';
+    html += '<div style="margin-bottom:12px;padding:10px 10px 8px;border-radius:10px;background:#dcfce7;border:1px solid #86efac;color:#111827;">';
+    html += '<label style="display:block;font-size:13px;color:#111827;font-weight:700;margin-bottom:6px;">'+t('shippingCountry')+'</label>';
     html += '<select id="cart-country" onchange="updateCartCountry(this.value)" style="width:100%;padding:8px;border:2px solid #ddd;border-radius:6px;font-size:13px;">';
 
     var euOpts = '';
@@ -3665,42 +3665,42 @@ itemsDiv.innerHTML = cart.map(function(i){
     }
     html += euOpts + nonEu;
     html += '</select>';
-    html += '<p style="font-size:12px;color:#666;margin-top:4px;">'+(hasFreeShipping ? t('freeShippingBadge') : t('shippingNote'))+'</p>';
+    html += '<p style="font-size:12px;color:#111827;margin-top:6px;font-weight:700;">'+(hasFreeShipping ? t('freeShippingBadge') : t('shippingNote'))+'</p>';
     html += '</div>';
   }
 
-    html += '<p style="font-size:1.0rem;color:#666;margin:2px 0;">'+t('productsLabel')+': € ' + productTotal.toFixed(2) + '</p>';
+    html += '<p style="font-size:1.0rem;color:#111827;margin:8px 0 2px;font-weight:600;">'+t('productsLabel')+': € ' + productTotal.toFixed(2) + '</p>';
   if (promoDiscount > 0) {
-    html += '<p style="font-size:1.0rem;color:#047857;margin:2px 0;">' + t('promoDiscountLabel') + ': - € ' + promoDiscount.toFixed(2) + '</p>';
+    html += '<p style="font-size:1.0rem;color:#065f46;margin:2px 0;font-weight:700;">' + t('promoDiscountLabel') + ': - € ' + promoDiscount.toFixed(2) + '</p>';
   }
   if (promoEligibleSubtotal > 0) {
-    html += '<div style="margin-top:10px;padding:10px;border:1px solid #e5e7eb;border-radius:8px;background:#f8fafc;text-align:left">';
+    html += '<div style="margin-top:10px;padding:10px;border:1px solid #86efac;border-radius:8px;background:#dcfce7;text-align:left;color:#111827">';
     const promoCodes = getCartPromoCodes(cart);
     if (promoCodes.length > 0) {
-      html += '<p style="margin:0 0 8px;font-size:12px;color:#92400e;font-weight:700;">' + t('promoCodeLabel') + ': <span style="display:inline-block;padding:3px 8px;border-radius:999px;background:#fef3c7;color:#92400e;font-weight:800;letter-spacing:0.03em;">' + escapeHtml(promoCodes.join(', ')) + '</span></p>';
+      html += '<p style="margin:0 0 8px;font-size:12px;color:#111827;font-weight:700;">' + t('promoCodeLabel') + ': <span style="display:inline-block;padding:3px 8px;border-radius:999px;background:#fef3c7;color:#92400e;font-weight:800;letter-spacing:0.03em;">' + escapeHtml(promoCodes.join(', ')) + '</span></p>';
     }
-    html += '<label style="display:block;font-size:13px;color:#1a2a3a;font-weight:600;margin-bottom:6px;">' + t('promoCodeLabel') + '</label>';
+    html += '<label style="display:block;font-size:13px;color:#111827;font-weight:700;margin-bottom:6px;">' + t('promoCodeLabel') + '</label>';
     html += '<div style="display:flex;gap:8px">';
-    html += '<input id="promo-code-input" type="text" value="' + escapeHtml(promoInputValue) + '" placeholder="' + escapeHtml(t('promoCodePlaceholder')) + '" style="flex:1;padding:8px;border:2px solid #ddd;border-radius:6px;font-size:13px;text-transform:uppercase">';
+    html += '<input id="promo-code-input" type="text" value="' + escapeHtml(promoInputValue) + '" placeholder="' + escapeHtml(t('promoCodePlaceholder')) + '" style="flex:1;padding:8px;border:2px solid #bbf7d0;border-radius:6px;font-size:13px;text-transform:uppercase;background:#ffffff;color:#111827">';
     html += '<button type="button" onclick="applyPromoCodeFromInput()" style="background:#0f766e;color:white;border:none;padding:8px 12px;border-radius:6px;cursor:pointer;font-weight:700;font-size:13px;white-space:nowrap">' + t('promoApply') + '</button>';
     html += '</div>';
     if (activePromoMessage) {
-      html += '<p style="margin:6px 0 0;font-size:12px;color:' + (activePromoIsError ? '#b91c1c' : '#0f766e') + ';font-weight:600">' + escapeHtml(activePromoMessage) + '</p>';
+      html += '<p style="margin:6px 0 0;font-size:12px;color:' + (activePromoIsError ? '#b91c1c' : '#065f46') + ';font-weight:700">' + escapeHtml(activePromoMessage) + '</p>';
     }
     html += '</div>';
   }
   if(hasPhysical){
     html += hasFreeShipping
-      ? '<p style="font-size:1.0rem;color:#047857;margin:2px 0;font-weight:700;">'+t('freeShippingBadge')+'</p>'
+      ? '<p style="font-size:1.0rem;color:#065f46;margin:6px 0 2px;font-weight:800;text-align:center;">'+t('freeShippingBadge')+'</p>'
       : estimatedShip > 0
-      ? '<p style="font-size:1.0rem;color:#666;margin:2px 0;">'+t('shippingCostLabel')+': € ' + estimatedShip.toFixed(2) + '</p>'
-      : '<p style="font-size:1.0rem;color:#666;margin:2px 0;">'+t('shippingNote')+'</p>';
+      ? '<p style="font-size:1.0rem;color:#111827;margin:2px 0;font-weight:600;">'+t('shippingCostLabel')+': € ' + estimatedShip.toFixed(2) + '</p>'
+      : '<p style="font-size:1.0rem;color:#111827;margin:2px 0;font-weight:600;">'+t('shippingNote')+'</p>';
   }
-  html += '<p style="font-size:1.2rem;font-weight:bold;color:#1a2a3a;margin:6px 0;border-top:1px solid #eee;padding-top:6px;">'+t('totalLabel')+': € ' + (totalAfterDiscount + estimatedShip).toFixed(2) + '</p>';
+  html += '<p style="font-size:1.2rem;font-weight:800;color:#111827;margin:8px 0 8px;border-top:1px solid #d1fae5;padding-top:8px;">'+t('totalLabel')+': € ' + (totalAfterDiscount + estimatedShip).toFixed(2) + '</p>';
   if(mixedOrder){
     html += '<p style="font-size:0.95rem;color:#b91c1c;font-weight:600;margin:8px 0 0;">'+t('mixedOrderNotAllowed')+'</p>';
   } else {
-    html += '<button onclick="checkoutCart()" style="background:#059669;color:white;border:none;padding:12px 24px;border-radius:8px;cursor:pointer;font-weight:bold;font-size:1rem;width:100%">' + ct('cartPay') + '</button>';
+    html += '<button onclick="checkoutCart()" style="background:linear-gradient(180deg,#f59e0b 0%,#d97706 100%);color:white;border:none;padding:12px 24px;border-radius:8px;cursor:pointer;font-weight:800;font-size:1rem;width:100%;box-shadow:0 8px 16px rgba(217,119,6,0.22)">' + ct('cartPay') + '</button>';
   }
   footerDiv.innerHTML = html;
 }
