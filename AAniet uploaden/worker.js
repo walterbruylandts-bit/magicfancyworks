@@ -192,6 +192,21 @@ async function getNextInvoiceNumber(env) {
 
   return currentYear + "-" + String(highestInvoiceNumber + 1).padStart(3, "0");
 }
+async function sendResendEmail(env, payload) {
+  const response = await fetch("https://api.resend.com/emails", {
+    method: "POST",
+    headers: {
+      "Authorization": "Bearer " + env.RESEND_API_KEY,
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify(payload)
+  });
+  if (!response.ok) {
+    const details = await response.text().catch(() => "");
+    throw new Error("Resend mail mislukt (" + response.status + "): " + details);
+  }
+  return response;
+}
 function summarizeOrderItems(items) {
   const orderTypes = new Set(items.map((item) => item.type));
   if (orderTypes.size > 1) {
@@ -1873,6 +1888,17 @@ const {
         orderType
       }), { expirationTtl: 3600 });
 
+        try {
+          await sendResendEmail(env, {
+            from: shopFromEmail,
+            to: orderNotificationEmail,
+            subject: "Nieuwe bestelling: " + summary.productName + " (" + requestedCurrency + " " + orderTotal.toFixed(2) + ")",
+            html: "<h2>Nieuwe bestelling!</h2><p><strong>Product:</strong> " + escapeHtml(summary.productName) + "</p><p><strong>Bedrag:</strong> " + escapeHtml(requestedCurrency) + " " + escapeHtml(orderTotal.toFixed(2)) + "</p><p><strong>Klant:</strong> " + escapeHtml(body.name || body.payerName || "Klant") + "</p><p><strong>Email klant:</strong> " + escapeHtml(body.email || body.payerEmail || "-") + "</p><p><strong>Order ID:</strong> " + escapeHtml(orderData.id) + "</p><p><strong>Tijd:</strong> " + escapeHtml((/* @__PURE__ */ new Date()).toLocaleString("nl-BE")) + "</p><p><a href=\"" + escapeHtml(publicWorkerUrl) + "/admin\">Ga naar admin om goed te keuren</a></p>"
+          });
+        } catch (e) {
+          console.error("Email fout:", e);
+        }
+
         return new Response(JSON.stringify({ id: orderData.id }), {
           headers: { "Content-Type": "application/json", ...corsHeaders }
         });
@@ -2393,23 +2419,17 @@ if (storedInvoiceRequested) {
           await env.ORDERS.delete("paypal:" + orderID);
           const emailTask = (async () => {
             try {
-              await fetch("https://api.resend.com/emails", {
-                method: "POST",
-                headers: { "Authorization": "Bearer " + env.RESEND_API_KEY, "Content-Type": "application/json" },
-                body: JSON.stringify({
-                  from: shopFromEmail,
-                  to: orderNotificationEmail,
-                  subject: "Nieuwe bestelling: " + productName + " (" + currency + " " + amount + ")",
-                  html: "<h2>Nieuwe bestelling!</h2><p><strong>Product:</strong> " + escapeHtml(productName) + "</p><p><strong>Bedrag:</strong> " + escapeHtml(currency) + " " + escapeHtml(amount) + "</p><p><strong>Klant:</strong> " + escapeHtml(payerName) + "</p><p><strong>Email klant:</strong> " + escapeHtml(payerEmail) + "</p><p><strong>Order ID:</strong> " + escapeHtml(orderID) + "</p><p><strong>Tijd:</strong> " + escapeHtml((/* @__PURE__ */ new Date()).toLocaleString("nl-BE")) + '</p><p><a href="' + escapeHtml(publicWorkerUrl) + '/admin">Ga naar admin om goed te keuren</a></p>'
-                })
+              await sendResendEmail(env, {
+                from: shopFromEmail,
+                to: orderNotificationEmail,
+                subject: "Nieuwe bestelling: " + productName + " (" + currency + " " + amount + ")",
+                html: "<h2>Nieuwe bestelling!</h2><p><strong>Product:</strong> " + escapeHtml(productName) + "</p><p><strong>Bedrag:</strong> " + escapeHtml(currency) + " " + escapeHtml(amount) + "</p><p><strong>Klant:</strong> " + escapeHtml(payerName) + "</p><p><strong>Email klant:</strong> " + escapeHtml(payerEmail) + "</p><p><strong>Order ID:</strong> " + escapeHtml(orderID) + "</p><p><strong>Tijd:</strong> " + escapeHtml((/* @__PURE__ */ new Date()).toLocaleString("nl-BE")) + '</p><p><a href="' + escapeHtml(publicWorkerUrl) + '/admin">Ga naar admin om goed te keuren</a></p>'
               });
             } catch (e) {
               console.error("Email fout:", e);
             }
           })();
-          if (ctx?.waitUntil) {
-            ctx.waitUntil(emailTask);
-          }
+          await emailTask;
         }
         return new Response(JSON.stringify({
           ok: captureResp.ok && captureStatus === "COMPLETED",
@@ -3513,6 +3533,7 @@ let order = JSON.parse(data);
       let order = JSON.parse(data);
       const orderType = order.orderType || "digital";
       const orderLang = order.lang || "nl";
+      const payerFirstName = String(order.payerName || "Klant").trim().split(/\s+/)[0] || "Klant";
       const formData = await request.formData();
       const invoiceNumber = formData.get("invoiceNumber") || "";
 
@@ -3560,35 +3581,30 @@ if (order.invoiceRequested) {
           en: "Your embroidery pattern is ready to download!"
         };
         const bodies = {
-          nl: `<h2>Hallo ${escapeHtml(order.payerName.split(" ")[0])}!</h2><p>Bedankt voor je bestelling van <strong>${escapeHtml(order.productName)}</strong>.</p><p>Je borduurpatroon is klaar om te downloaden:</p><p><a href="${escapeHtml(downloadUrl)}" style="background:#10b981;color:white;padding:12px 24px;border-radius:4px;text-decoration:none;display:inline-block">Download je patroon</a></p><p><strong>Let op:</strong> Deze link kan slechts 1 keer gebruikt worden en is 72 uur geldig.</p>${orderType === "mixed" ? "<p>Je fysieke producten worden binnen 10 werkdagen verzonden.</p>" : ""}<p>Met vriendelijke groet,<br>MagicFancyworks</p>`,
-          fr: `<h2>Bonjour ${escapeHtml(order.payerName.split(" ")[0])}!</h2><p>Merci pour votre commande de <strong>${escapeHtml(order.productName)}</strong>.</p><p>Votre motif de broderie est pret a telecharger:</p><p><a href="${escapeHtml(downloadUrl)}" style="background:#10b981;color:white;padding:12px 24px;border-radius:4px;text-decoration:none;display:inline-block">Telecharger votre motif</a></p><p><strong>Attention:</strong> Ce lien ne peut etre utilise qu'une seule fois et est valable 72 heures.</p>${orderType === "mixed" ? "<p>Vos produits physiques seront expedies sous 10 jours ouvrables.</p>" : ""}<p>Cordialement,<br>MagicFancyworks</p>`,
-          en: `<h2>Hello ${escapeHtml(order.payerName.split(" ")[0])}!</h2><p>Thank you for your order of <strong>${escapeHtml(order.productName)}</strong>.</p><p>Your embroidery pattern is ready to download:</p><p><a href="${escapeHtml(downloadUrl)}" style="background:#10b981;color:white;padding:12px 24px;border-radius:4px;text-decoration:none;display:inline-block">Download your pattern</a></p><p><strong>Note:</strong> This link can only be used once and is valid for 72 hours.</p>${orderType === "mixed" ? "<p>Your physical products will be shipped within 10 business days.</p>" : ""}<p>Best regards,<br>MagicFancyworks</p>`
+          nl: `<h2>Hallo ${escapeHtml(payerFirstName)}!</h2><p>Bedankt voor je bestelling van <strong>${escapeHtml(order.productName)}</strong>.</p><p>Je borduurpatroon is klaar om te downloaden:</p><p><a href="${escapeHtml(downloadUrl)}" style="background:#10b981;color:white;padding:12px 24px;border-radius:4px;text-decoration:none;display:inline-block">Download je patroon</a></p><p><strong>Let op:</strong> Deze link kan slechts 1 keer gebruikt worden en is 72 uur geldig.</p>${orderType === "mixed" ? "<p>Je fysieke producten worden binnen 10 werkdagen verzonden.</p>" : ""}<p>Met vriendelijke groet,<br>MagicFancyworks</p>`,
+          fr: `<h2>Bonjour ${escapeHtml(payerFirstName)}!</h2><p>Merci pour votre commande de <strong>${escapeHtml(order.productName)}</strong>.</p><p>Votre motif de broderie est pret a telecharger:</p><p><a href="${escapeHtml(downloadUrl)}" style="background:#10b981;color:white;padding:12px 24px;border-radius:4px;text-decoration:none;display:inline-block">Telecharger votre motif</a></p><p><strong>Attention:</strong> Ce lien ne peut etre utilise qu'une seule fois et est valable 72 heures.</p>${orderType === "mixed" ? "<p>Vos produits physiques seront expedies sous 10 jours ouvrables.</p>" : ""}<p>Cordialement,<br>MagicFancyworks</p>`,
+          en: `<h2>Hello ${escapeHtml(payerFirstName)}!</h2><p>Thank you for your order of <strong>${escapeHtml(order.productName)}</strong>.</p><p>Your embroidery pattern is ready to download:</p><p><a href="${escapeHtml(downloadUrl)}" style="background:#10b981;color:white;padding:12px 24px;border-radius:4px;text-decoration:none;display:inline-block">Download your pattern</a></p><p><strong>Note:</strong> This link can only be used once and is valid for 72 hours.</p>${orderType === "mixed" ? "<p>Your physical products will be shipped within 10 business days.</p>" : ""}<p>Best regards,<br>MagicFancyworks</p>`
         };
         const mailSubject = subjects[orderLang] || subjects["nl"];
         const mailBody = bodies[orderLang] || bodies["nl"];
-        try {
-            await fetch("https://api.resend.com/emails", {
-              method: "POST",
-              headers: { "Authorization": "Bearer " + env.RESEND_API_KEY, "Content-Type": "application/json" },
-              body: JSON.stringify({
-                from: shopFromEmail,
-                to: order.payerEmail,
-                subject: mailSubject,
-                html: mailBody
-              })
-            });
-            await fetch("https://api.resend.com/emails", {
-              method: "POST",
-              headers: { "Authorization": "Bearer " + env.RESEND_API_KEY, "Content-Type": "application/json" },
-              body: JSON.stringify({
-                from: shopFromEmail,
-                to: orderNotificationEmail,
-                subject: "[KOPIE KLANT] " + mailSubject,
-                html: mailBody
-              })
-          });
-        } catch (e) {
-          console.error("Email fout:", e);
+        const mailResults = await Promise.allSettled([
+          sendResendEmail(env, {
+            from: shopFromEmail,
+            to: order.payerEmail,
+            subject: mailSubject,
+            html: mailBody
+          }),
+          sendResendEmail(env, {
+            from: shopFromEmail,
+            to: orderNotificationEmail,
+            subject: "[KOPIE KLANT] " + mailSubject,
+            html: mailBody
+          })
+        ]);
+        for (const result of mailResults) {
+          if (result.status === "rejected") {
+            console.error("Email fout:", result.reason);
+          }
         }
       }
       if (orderType === "physical") {
@@ -3604,29 +3620,24 @@ if (order.invoiceRequested) {
         };
         const mailSubject = subjects[orderLang] || subjects["nl"];
         const mailBody = bodies[orderLang] || bodies["nl"];
-        try {
-            await fetch("https://api.resend.com/emails", {
-              method: "POST",
-              headers: { "Authorization": "Bearer " + env.RESEND_API_KEY, "Content-Type": "application/json" },
-              body: JSON.stringify({
-                from: shopFromEmail,
-                to: order.payerEmail,
-                subject: mailSubject,
-                html: mailBody
-              })
-            });
-            await fetch("https://api.resend.com/emails", {
-              method: "POST",
-              headers: { "Authorization": "Bearer " + env.RESEND_API_KEY, "Content-Type": "application/json" },
-              body: JSON.stringify({
-                from: shopFromEmail,
-                to: orderNotificationEmail,
-                subject: "[KOPIE KLANT] " + mailSubject,
-                html: mailBody
-              })
-          });
-        } catch (e) {
-          console.error("Email fout:", e);
+        const mailResults = await Promise.allSettled([
+          sendResendEmail(env, {
+            from: shopFromEmail,
+            to: order.payerEmail,
+            subject: mailSubject,
+            html: mailBody
+          }),
+          sendResendEmail(env, {
+            from: shopFromEmail,
+            to: orderNotificationEmail,
+            subject: "[KOPIE KLANT] " + mailSubject,
+            html: mailBody
+          })
+        ]);
+        for (const result of mailResults) {
+          if (result.status === "rejected") {
+            console.error("Email fout:", result.reason);
+          }
         }
       }
       let walterBody = `<h2>Nieuwe bestelling!</h2><p><strong>Product:</strong> ${escapeHtml(order.productName)}</p><p><strong>Bedrag:</strong> ${escapeHtml(order.currency)} ${escapeHtml(order.amount)}</p><p><strong>Klant:</strong> ${escapeHtml(order.payerName)}</p><p><strong>Email:</strong> ${escapeHtml(order.payerEmail)}</p><p><strong>Type:</strong> ${escapeHtml(orderType)}</p><p><strong>Order ID:</strong> ${escapeHtml(orderID)}</p>`;
@@ -3788,16 +3799,16 @@ return Response.redirect(publicWorkerUrl + "/admin", 302);
           const totalDisplay = formatMoneyDisplay(totalAmount, true);
           const itemDisplay = formatMoneyDisplay(itemTotal, true);
           const shippingDisplay = formatMoneyDisplay(shippingAmount, true);
-          await fetch("https://api.resend.com/emails", {
-            method: "POST",
-            headers: { "Authorization": "Bearer " + env.RESEND_API_KEY, "Content-Type": "application/json" },
-            body: JSON.stringify({
+          try {
+            await sendResendEmail(env, {
               from: shopFromEmail,
               to: orderNotificationEmail,
               subject: "Webhook: betaling EUR " + totalDisplay,
               html: "<h2>PayPal Webhook!</h2><p><strong>Totaal:</strong> €" + escapeHtml(totalDisplay) + "</p><p><strong>Product:</strong> €" + escapeHtml(itemDisplay) + "</p><p><strong>Verzendkosten:</strong> €" + escapeHtml(shippingDisplay) + "</p><p><strong>ID:</strong> " + escapeHtml(payment.id) + "</p>"
-            })
-          });
+            });
+          } catch (e) {
+            console.error("Email fout:", e);
+          }
         }
         return new Response(JSON.stringify({ status: "success" }), { headers: { "Content-Type": "application/json" } });
       } catch (error) {
