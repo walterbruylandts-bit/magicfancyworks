@@ -3705,12 +3705,12 @@ itemsDiv.innerHTML = cart.map(function(i){
       if(labels.length > 0) keuzesText = ' (' + labels.join(', ') + ')';
     }
 
-    return `<div class="cart-item-row">
-      <div class="cart-item-details">
+    return `<div class="cart-item-row" style="background:#ffffff !important;background-color:#ffffff !important;color:#1a2a3a !important;box-shadow:none !important;background-image:none !important;">
+      <div class="cart-item-details" style="background:#ffffff !important;background-color:#ffffff !important;">
         <strong>${titel}</strong>
         <span>${keuzesText}</span>
         <small>€ ${i.prijs} x ${i.qty}</small>
-        <div class="cart-item-qty-row">
+        <div class="cart-item-qty-row" style="background:#ffffff !important;">
           <button type="button" class="cart-item-qty-btn" onclick="adjustCartItemQty(this.dataset.code, this.dataset.keuzesKey, -1)" data-code="${escapeHtml(i.code)}" data-keuzes-key="${escapeHtml(i.keuzesKey || '')}">−</button>
           <input type="number" min="1" step="1" class="cart-item-qty-input" value="${escapeHtml(String(i.qty || 1))}" onchange="setCartItemQty(this.dataset.code, this.dataset.keuzesKey, this.value)" data-code="${escapeHtml(i.code)}" data-keuzes-key="${escapeHtml(i.keuzesKey || '')}">
           <button type="button" class="cart-item-qty-btn" onclick="adjustCartItemQty(this.dataset.code, this.dataset.keuzesKey, 1)" data-code="${escapeHtml(i.code)}" data-keuzes-key="${escapeHtml(i.keuzesKey || '')}">+</button>
@@ -3766,7 +3766,10 @@ itemsDiv.innerHTML = cart.map(function(i){
   }
   if (promoEligibleSubtotal > 0) {
     html += '<div class="cart-promo-box">';
-    html += '<label class="cart-promo-label">' + t('promoCodeLabel') + '</label>';
+    const promoCodes = getCartPromoCodes(cart);
+    if (promoCodes.length > 0) {
+      html += '<p class="cart-promo-codes"><span class="cart-promo-code-pill">' + escapeHtml(promoCodes.join(', ')) + '</span></p>';
+    }
     html += '<div class="cart-promo-row">';
     html += '<input id="promo-code-input" class="cart-promo-input" type="text" value="' + escapeHtml(promoInputValue) + '" placeholder="' + escapeHtml(t('promoCodePlaceholder')) + '">';
     html += '<button type="button" class="cart-promo-button" onclick="applyPromoCodeFromInput()">' + t('promoApply') + '</button>';
