@@ -2337,6 +2337,8 @@ const invoiceMailData = {
           {};
         let captureStatus = captureData.status || payment.status || "UNKNOWN";
         if (captureStatus === "COMPLETED") {
+          const tempOrder = await env.ORDERS.get("paypal:" + orderID);
+          const tempData = tempOrder ? JSON.parse(tempOrder) : {};
           const payerEmail =
             captureData.payer?.email_address ||
             captureData.payment_source?.paypal?.email_address ||
@@ -2347,8 +2349,6 @@ const invoiceMailData = {
             captureData.payer?.name?.given_name || "",
             captureData.payer?.name?.surname || ""
           ].filter(Boolean).join(" ").trim() || "Klant";
-          const tempOrder = await env.ORDERS.get("paypal:" + orderID);
-          const tempData = tempOrder ? JSON.parse(tempOrder) : {};
           const orderType = tempData.orderType || tempData.type || "digital";
 
           if (type && type !== orderType) {
@@ -2513,10 +2513,53 @@ if (storedInvoiceRequested) {
             invoiceCity: storedInvoiceCity,
             invoicePostalCode: storedInvoicePostalCode,
             shippingCountry: officialShippingCountry,
-            invoiceVatNote
+            invoiceVatNote,
+            downloadToken: orderType === "digital" ? crypto.randomUUID() : ""
             
           }), orderPutOptions);
           await env.ORDERS.delete("paypal:" + orderID);
+          if (orderType === "digital") {
+            const captureOrderData = await env.ORDERS.get(orderKey);
+            const captureOrder = captureOrderData ? JSON.parse(captureOrderData) : null;
+            const captureDownloadToken = captureOrder?.downloadToken || "";
+            if (captureDownloadToken) {
+              await env.ORDERS.put("download:" + captureDownloadToken, JSON.stringify({
+                orderID,
+                patternFile: getOrderPatternFile(orderItems, codes),
+                downloaded: false,
+                createdAt: new Date().toISOString()
+              }), { expirationTtl: 259200 });
+              const downloadUrl = publicWorkerUrl + "/download/" + captureDownloadToken;
+              const downloadSubjects = {
+                nl: "Je borduurpatroon is klaar om te downloaden!",
+                fr: "Votre motif de broderie est pret a telecharger!",
+                en: "Your embroidery pattern is ready to download!"
+              };
+              const downloadBodies = {
+                nl: `<h2>Hallo ${escapeHtml(payerName.split(" ")[0])}!</h2><p>Bedankt voor je bestelling van <strong>${escapeHtml(productName)}</strong>.</p><p>Je borduurpatroon is klaar om te downloaden:</p><p><a href="${escapeHtml(downloadUrl)}" style="background:#10b981;color:white;padding:12px 24px;border-radius:4px;text-decoration:none;display:inline-block">Download je patroon</a></p><p><strong>Let op:</strong> Deze link kan slechts 1 keer gebruikt worden en is 72 uur geldig.</p><p>Met vriendelijke groet,<br>MagicFancyworks</p>`,
+                fr: `<h2>Bonjour ${escapeHtml(payerName.split(" ")[0])}!</h2><p>Merci pour votre commande de <strong>${escapeHtml(productName)}</strong>.</p><p>Votre motif de broderie est pret a telecharger:</p><p><a href="${escapeHtml(downloadUrl)}" style="background:#10b981;color:white;padding:12px 24px;border-radius:4px;text-decoration:none;display:inline-block">Telecharger votre motif</a></p><p><strong>Attention:</strong> Ce lien ne peut etre utilise qu'une seule fois et est valable 72 heures.</p><p>Cordialement,<br>MagicFancyworks</p>`,
+                en: `<h2>Hello ${escapeHtml(payerName.split(" ")[0])}!</h2><p>Thank you for your order of <strong>${escapeHtml(productName)}</strong>.</p><p>Your embroidery pattern is ready to download:</p><p><a href="${escapeHtml(downloadUrl)}" style="background:#10b981;color:white;padding:12px 24px;border-radius:4px;text-decoration:none;display:inline-block">Download your pattern</a></p><p><strong>Note:</strong> This link can only be used once and is valid for 72 hours.</p><p>Best regards,<br>MagicFancyworks</p>`
+              };
+              const downloadSubject = downloadSubjects[orderLang] || downloadSubjects.nl;
+              const downloadBody = downloadBodies[orderLang] || downloadBodies.nl;
+              const captureCustomerEmail = String(payerEmail || storedInvoiceEmail || "").trim();
+              if (captureCustomerEmail) {
+                try {
+                  await sendResendEmail(env, {
+                    from: shopFromEmail,
+                    to: captureCustomerEmail,
+                    subject: downloadSubject,
+                    html: downloadBody
+                  });
+                  captureOrder.customerMailSentAt = new Date().toISOString();
+                  captureOrder.customerMailSource = "capture";
+                  await env.ORDERS.put(orderKey, JSON.stringify(captureOrder), orderPutOptions);
+                } catch (e) {
+                  console.error("Klantmail fout:", e);
+                }
+              }
+            }
+          }
           try {
             await sendWebhookNoticeOnce(env, orderID, {
               from: shopFromEmail,
@@ -3682,14 +3725,16 @@ if (order.invoiceRequested) {
 }
      
       if (orderType === "digital" || orderType === "mixed") {
-        const downloadToken = crypto.randomUUID();
-        await env.ORDERS.put("download:" + downloadToken, JSON.stringify({
-          orderID,
-          patternFile: order.patternFile,
-          downloaded: false,
-          createdAt: (/* @__PURE__ */ new Date()).toISOString()
-        }), { expirationTtl: 259200 });
-        order.downloadToken = downloadToken;
+        const downloadToken = order.downloadToken || crypto.randomUUID();
+        if (!order.downloadToken) {
+          await env.ORDERS.put("download:" + downloadToken, JSON.stringify({
+            orderID,
+            patternFile: order.patternFile,
+            downloaded: false,
+            createdAt: (/* @__PURE__ */ new Date()).toISOString()
+          }), { expirationTtl: 259200 });
+          order.downloadToken = downloadToken;
+        }
         const downloadUrl = publicWorkerUrl + "/download/" + downloadToken;
         const subjects = {
           nl: "Je borduurpatroon is klaar om te downloaden!",
@@ -3704,11 +3749,15 @@ if (order.invoiceRequested) {
         const mailSubject = subjects[orderLang] || subjects["nl"];
         const mailBody = bodies[orderLang] || bodies["nl"];
         const mailResults = await Promise.allSettled([
-          customerEmail ? sendResendEmail(env, {
+          (customerEmail && !order.customerMailSentAt) ? sendResendEmail(env, {
             from: shopFromEmail,
             to: customerEmail,
             subject: mailSubject,
             html: mailBody
+          }).then(async () => {
+            order.customerMailSentAt = new Date().toISOString();
+            order.customerMailSource = "approve";
+            await env.ORDERS.put(orderKey, JSON.stringify(order));
           }) : Promise.resolve(null),
           sendResendEmail(env, {
             from: shopFromEmail,
