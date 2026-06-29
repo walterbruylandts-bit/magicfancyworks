@@ -3715,7 +3715,8 @@ onApprove:async(data,actions)=>{
         onError:(err)=>{
           ppc.innerHTML = '';
           if (statusBox) {
-            statusBox.innerHTML='<div class="payment-error" style="padding:10px">'+t('paymentMislukt')+'</div>';
+            const errorText = err && err.message ? String(err.message) : (err ? String(err) : '');
+            statusBox.innerHTML='<div class="payment-error" style="padding:10px">'+t('paymentMislukt')+(errorText ? '<br><small style="display:block;margin-top:6px;color:#b91c1c">'+escapeHtml(errorText)+'</small>' : '')+'</div>';
           }
         }
         }).render('#paypal-buttons-cart');
