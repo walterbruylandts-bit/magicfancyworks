@@ -123,6 +123,29 @@ function getOrderPatternFile(items, codes) {
   const firstCode = Array.isArray(codes) && codes.length > 0 ? String(codes[0] || "").trim() : "";
   return firstCode ? `downloads/${firstCode}.zip` : "downloads/unknown.zip";
 }
+async function updateOrderPatternFile(env, orderID, patternFile) {
+  const orderKey = "order:" + orderID;
+  const raw = await env.ORDERS.get(orderKey);
+  if (!raw) {
+    return null;
+  }
+
+  const order = JSON.parse(raw);
+  order.patternFile = patternFile;
+  await env.ORDERS.put(orderKey, JSON.stringify(order));
+
+  if (order.downloadToken) {
+    const downloadKey = "download:" + order.downloadToken;
+    const downloadRaw = await env.ORDERS.get(downloadKey);
+    if (downloadRaw) {
+      const download = JSON.parse(downloadRaw);
+      download.patternFile = patternFile;
+      await env.ORDERS.put(downloadKey, JSON.stringify(download), { expirationTtl: 259200 });
+    }
+  }
+
+  return order;
+}
 function summarizeOrderItems(items) {
   const orderTypes = new Set(items.map((item) => item.type));
   if (orderTypes.size > 1) {
@@ -2556,7 +2579,7 @@ const suggestedInvoiceNumber =
     '</td><td>' +
     (o.orderType === "physical"
       ? '<span style="display:inline-block;background:#e2e8f0;color:#475569;padding:6px 12px;border-radius:4px;font-size:13px;margin-right:4px">Geen digitaal bestand</span>'
-      : '<a href="/admin/preview/' + encodeURIComponent(o.orderID) + '" style="background:#3b82f6;color:white;padding:6px 12px;border-radius:4px;text-decoration:none;font-size:13px;margin-right:4px">Bekijk bestand</a>') +
+      : '<a href="/admin/preview/' + encodeURIComponent(o.orderID) + '" style="background:#3b82f6;color:white;padding:6px 12px;border-radius:4px;text-decoration:none;font-size:13px;margin-right:4px">Bekijk bestand</a><br><a href="/admin/pattern-file/' + encodeURIComponent(o.orderID) + '" style="display:inline-block;margin-top:4px;background:#0f766e;color:white;padding:6px 12px;border-radius:4px;text-decoration:none;font-size:13px;margin-right:4px">Bestand aanpassen</a>') +
     '<form method="POST" action="/admin/approve/' + encodeURIComponent(o.orderID) + '" style="display:inline-block;margin-top:6px">' +
     (o.invoiceRequested
       ? '<div style="margin:6px 0;font-size:12px;font-weight:600">Factuurnr:</div>' +
@@ -2806,6 +2829,7 @@ const body = '<div class="nav"><a href="/admin/boekhouding" class="btn">Boekhoud
           (o.invoiceRequested
 ? '<br><a href="/admin/invoice-pdf-v2/' + o.orderID + '" target="_blank" style="display:inline-block;margin-top:6px;background:#2563eb;color:white;padding:5px 9px;border-radius:4px;text-decoration:none;font-size:11px">📄 Factuur PDF</a>'
       : '') +
+          '<br><a href="/admin/pattern-file/' + o.orderID + '" style="display:inline-block;margin-top:6px;background:#0f766e;color:white;padding:5px 9px;border-radius:4px;text-decoration:none;font-size:11px">Bestand aanpassen</a>' +
        '</td>' +
         '</tr>';
       });
@@ -2957,6 +2981,42 @@ const body = '<div class="topbar"><a href="/admin" class="ghost-btn">&larr; Teru
           "Content-Disposition": 'attachment; filename="' + patternLookup.resolvedPatternFile + '"'
         }
       });
+    }
+    if (url.pathname.startsWith("/admin/pattern-file/")) {
+      if (!await checkAuth(request, env)) {
+        return Response.redirect(publicWorkerUrl + "/admin/login", 302);
+      }
+
+      const orderID = url.pathname.split("/admin/pattern-file/")[1];
+
+      if (request.method === "POST") {
+        const formData = await request.formData();
+        const patternFile = normalizePatternFilePath(formData.get("patternFile"));
+
+        if (!patternFile) {
+          return new Response("Ongeldig bestandspad. Gebruik bijvoorbeeld downloads/mfw00006_10x15.zip", {
+            status: 400,
+            headers: { "Content-Type": "text/plain; charset=utf-8" }
+          });
+        }
+
+        const updated = await updateOrderPatternFile(env, orderID, patternFile);
+        if (!updated) {
+          return new Response("Order niet gevonden", { status: 404 });
+        }
+
+        return Response.redirect(publicWorkerUrl + "/admin/pattern-file/" + encodeURIComponent(orderID), 302);
+      }
+
+      const orderRaw = await env.ORDERS.get("order:" + orderID);
+      if (!orderRaw) {
+        return new Response("Order niet gevonden", { status: 404 });
+      }
+
+      const order = JSON.parse(orderRaw);
+      const currentPatternFile = escapeHtml(order.patternFile || "");
+      const body = '<div class="topbar"><a href="/admin" class="ghost-btn">&larr; Terug naar admin</a></div><h2>Bestand aanpassen</h2><div style="max-width:640px;background:#fff;border:1px solid #e2e8f0;border-radius:12px;padding:18px"><p style="margin-top:0"><strong>Order:</strong> ' + escapeHtml(order.orderID) + '<br><strong>Product:</strong> ' + escapeHtml(order.productName || "-") + '</p><form method="POST" action="/admin/pattern-file/' + encodeURIComponent(orderID) + '"><label style="display:block;font-weight:700;margin-bottom:6px">patternFile</label><input name="patternFile" type="text" value="' + currentPatternFile + '" placeholder="downloads/mfw00006_10x15.zip" style="width:100%;max-width:420px;padding:10px;border:1px solid #cbd5e1;border-radius:8px;box-sizing:border-box"><p style="margin:8px 0 0;color:#64748b;font-size:13px">Gebruik exact een bestand uit <code>downloads/</code>. Voorbeeld: <code>downloads/mfw00006_16x24.zip</code></p><div style="margin-top:14px"><button type="submit" style="background:#0f766e;color:white;border:none;padding:10px 16px;border-radius:8px;font-weight:700;cursor:pointer">Opslaan</button></div></form></div>';
+      return new Response(adminShell("Bestand aanpassen", body, "#0f766e"), { headers: { "Content-Type": "text/html; charset=utf-8" } });
     }
     
     if (url.pathname === "/admin/test-shipping-json") {
