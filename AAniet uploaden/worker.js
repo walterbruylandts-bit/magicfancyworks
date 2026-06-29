@@ -77,6 +77,22 @@ function normalizeSearchValue(value) {
     .replace(/[\u0300-\u036f]/g, "")
     .replace(/[^a-z0-9]+/g, "");
 }
+function extractVariantCandidates(value) {
+  const raw = String(value || "");
+  const candidates = [];
+  const directMatch = raw.match(/(\d{1,3}\s*[x×]\s*\d{1,3}(?:\s*cm)?)|(\d{1,3}\s*[x×]\s*\d{1,3})/i);
+  if (directMatch && directMatch[0]) {
+    candidates.push(directMatch[0]);
+  }
+  const compactMatch = raw.match(/(\d{1,3})\s*[x×]\s*(\d{1,3})/i);
+  if (compactMatch) {
+    candidates.push(`${compactMatch[1]}x${compactMatch[2]}`);
+    candidates.push(`${compactMatch[1]} x ${compactMatch[2]}`);
+    candidates.push(`${compactMatch[1]}x${compactMatch[2]} cm`);
+    candidates.push(`${compactMatch[1]} x ${compactMatch[2]} cm`);
+  }
+  return candidates.filter(Boolean);
+}
 function getCatalogVariantPrice(catalogItem, item) {
   if (!catalogItem) return null;
   const variantPriceMap = catalogItem.variantPrijzen || catalogItem.formatPrijzen || catalogItem.prijzen || catalogItem.prijsOpties || null;
@@ -88,11 +104,13 @@ function getCatalogVariantPrice(catalogItem, item) {
 
   if (suppliedTitle) {
     candidateValues.push(suppliedTitle);
+    candidateValues.push(...extractVariantCandidates(suppliedTitle));
   }
   if (suppliedPatternFile) {
     const fileName = suppliedPatternFile.split("/").pop() || "";
     candidateValues.push(fileName.replace(/\.zip$/i, ""));
     candidateValues.push(fileName);
+    candidateValues.push(...extractVariantCandidates(fileName));
   }
 
   for (const candidate of candidateValues) {
