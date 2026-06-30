@@ -290,6 +290,24 @@ async function sendWebhookNoticeOnce(env, orderID, payload, source) {
   }
   return { skipped: false };
 }
+function resolveCustomerMailRecipient(env, order, fallbackEmail) {
+  const liveRecipient = String(
+    order.customerEmail ||
+    order.payerEmail ||
+    order.invoiceEmail ||
+    fallbackEmail ||
+    ""
+  ).trim();
+  if (String(env.PAYPAL_ENV || "").toLowerCase() === "live") {
+    return liveRecipient;
+  }
+  const sandboxRecipient = String(
+    env.SANDBOX_CUSTOMER_EMAIL ||
+    env.ORDER_NOTIFY_EMAIL ||
+    liveRecipient
+  ).trim();
+  return sandboxRecipient || liveRecipient;
+}
 function summarizeOrderItems(items) {
   const orderTypes = new Set(items.map((item) => item.type));
   if (orderTypes.size > 1) {
@@ -2542,7 +2560,11 @@ if (storedInvoiceRequested) {
               };
               const downloadSubject = downloadSubjects[orderLang] || downloadSubjects.nl;
               const downloadBody = downloadBodies[orderLang] || downloadBodies.nl;
-              const captureCustomerEmail = String(payerEmail || storedInvoiceEmail || "").trim();
+              const captureCustomerEmail = resolveCustomerMailRecipient(env, captureOrder || {
+                customerEmail: payerEmail,
+                payerEmail,
+                invoiceEmail: storedInvoiceEmail
+              }, payerEmail || storedInvoiceEmail || "");
               if (captureCustomerEmail) {
                 try {
                   await sendResendEmail(env, {
@@ -3687,12 +3709,7 @@ let order = JSON.parse(data);
       const orderType = order.orderType || "digital";
       const orderLang = order.lang || "nl";
       const payerFirstName = String(order.payerName || "Klant").trim().split(/\s+/)[0] || "Klant";
-      const customerEmail = String(
-        order.customerEmail ||
-        order.payerEmail ||
-        order.invoiceEmail ||
-        ""
-      ).trim();
+      const customerEmail = resolveCustomerMailRecipient(env, order, "");
       const formData = await request.formData();
       const invoiceNumber = formData.get("invoiceNumber") || "";
 
