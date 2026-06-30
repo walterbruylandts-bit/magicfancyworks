@@ -2575,8 +2575,14 @@ if (storedInvoiceRequested) {
                   });
                   captureOrder.customerMailSentAt = new Date().toISOString();
                   captureOrder.customerMailSource = "capture";
+                  captureOrder.customerMailRecipient = captureCustomerEmail;
+                  captureOrder.customerMailStatus = "sent";
                   await env.ORDERS.put(orderKey, JSON.stringify(captureOrder), orderPutOptions);
                 } catch (e) {
+                  captureOrder.customerMailRecipient = captureCustomerEmail;
+                  captureOrder.customerMailStatus = "failed";
+                  captureOrder.customerMailError = String(e && e.message ? e.message : e);
+                  await env.ORDERS.put(orderKey, JSON.stringify(captureOrder), orderPutOptions);
                   console.error("Klantmail fout:", e);
                 }
               }
@@ -2803,6 +2809,7 @@ const suggestedInvoiceNumber =
     "</td><td>" + escapeHtml(getOrderTotalAmount(o).toFixed(2)) + " " + escapeHtml(o.currency) +
     "</td><td>" + escapeHtml(o.payerName) +
     "</td><td>" + escapeHtml(o.payerEmail) +
+    (o.customerMailStatus ? "<br><small>Klantmail: " + escapeHtml(o.customerMailStatus) + (o.customerMailRecipient ? " via " + escapeHtml(o.customerMailRecipient) : "") + (o.customerMailError ? "<br>" + escapeHtml(o.customerMailError) : "") + "</small>" : "") +
     "</td><td>" +
     (o.invoiceRequested
       ? (o.invoiceType === "business"
@@ -2836,6 +2843,7 @@ const approvedOrders = orders.filter((o) => o.status === "approved").map(
   "</td><td>" + escapeHtml(getOrderTotalAmount(o).toFixed(2)) + " " + escapeHtml(o.currency) +
   "</td><td>" + escapeHtml(o.payerName) +
   "</td><td>" + escapeHtml(o.payerEmail) +
+  (o.customerMailStatus ? "<br><small>Klantmail: " + escapeHtml(o.customerMailStatus) + (o.customerMailRecipient ? " via " + escapeHtml(o.customerMailRecipient) : "") + (o.customerMailError ? "<br>" + escapeHtml(o.customerMailError) : "") + "</small>" : "") +
   "</td><td>" +
   (o.invoiceRequested
     ? (
@@ -3774,6 +3782,8 @@ if (order.invoiceRequested) {
           }).then(async () => {
             order.customerMailSentAt = new Date().toISOString();
             order.customerMailSource = "approve";
+            order.customerMailRecipient = customerEmail;
+            order.customerMailStatus = "sent";
             await env.ORDERS.put(orderKey, JSON.stringify(order));
           }) : Promise.resolve(null),
           sendResendEmail(env, {
