@@ -70,24 +70,7 @@
     "promoCode": "MAGIC10",
     "freeShipping": true
   },
-  {
-    "code": "mfw00007",
-    "titel": "Productnaam NL",
-    "prijs": "0,00",
-    "type": "physical",
-    "formaat": "Formaatomschrijving",
-    "bestanden": "",
-    "beschrijving": "Korte NL-omschrijving voor de popup.",
-    "titel_fr": "Nom du produit FR",
-    "titel_en": "Product name EN",
-    "video": "",
-    "formaten": ["Optie 1", "Optie 2"],
-    "aantallen": ["Standaard", "Deluxe"],
-    "promoEligible": false,
-    "promoCode": "",
-    "freeShipping": false
-  },
-  {
+   {
     "code": "mfw00008",
     "titel": "Cute Girl Teddy",
     "prijs": "7,87",
@@ -98,7 +81,7 @@
     "titel_fr": "Charmant motif de broderie ours fille pour machines à broder",
     "titel_en": "Cute girl bear embroidery design for embroidery machines",
     "video": "",
-    "formaten": ["66,2 x 99.4 mm, 99.1 x 148.8 mm, 158.2 x 238.0 mm"],
+    "formaten": ["66,2 x 99.4 mm", "99.1 x 148.8 mm", "158.2 x 238.0 mm"],
     "aantallen": [],
     "promoEligible": false,
     "promoCode": "",
