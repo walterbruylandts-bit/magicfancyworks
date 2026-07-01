@@ -9,11 +9,11 @@
     "beschrijving": "Dit is de tekst die in de popup verschijnt voor de Baby Boy.",
     "titel_fr": "Bébé Garçon",
     "titel_en": "Baby Boy",
-    "video": "mfw00001.mp4",
-    "kleuren": ["rood", "blauw"],
-    "formaten": ["Optie A", "Optie B"],
-    "aantallen": ["Standaard", "Deluxe"],
-    "groottes": ["Groot", "Klein"]
+    "video": "",
+    "kleuren": [],
+    "formaten": [],
+    "aantallen": [],
+    "groottes": []
   },
   {
     "code": "mfw00006",
@@ -99,8 +99,8 @@
       "16x24 cm": "7,87"
     },
     "bestandenPerFormaat": {
-      "10x15 cm": "downloads/",
-      "16x24 cm": "downloads/"
+      "10x15 cm": "downloads/mfw00010_10x15.zip",
+      "16x24 cm": "downloads/mfw00010_10x24.zip"
     },
     "promoEligible": false,
     "promoCode": "",
