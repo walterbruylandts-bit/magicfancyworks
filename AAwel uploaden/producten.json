@@ -53,7 +53,7 @@
     "type": "physical",
     "formaat": "10x15 cm - 16x24 cm",
     "bestanden": "",
-    "beschrijving": "Schattige grote teddybeer strijkpatch in twee formaten. Perfect voor kleding, tassen, kussens en DIY-projecten.",
+    "beschrijving": "Schattige grote teddybeer strijkpatch",
     "titel_fr": "Écusson thermocollant ours en peluche Big Boy",
     "titel_en": "Big Boy Teddy Bear Iron-On Patch",
     "video": "",
@@ -70,7 +70,7 @@
     "promoCode": "MAGIC10",
     "freeShipping": true
   },
-   {
+  {
     "code": "mfw00008",
     "titel": "Cute Girl Teddy",
     "prijs": "7,87",
@@ -86,6 +86,32 @@
     "promoEligible": false,
     "promoCode": "",
     "freeShipping": false
-  }
+  },
+    {
+    "code": "mfw00009",
+    "titel": "Baby Girl",
+    "prijs": "7,87",
+    "type": "digital",
+    "formaat": "70x99,4 mm - 104,6x148,9 mm - 158,2x225,3 mm",
+    "bestanden": "",
+    "beschrijving": "Baby Girl Machine Embroidery Design",
+    "titel_fr": "Écusson thermocollant ours en peluche Big Boy",
+    "titel_en": "Big Boy Teddy Bear Iron-On Patch",
+    "video": "",
+    "formaten": ["70x99,4 mm", "104,6x148,9 mm", "158,2x225,3 mm"],
+    "formatPrijzen": {
+      "70x99,4 mm": "7,87",
+      "104,6x148,9 mm": "7,87",
+      "150,2x225,3 mm": "7,87"
+    },
+    "bestandenPerFormaat": {
+      "70x99,4 mm": "downloads/mfw00009_70x99,4.zip",
+      "104,6x148,9 mm": "downloads/mfw00009_104,6x148,9.zip",
+      "150,2x225,3 mm": "downloads/mfw00009_150,2x225,3.zip"
 
+    },
+    "promoEligible": false,
+    "promoCode": "",
+    "freeShipping": false
+  }
 ]
