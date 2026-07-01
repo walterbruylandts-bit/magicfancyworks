@@ -15,38 +15,7 @@
     "aantallen": ["Standaard", "Deluxe"],
     "groottes": ["Groot", "Klein"]
   },
-  {
-    "code": "mfw00002",
-    "titel": "Baby Girl",
-    "prijs": "8,87",
-    "type": "digital",
-    "formaat": "226x159mm",
-    "bestanden": "PES, DST, JEF, EXP, VP3, HUS, VIP, XXX, PDF",
-    "beschrijving": "Dit is de tekst die in de popup verschijnt voor de Baby Boy.",
-    "titel_fr": "Bébé Fille",
-    "titel_en": "Baby Girl",
-    "video": "",
-    "formaten": ["Optie A", "Optie B"],
-    "aantallen": ["Standaard", "Deluxe"],
-    "test": ["testA", "TestB", "TestC", "TestD"]
-  },
-  {
-    "code": "mfw00003",
-    "titel": "Schattig meisje",
-    "prijs": "9,87",
-    "type": "physical",
-    "formaat": "226x159mm",
-    "bestanden": "PES, DST, JEF, EXP, VP3, HUS, VIP, XXX, PDF",
-    "beschrijving": "Dit is de tekst die in de popup verschijnt voor de Baby Boy.",
-    "titel_fr": "Fille mignon",
-    "titel_en": "Cute girl",
-    "video": "",
-    "formaten": ["Optie A", "Optie B"],
-    "aantallen": ["Standaard", "Deluxe"],
-    "promoEligible": true,
-    "promoCode": "MAGIC05"
-  },
-  {
+    {
     "code": "mfw00006",
     "titel": "Big Boy Teddy Bear strijkpatch",
     "prijs": "14,95 - 24,95",
