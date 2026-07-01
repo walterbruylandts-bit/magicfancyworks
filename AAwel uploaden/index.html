@@ -4205,7 +4205,14 @@ async function openPopup(code) {
     const thumbRow = document.getElementById('thumbRow');
     thumbRow.innerHTML = '';
     const mainImg = `${product.code}.jpg`;
-    const images = [mainImg, `${product.code}_2.jpg`, `${product.code}_3.jpg`, `${product.code}_4.jpg`];
+    const images = [
+      mainImg,
+      `${product.code}_1.jpg`,
+      `${product.code}_2.jpg`,
+      `${product.code}_3.jpg`,
+      `${product.code}_4.jpg`,
+      `${product.code}_5.jpg`
+    ];
     images.forEach((img, i) => {
       const thumb = document.createElement('img');
       thumb.src = `${R2_URL}/mfw-beelden/${img}`;
